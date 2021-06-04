@@ -3,8 +3,6 @@ Autograder.io CLI
 
 Autograder.io CLI (`agio`) is a command line interface to [autograder.io](https://autograder.io).
 
-Andrew DeOrio <awdeorio@umich.edu>
-
 
 ## Quick start
 ```console
@@ -49,3 +47,9 @@ $ check-manifest
 - [ ] Guess current course pk
 - [ ] Prompt for {course, project, semester, etc.} pk
 - [ ] Open autograder.io web interface similar to `gh pr --web`
+
+
+## Acknowledgments
+Autograder.io CLI is written by Andrew DeOrio <awdeorio@umich.edu>
+
+It is based on work by James Perretta ([Autograder.io Contrib](https://github.com/eecs-autograder/autograder-contrib)) and Amir Kamil ([Autograder Tools](https://gitlab.eecs.umich.edu/akamil/autograder-tools/)).
