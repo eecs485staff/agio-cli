@@ -21,8 +21,9 @@ class APIClient:
     accepted by the corresponding requests library methods.
     https://requests.readthedocs.io/
 
-    Avoid constructing HTTPClient directly.  Instead, use
+    Avoid constructing an APIClient directly.  Instead, use
     APIClient.make_default().
+
     """
 
     @staticmethod
