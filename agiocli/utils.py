@@ -63,9 +63,9 @@ def is_current_course(course):
 def filter_courses(courses, all_semesters=False):
     """Filter out old courses and return a sorted list."""
     if not all_semesters:
-        course_list = filter(is_current_course, courses)
-    course_list = sorted(courses, key=course_key)
-    return course_list
+        courses = filter(is_current_course, courses)
+    courses = sorted(courses, key=course_key)
+    return courses
 
 
 def print_course(course):
