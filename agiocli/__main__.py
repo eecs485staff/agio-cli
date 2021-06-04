@@ -107,7 +107,8 @@ def groups(ctx, project_pk, group_pk_or_uniqname):
 
     # Print course and project
     project = client.get(f"/api/projects/{project_pk}/")
-    course = client.get(f"/api/courses/{project['course']}/")
+    course_pk = project['course']
+    course = client.get(f"/api/courses/{course_pk}/")
     print(
         f"{course['name']} {course['semester']} {course['year']} "
         f"{project['name']}\n"
