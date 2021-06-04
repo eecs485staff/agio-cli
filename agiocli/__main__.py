@@ -130,16 +130,8 @@ def groups(ctx, project_pk, group_pk_or_uniqname):
     if not group_pk_or_uniqname.isnumeric():
         uniqname = group_pk_or_uniqname
         group_list = client.get(f"/api/projects/{project_pk}/groups/")
-        matches = filter(
-            lambda x: utils.is_group_member(uniqname, x),
-            group_list
-        )
-        matches = list(matches)
-        if not matches:
-            sys.exit(f"Error: uniqname not in any group: {uniqname}")
-        if len(matches) > 1:
-            sys.exit(f"Error: uniqname in more than one group: {uniqname}")
-        group_pk = matches[0]["pk"]
+        group = utils.find_group(uniqname, group_list)
+        group_pk = group["pk"]
     else:
         group_pk = group_pk_or_uniqname[0]
 

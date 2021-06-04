@@ -1,6 +1,7 @@
 """Common utility functions."""
 import datetime as dt
 import json
+import sys
 
 
 # Map semester name to number
@@ -97,3 +98,14 @@ def print_group(group):
 def is_group_member(uniqname, group):
     """Return True if uniqname is in group."""
     return uniqname in group_uniqnames(group)
+
+
+def find_group(uniqname, groups):
+    """Return group where uniqname is a member."""
+    matches = filter(lambda x: is_group_member(uniqname, x), groups)
+    matches = list(matches)
+    if not matches:
+        sys.exit(f"Error: uniqname not in any group: {uniqname}")
+    if len(matches) > 1:
+        sys.exit(f"Error: uniqname in more than one group: {uniqname}")
+    return matches[0]
