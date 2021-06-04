@@ -21,8 +21,8 @@ def main(ctx, debug):
 
 @main.command()
 @click.pass_context
-def users(ctx):
-    """List current user."""
+def login(ctx):
+    """Show current authenticated user."""
     client = APIClient.make_default(debug=ctx.obj["DEBUG"])
     user = client.get("/api/users/current/")
     print(f"{user['username']} {user['first_name']} {user['last_name']}")
