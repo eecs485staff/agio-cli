@@ -8,32 +8,33 @@ import click
 from agiocli import APIClient
 
 
-# FIXME global variable
-# https://click-docs-cn.readthedocs.io/zh_CN/latest/commands.html#nested-handling-and-contexts
-DEBUG = False
-
-
 @click.group(context_settings={"help_option_names": ["-h", "--help"]})
 @click.option("-d", "--debug", is_flag=True, help="Debug output")
-def main(debug):
+@click.pass_context
+def main(ctx, debug):
     """Autograder.io command line interface."""
-    global DEBUG
-    DEBUG = debug
+
+    # Pass global flags to subcommands via Click context
+    # https://click.palletsprojects.com/en/latest/commands/#nested-handling-and-contexts
+    ctx.ensure_object(dict)
+    ctx.obj["DEBUG"] = debug
 
 
 @main.command()
-def users():
-    client = APIClient.make_default(debug=DEBUG)
+@click.pass_context
+def users(ctx):
+    """List current user."""
+    client = APIClient.make_default(debug=ctx.obj["DEBUG"])
     user = client.get("/api/users/current/")
-    print(json.dumps(user, indent=4))
-    # print(f"{user['username']} {user['first_name']} {user['last_name']}")
+    print(f"{user['username']} {user['first_name']} {user['last_name']}")
 
 
 @main.command()
 @click.argument("course_pks", nargs=-1)
-def courses(course_pks):
+@click.pass_context
+def courses(ctx, course_pks):
     """List courses (no args) or show course detail."""
-    client = APIClient.make_default(debug=DEBUG)
+    client = APIClient.make_default(debug=ctx.obj["DEBUG"])
 
     # If the user doesn't specify a course, the list them
     if not course_pks:
@@ -57,16 +58,18 @@ def courses(course_pks):
 
 @main.command()
 @click.argument("project_pk", nargs=1)
-def projects(project_pk):
-    client = APIClient.make_default(debug=DEBUG)
+@click.pass_context
+def projects(ctx, project_pk):
+    client = APIClient.make_default(debug=ctx.obj["DEBUG"])
     project = client.get(f"/api/projects/{project_pk}/")
     print(json.dumps(project, indent=4))
 
 
 @main.command()
 @click.argument("project_pk", nargs=1)
-def groups(project_pk):
-    client = APIClient.make_default(debug=DEBUG)
+@click.pass_context
+def groups(ctx, project_pk):
+    client = APIClient.make_default(debug=ctx.obj["DEBUG"])
     project = client.get(f"/api/projects/{project_pk}/")
     course = client.get(f"/api/courses/{project['course']}/")
     print(f"{course['name']} {course['semester']} {course['year']} {project['name']}")
@@ -79,4 +82,4 @@ def groups(project_pk):
 if __name__ == "__main__":
     # This error is endemic to click
     # pylint: disable=no-value-for-parameter
-    main()
+    cli(obj={})
