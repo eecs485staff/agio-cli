@@ -216,7 +216,7 @@ def groups(ctx, project_pk, group_pk_or_uniqname):
             print_group(group)
         return
 
-    # FIXME Error if more than one group_pk or uniqname
+    # Verify only one group or uniqname
     if len(group_pk_or_uniqname) > 1:
         sys.exit("Error: specify only one group primary key or uniqname")
     group_pk_or_uniqname = group_pk_or_uniqname[0]
