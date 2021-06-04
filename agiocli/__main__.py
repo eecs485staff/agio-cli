@@ -5,6 +5,7 @@ Andrew DeOrio <awdeorio@umich.edu>
 """
 import datetime as dt
 import json
+import sys
 import click
 from agiocli import APIClient
 
@@ -170,23 +171,33 @@ def projects(ctx, project_pks):
         print_dict(project)
 
 
+def group_uniqnames(group):
+    """Return a list of uniqnames who are members of group."""
+    members = group["members"]
+    return [x["username"].replace("@umich.edu", "") for x in members]
+
+
 def print_group(group):
     """Print one group."""
-    print(f"[{group['pk']}] ", end="")
-    members = group["members"]
-    uniqnames = [x["username"].replace("@umich.edu", "") for x in members]
-    print(", ".join(uniqnames))
+    uniqnames = group_uniqnames(group)
+    uniqnames_str = ", ".join(uniqnames)
+    print(f"[{group['pk']}] {uniqnames_str}")
+
+
+def is_group_member(uniqname, group):
+    """Return True if uniqname is in group."""
+    return uniqname in group_uniqnames(group)
 
 
 @main.command()
 @click.argument("project_pk", nargs=1)
-@click.argument("group_pks", nargs=-1)
+@click.argument("group_pk_or_uniqname", nargs=-1)
 @click.pass_context
-def groups(ctx, project_pk, group_pks):
+def groups(ctx, project_pk, group_pk_or_uniqname):
     """List groups or show group detail.
 
     When called with no arguments, list groups for one project.  When
-    called with a group primary key, show group detail.
+    called with a group primary key or uniqname, show group detail.
     """
     client = APIClient.make_default(debug=ctx.obj["DEBUG"])
 
@@ -199,17 +210,34 @@ def groups(ctx, project_pk, group_pks):
     )
 
     # If the user doesn't specify a group, list groups
-    if not group_pks:
+    if not group_pk_or_uniqname:
         group_list = client.get(f"/api/projects/{project_pk}/groups/")
         for group in group_list:
             print_group(group)
         return
 
-    # FIXME lookup by uniqname
-    # If the user provides group pks, show group detail
-    for group_pk in group_pks:
-        group = client.get(f"/api/groups/{group_pk}/")
-        print_dict(group)
+    # FIXME Error if more than one group_pk or uniqname
+    if len(group_pk_or_uniqname) > 1:
+        sys.exit("Error: specify only one group primary key or uniqname")
+    group_pk_or_uniqname = group_pk_or_uniqname[0]
+
+    # If the user provides a uniqname, look it up
+    if not group_pk_or_uniqname.isnumeric():
+        uniqname = group_pk_or_uniqname
+        group_list = client.get(f"/api/projects/{project_pk}/groups/")
+        matches = filter(lambda x: is_group_member(uniqname, x), group_list)
+        matches = list(matches)
+        if not matches:
+            sys.exit(f"Error: uniqname not in any group: {uniqname}")
+        if len(matches) > 1:
+            sys.exit(f"Error: uniqname in more than one group: {uniqname}")
+        group_pk = matches[0]["pk"]
+    else:
+        group_pk = group_pk_or_uniqname[0]
+
+    # Show group detail
+    group = client.get(f"/api/groups/{group_pk}/")
+    print_dict(group)
 
 
 if __name__ == "__main__":
