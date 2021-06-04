@@ -5,6 +5,7 @@ Andrew DeOrio <awdeorio@umich.edu>
 """
 import sys
 import click
+import webbrowser
 from agiocli import APIClient, utils
 
 
@@ -12,14 +13,16 @@ from agiocli import APIClient, utils
 @click.option("-d", "--debug", is_flag=True, help="Debug output")
 @click.option("-a", "--all", "all_semesters", is_flag=True,
               help="Do not filter out old semesters")
+@click.option("-w", "--web", is_flag=True, help="Open a web browser")
 @click.pass_context
-def main(ctx, debug, all_semesters):
+def main(ctx, debug, all_semesters, web):
     """Autograder.io command line interface."""
     # Pass global flags to subcommands via Click context
     # https://click.palletsprojects.com/en/latest/commands/#nested-handling-and-contexts
     ctx.ensure_object(dict)
     ctx.obj["DEBUG"] = debug
     ctx.obj["ALL"] = all_semesters
+    ctx.obj["WEB"] = web
 
 
 @main.command()
@@ -41,6 +44,17 @@ def courses(ctx, course_pks):
     primary key, show course detail.
 
     """
+
+    # If the web flag is provided, open in user's default web browser
+    if ctx.obj["WEB"]:
+        if not course_pks:
+            # Open AG page with all courses
+            webbrowser.open("https://autograder.io")
+        else:
+            # Open AG page with provided course pk
+            webbrowser.open(f"https://autograder.io/web/course/{course_pks[0]}") 
+        return
+    
     client = APIClient.make_default(debug=ctx.obj["DEBUG"])
 
     # If the user doesn't specify a course, list courses
@@ -69,6 +83,16 @@ def projects(ctx, project_pks):
     called with a project primary key, show project detail.
 
     """
+    if ctx.obj["WEB"]:
+        if not project_pks:
+            sys.exit("Error: no project primary key provided")
+            # TODO: How should this be handled?
+        elif len(project_pks) > 1:
+            sys.exit("Error: specify only one project primary key")
+            # Open AG page with provided course pk
+        webbrowser.open(f"https://autograder.io/web/project/{project_pks[0]}") 
+        return
+
     client = APIClient.make_default(debug=ctx.obj["DEBUG"])
 
     # If the user doesn't specify a project, list courses and projects
@@ -103,6 +127,11 @@ def groups(ctx, project_pk, group_pk_or_uniqname):
     detail.
 
     """
+    if ctx.obj["WEB"]:
+        if not group_pk_or_uniqname:
+            sys.exit("Error: provide a group primary key or uniqname")
+        
+
     client = APIClient.make_default(debug=ctx.obj["DEBUG"])
 
     # Print course and project
@@ -144,6 +173,11 @@ def groups(ctx, project_pk, group_pk_or_uniqname):
         group_pk = group_pk_or_uniqname[0]
 
     # Show group detail
+    
+    if ctx.obj["WEB"]:
+        webbrowser.open(f"https://autograder.io/web/project/{project_pk}?current_tab=student_lookup&current_student_lookup={group_pk}")
+        return
+
     group = client.get(f"/api/groups/{group_pk}/")
     utils.print_dict(group)
 
