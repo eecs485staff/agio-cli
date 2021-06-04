@@ -98,8 +98,10 @@ def projects(ctx, project_pks):
 def groups(ctx, project_pk, group_pk_or_uniqname):
     """List groups or show group detail.
 
-    When called with no arguments, list groups for one project.  When
-    called with a group primary key or uniqname, show group detail.
+    When called without a group primary key or uniquename, list groups for one
+    project.  When called with a group primary key or uniqname, show group
+    detail.
+
     """
     client = APIClient.make_default(debug=ctx.obj["DEBUG"])
 
