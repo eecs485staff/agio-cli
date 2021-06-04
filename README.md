@@ -9,8 +9,13 @@ Autograder.io CLI (`agio`) is a command line interface to [autograder.io](https:
 FIXME
 ```
 
-FIXME how to get a token
-
+## Obtaining a Token
+1. Log in [autograder.io](https://autograder.io/) with your web browser
+2. Open browser developer tools
+3. Click on a course link
+4. In the developer console, click on a request, e.g., `my_roles/` or `projects/`)
+5. Under Request Headers, there is an Authorization entry that looks like "Token ". Copy the hex string and save it to the file `.agtoken` in your home
+directory.
 
 ## Contributing
 Install
@@ -27,7 +32,6 @@ $ pydocstyle agcli setup.py
 $ pylint agcli setup.py
 $ check-manifest
 ```
-
 
 ## Todo
 - [ ] Verbose levels
@@ -47,7 +51,6 @@ $ check-manifest
 - [ ] Guess current course pk
 - [ ] Prompt for {course, project, semester, etc.} pk
 - [ ] Open autograder.io web interface similar to `gh pr --web`
-
 
 ## Acknowledgments
 Autograder.io CLI is written by Andrew DeOrio <awdeorio@umich.edu>
