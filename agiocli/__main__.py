@@ -3,6 +3,7 @@ A command line interface to autograder.io.
 
 Andrew DeOrio <awdeorio@umich.edu>
 """
+import datetime as dt
 import json
 import click
 from agiocli import APIClient
@@ -10,13 +11,16 @@ from agiocli import APIClient
 
 @click.group(context_settings={"help_option_names": ["-h", "--help"]})
 @click.option("-d", "--debug", is_flag=True, help="Debug output")
+@click.option("-a", "--all", "all_semesters", is_flag=True,
+              help="Do not limit listings to current and future semesters")
 @click.pass_context
-def main(ctx, debug):
+def main(ctx, debug, all_semesters):
     """Autograder.io command line interface."""
     # Pass global flags to subcommands via Click context
     # https://click.palletsprojects.com/en/latest/commands/#nested-handling-and-contexts
     ctx.ensure_object(dict)
     ctx.obj["DEBUG"] = debug
+    ctx.obj["ALL_SEMESTERS"] = all_semesters
 
 
 @main.command()
@@ -26,6 +30,90 @@ def login(ctx):
     client = APIClient.make_default(debug=ctx.obj["DEBUG"])
     user = client.get("/api/users/current/")
     print(f"{user['username']} {user['first_name']} {user['last_name']}")
+
+
+# Map semester name to number
+SEMESTER_NUM = {"Winter": 1, "Spring": 2, "Summer": 3, "Fall": 4}
+
+# Map month number to semester number
+MONTH_SEMESTER_NUM = {
+    1:1, 2:1, 3:1, 4:1,     # Jan-Apr Winter
+    5:2, 6:2,               # May-Jun Spring
+    7:3, 8:3,               # Jul-Aug Summer
+    9:4, 10:4, 11:4, 12:4,  # Sep-Dec Fall
+}
+
+def course_key(course):
+    """Return a tuple for sorting courses by year, then semester. """
+    # Coerce year
+    if course["year"] is None:
+        year = 0
+    else:
+        year = course["year"]
+
+    # Convert semester to a number
+    if course["semester"] is None:
+        semester_num = 0
+    else:
+        semester_num = SEMESTER_NUM[course["semester"]]
+
+    # Coerce name
+    name = course["name"]
+    if name is None:
+        name = ""
+
+    # Return a tuple in order of sort precedence
+    return (year, semester_num, name)
+
+
+def is_current_course(course):
+    """Return True if course is from current or future semester."""
+    # Coerce year
+    if course["year"] is None:
+        year = 0
+    else:
+        year = course["year"]
+
+    # Convert semester to a number
+    if course["semester"] is None:
+        semester_num = 0
+    else:
+        semester_num = SEMESTER_NUM[course["semester"]]
+
+    # Compare course year and semester to today
+    today = dt.date.today()
+    return (
+        year >= today.year and
+        semester_num >= MONTH_SEMESTER_NUM[today.month]
+    )
+
+
+def get_courses(client, all_semesters):
+    """Return a list of courses where current user is an admin."""
+    user = client.get("/api/users/current/")
+    user_pk = user["pk"]
+    course_list = client.get(f"/api/users/{user_pk}/courses_is_admin_for/")
+
+    # Remove past courses unless all_semesters is True
+    if not all_semesters:
+        course_list = filter(is_current_course, course_list)
+
+    # Sort with newest at the top
+    course_list = sorted(course_list, key=course_key)
+    return course_list
+
+
+def print_course(course):
+    """Print course to stdout."""
+    print(
+        f"[{course['pk']}] {course['name']} "
+        f"{course['semester']} {course['year']}"
+    )
+
+
+def print_dict(obj):
+    """Pretty print a dictionary."""
+    print(json.dumps(obj, indent=4))
 
 
 @main.command()
@@ -40,27 +128,17 @@ def courses(ctx, course_pks):
     """
     client = APIClient.make_default(debug=ctx.obj["DEBUG"])
 
-    # If the user doesn't specify a course, the list them
+    # If the user doesn't specify a course, list courses
     if not course_pks:
-        user = client.get("/api/users/current/")
-        user_pk = user["pk"]
-        course_list = client.get(f"/api/users/{user_pk}/courses_is_admin_for/")
-        course_list = sorted(course_list, key=lambda x: x["pk"], reverse=True)
+        course_list = get_courses(client, ctx.obj["ALL_SEMESTERS"])
         for i in course_list:
-            print(f"[{i['pk']}] {i['name']} {i['semester']} {i['year']}")
+            print_course(i)
         return
 
-    # If the user provides course pks, show detail on course and projects
+    # If the user provides course pks, show course detail
     for course_pk in course_pks:
         course = client.get(f"/api/courses/{course_pk}/")
-        print(
-            f"[{course['pk']}] {course['name']} "
-            f"{course['semester']} {course['year']}"
-        )
-        project_list = client.get(f"/api/courses/{course['pk']}/projects/")
-        project_list = sorted(project_list, key=lambda x: x["name"])
-        for i in project_list:
-            print(f"  [{i['pk']}] {i['name']}")
+        print_dict(course)
 
 
 @main.command()
@@ -74,47 +152,64 @@ def projects(ctx, project_pks):
 
     """
     client = APIClient.make_default(debug=ctx.obj["DEBUG"])
-    # FIXME should it be an error to provide multiple project primary keys?
 
+    # If the user doesn't specify a project, list courses and projects
     if not project_pks:
-        # FIXME tons of copied code here
-        user = client.get("/api/users/current/")
-        user_pk = user["pk"]
-        course_list = client.get(f"/api/users/{user_pk}/courses_is_admin_for/")
-        course_list = sorted(course_list, key=lambda x: x["pk"], reverse=True)
+        course_list = get_courses(client, ctx.obj["ALL_SEMESTERS"])
         for course in course_list:
-            print(
-                f"[{course['pk']}] {course['name']} "
-                f"{course['semester']} {course['year']}"
-            )
+            print_course(course)
             project_list = client.get(f"/api/courses/{course['pk']}/projects/")
             project_list = sorted(project_list, key=lambda x: x["name"])
             for project in project_list:
                 print(f"  [{project['pk']}] {project['name']}")
         return
 
+    # If the user provides project pks, show project detail
     for project_pk in project_pks:
         project = client.get(f"/api/projects/{project_pk}/")
-        print(json.dumps(project, indent=4))
+        print_dict(project)
+
+
+def print_group(group):
+    """Print one group."""
+    print(f"[{group['pk']}] ", end="")
+    members = group["members"]
+    uniqnames = [x["username"].replace("@umich.edu", "") for x in members]
+    print(", ".join(uniqnames))
 
 
 @main.command()
 @click.argument("project_pk", nargs=1)
+@click.argument("group_pks", nargs=-1)
 @click.pass_context
-def groups(ctx, project_pk):
-    """List groups or show group detail."""
+def groups(ctx, project_pk, group_pks):
+    """List groups or show group detail.
+
+    When called with no arguments, list groups for one project.  When
+    called with a group primary key, show group detail.
+    """
     client = APIClient.make_default(debug=ctx.obj["DEBUG"])
+
+    # Print course and project
     project = client.get(f"/api/projects/{project_pk}/")
     course = client.get(f"/api/courses/{project['course']}/")
-    # FIXME copied code for printing a course
     print(
-        f"{course['name']} {course['semester']} "
-        f"{course['year']} {project['name']}"
+        f"{course['name']} {course['semester']} {course['year']} "
+        f"{project['name']}\n"
     )
-    group_list = client.get(f"/api/projects/{project_pk}/groups/")
-    # FIXME pretty-print groups
-    print(json.dumps(group_list, indent=4))
-    # FIXME handle group detail pk
+
+    # If the user doesn't specify a group, list groups
+    if not group_pks:
+        group_list = client.get(f"/api/projects/{project_pk}/groups/")
+        for group in group_list:
+            print_group(group)
+        return
+
+    # FIXME lookup by uniqname
+    # If the user provides group pks, show group detail
+    for group_pk in group_pks:
+        group = client.get(f"/api/groups/{group_pk}/")
+        print_dict(group)
 
 
 if __name__ == "__main__":
