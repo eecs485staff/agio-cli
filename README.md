@@ -51,6 +51,7 @@ $ check-manifest
 - [ ] Guess current course pk
 - [ ] Prompt for {course, project, semester, etc.} pk
 - [ ] Open autograder.io web interface similar to `gh pr --web`
+- [ ] CI runs linters
 
 ## Acknowledgments
 Autograder.io CLI is written by Andrew DeOrio <awdeorio@umich.edu>
