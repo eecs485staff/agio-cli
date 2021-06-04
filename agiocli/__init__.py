@@ -1,5 +1,3 @@
-"""
-Autograder.io CLI API.
-"""
+"""Autograder.io CLI API."""
 
 from .api_client import APIClient

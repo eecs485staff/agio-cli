@@ -13,7 +13,6 @@ from agiocli import APIClient
 @click.pass_context
 def main(ctx, debug):
     """Autograder.io command line interface."""
-
     # Pass global flags to subcommands via Click context
     # https://click.palletsprojects.com/en/latest/commands/#nested-handling-and-contexts
     ctx.ensure_object(dict)
@@ -33,7 +32,12 @@ def users(ctx):
 @click.argument("course_pks", nargs=-1)
 @click.pass_context
 def courses(ctx, course_pks):
-    """List courses (no args) or show course detail."""
+    """List courses or show course detail.
+
+    When called with no arguments, list courses.  When called with a course
+    primary key, show course detail.
+
+    """
     client = APIClient.make_default(debug=ctx.obj["DEBUG"])
 
     # If the user doesn't specify a course, the list them
@@ -49,7 +53,10 @@ def courses(ctx, course_pks):
     # If the user provides course pks, show detail on course and projects
     for course_pk in course_pks:
         course = client.get(f"/api/courses/{course_pk}/")
-        print(f"[{course['pk']}] {course['name']} {course['semester']} {course['year']}")
+        print(
+            f"[{course['pk']}] {course['name']} "
+            f"{course['semester']} {course['year']}"
+        )
         project_list = client.get(f"/api/courses/{course['pk']}/projects/")
         project_list = sorted(project_list, key=lambda x: x["name"])
         for i in project_list:
@@ -60,6 +67,13 @@ def courses(ctx, course_pks):
 @click.argument("project_pk", nargs=1)
 @click.pass_context
 def projects(ctx, project_pk):
+    """List projects or show project detail.
+
+    When called with no arguments, list courses and their projects.  When
+    called with a project primary key, show project detail.
+
+    """
+    # FIXME list courses with nested projects here
     client = APIClient.make_default(debug=ctx.obj["DEBUG"])
     project = client.get(f"/api/projects/{project_pk}/")
     print(json.dumps(project, indent=4))
@@ -69,17 +83,22 @@ def projects(ctx, project_pk):
 @click.argument("project_pk", nargs=1)
 @click.pass_context
 def groups(ctx, project_pk):
+    """List groups or show group detail."""
     client = APIClient.make_default(debug=ctx.obj["DEBUG"])
     project = client.get(f"/api/projects/{project_pk}/")
     course = client.get(f"/api/courses/{project['course']}/")
-    print(f"{course['name']} {course['semester']} {course['year']} {project['name']}")
+    # FIXME copied code for printing a course
+    print(
+        f"{course['name']} {course['semester']} "
+        f"{course['year']} {project['name']}"
+    )
     group_list = client.get(f"/api/projects/{project_pk}/groups/")
     # FIXME pretty-print groups
     print(json.dumps(group_list, indent=4))
-
+    # FIXME handle group detail pk
 
 
 if __name__ == "__main__":
-    # This error is endemic to click
-    # pylint: disable=no-value-for-parameter
-    cli(obj={})
+    # These errors are endemic to click
+    # pylint: disable=no-value-for-parameter,unexpected-keyword-arg
+    main(obj={})
