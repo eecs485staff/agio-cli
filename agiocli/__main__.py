@@ -64,19 +64,38 @@ def courses(ctx, course_pks):
 
 
 @main.command()
-@click.argument("project_pk", nargs=1)
+@click.argument("project_pks", nargs=-1)
 @click.pass_context
-def projects(ctx, project_pk):
+def projects(ctx, project_pks):
     """List projects or show project detail.
 
     When called with no arguments, list courses and their projects.  When
     called with a project primary key, show project detail.
 
     """
-    # FIXME list courses with nested projects here
     client = APIClient.make_default(debug=ctx.obj["DEBUG"])
-    project = client.get(f"/api/projects/{project_pk}/")
-    print(json.dumps(project, indent=4))
+    # FIXME should it be an error to provide multiple project primary keys?
+
+    if not project_pks:
+        # FIXME tons of copied code here
+        user = client.get("/api/users/current/")
+        user_pk = user["pk"]
+        course_list = client.get(f"/api/users/{user_pk}/courses_is_admin_for/")
+        course_list = sorted(course_list, key=lambda x: x["pk"], reverse=True)
+        for course in course_list:
+            print(
+                f"[{course['pk']}] {course['name']} "
+                f"{course['semester']} {course['year']}"
+            )
+            project_list = client.get(f"/api/courses/{course['pk']}/projects/")
+            project_list = sorted(project_list, key=lambda x: x["name"])
+            for project in project_list:
+                print(f"  [{project['pk']}] {project['name']}")
+        return
+
+    for project_pk in project_pks:
+        project = client.get(f"/api/projects/{project_pk}/")
+        print(json.dumps(project, indent=4))
 
 
 @main.command()
