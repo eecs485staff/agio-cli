@@ -5,7 +5,7 @@ Andrew DeOrio <awdeorio@umich.edu>
 """
 import json
 import click
-import agcli
+from agiocli import APIClient
 
 
 # FIXME global variable
@@ -23,7 +23,7 @@ def main(debug):
 
 @main.command()
 def users():
-    client = agcli.APIClient.make_default(debug=DEBUG)
+    client = APIClient.make_default(debug=DEBUG)
     user = client.get("/api/users/current/")
     print(json.dumps(user, indent=4))
     # print(f"{user['username']} {user['first_name']} {user['last_name']}")
@@ -33,7 +33,7 @@ def users():
 @click.argument("course_pks", nargs=-1)
 def courses(course_pks):
     """List courses (no args) or show course detail."""
-    client = agcli.APIClient.make_default(debug=DEBUG)
+    client = APIClient.make_default(debug=DEBUG)
 
     # If the user doesn't specify a course, the list them
     if not course_pks:
@@ -58,7 +58,7 @@ def courses(course_pks):
 @main.command()
 @click.argument("project_pk", nargs=1)
 def projects(project_pk):
-    client = agcli.APIClient.make_default(debug=DEBUG)
+    client = APIClient.make_default(debug=DEBUG)
     project = client.get(f"/api/projects/{project_pk}/")
     print(json.dumps(project, indent=4))
 
@@ -66,7 +66,7 @@ def projects(project_pk):
 @main.command()
 @click.argument("project_pk", nargs=1)
 def groups(project_pk):
-    client = agcli.APIClient.make_default(debug=DEBUG)
+    client = APIClient.make_default(debug=DEBUG)
     project = client.get(f"/api/projects/{project_pk}/")
     course = client.get(f"/api/courses/{project['course']}/")
     print(f"{course['name']} {course['semester']} {course['year']} {project['name']}")

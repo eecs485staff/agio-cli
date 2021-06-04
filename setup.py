@@ -11,7 +11,7 @@ with io.open(os.path.join(PROJECT_DIR, "README.md"), encoding="utf-8") as f:
 
 
 setuptools.setup(
-    name="agio-cli",
+    name="agiocli",
     description="A command line interface to autograder.io",
     long_description=LONG_DESCRIPTION,
     long_description_content_type="text/markdown",
@@ -20,13 +20,14 @@ setuptools.setup(
     author_email="awdeorio@umich.edu",
     url="https://github.com/eecs485staff/agio-cli/",
     license="MIT",
-    packages=["agio"],
+    packages=["agiocli"],
     keywords=[
         "autograder", "autograder.io", "auto grader",
         "agcli", "agio", "ag-cli", "agio-cli",
     ],
     install_requires=[
         "click",
+        "requests",
     ],
     extras_require={
         "dev": [
@@ -43,7 +44,7 @@ setuptools.setup(
     # Python command line utilities will be installed in a PATH-accessible bin/
     entry_points={
         "console_scripts": [
-            "agio = agio.__main__:main",
+            "agio = agiocli.__main__:main",
         ]
     },
 )
