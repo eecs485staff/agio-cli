@@ -7,6 +7,7 @@ https://github.com/eecs-autograder/autograder-contrib/
 import copy
 import os
 import json
+import sys
 from typing import Iterator
 from urllib.parse import urljoin
 import requests
@@ -87,26 +88,46 @@ class APIClient:
         return self.do_request(requests.delete, path, *args, **kwargs)
 
     def do_request(self, method_func, path, *args, **kwargs):
-        """Add authentication headers and base URL, then call method_func.
+        """Add authentication, base URL, call method, parse JSON.
 
         - Append path to autograder REST API base URL
         - Add token authentication headers
         - Call method_func
-        - Check HTTP status code and raise HTTPError if necessary
-        - Parse JSON if present
+        - Check HTTP status code
+        - Parse JSON
         """
+        # Append path to base URL
         url = urljoin(self.base_url, path)
-        headers = copy.deepcopy(kwargs.pop('headers', {}))
-        headers['Authorization'] = f'Token {self.api_token}'
+
+        # Print request method and url
         if self.debug:
             method = method_func.__name__.upper()
             print(f"{method} {url}")
+
+        # Call the underlying requests library function
+        headers = copy.deepcopy(kwargs.pop('headers', {}))
+        headers['Authorization'] = f'Token {self.api_token}'
         response = method_func(url, *args, headers=headers, **kwargs)
+
+        # Print the response
         if self.debug:
             print_response(response)
-        response.raise_for_status()
-        # FIXME check for exception, check if actually JSON
-        return response.json()
+
+        # Check response status code
+        if not response.ok:
+            sys.exit(
+                f"Error: {response.status_code} {response.reason} "
+                f"for url {response.url}"
+            )
+
+        # Decode JSON
+        try:
+            return response.json()
+        except json.JSONDecodeError:
+            sys.exit(
+                f"Error: JSON decoding failed for url {response.url}\n"
+                f"{response.text}"
+            )
 
 
 def get_api_token(token_filename: str) -> str:
