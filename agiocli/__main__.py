@@ -19,7 +19,7 @@ def main(ctx, debug, all_semesters):
     # https://click.palletsprojects.com/en/latest/commands/#nested-handling-and-contexts
     ctx.ensure_object(dict)
     ctx.obj["DEBUG"] = debug
-    ctx.obj["ALL_SEMESTERS"] = all_semesters
+    ctx.obj["ALL"] = all_semesters
 
 
 @main.command()
@@ -45,7 +45,10 @@ def courses(ctx, course_pks):
 
     # If the user doesn't specify a course, list courses
     if not course_pks:
-        course_list = utils.get_courses(client, ctx.obj["ALL_SEMESTERS"])
+        user = client.get("/api/users/current/")
+        user_pk = user["pk"]
+        course_list = client.get(f"/api/users/{user_pk}/courses_is_admin_for/")
+        course_list = utils.filter_courses(course_list, ctx.obj["ALL"])
         for i in course_list:
             utils.print_course(i)
         return
@@ -70,7 +73,10 @@ def projects(ctx, project_pks):
 
     # If the user doesn't specify a project, list courses and projects
     if not project_pks:
-        course_list = utils.get_courses(client, ctx.obj["ALL_SEMESTERS"])
+        user = client.get("/api/users/current/")
+        user_pk = user["pk"]
+        course_list = client.get(f"/api/users/{user_pk}/courses_is_admin_for/")
+        course_list = utils.filter_courses(course_list, ctx.obj["ALL"])
         for course in course_list:
             utils.print_course(course)
             project_list = client.get(f"/api/courses/{course['pk']}/projects/")

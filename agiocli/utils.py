@@ -60,18 +60,11 @@ def is_current_course(course):
     )
 
 
-def get_courses(client, all_semesters):
-    """Return a list of courses where current user is an admin."""
-    user = client.get("/api/users/current/")
-    user_pk = user["pk"]
-    course_list = client.get(f"/api/users/{user_pk}/courses_is_admin_for/")
-
-    # Remove past courses unless all_semesters is True
+def filter_courses(courses, all_semesters=False):
+    """Filter out old courses and return a sorted list."""
     if not all_semesters:
-        course_list = filter(is_current_course, course_list)
-
-    # Sort with newest at the top
-    course_list = sorted(course_list, key=course_key)
+        course_list = filter(is_current_course, courses)
+    course_list = sorted(courses, key=course_key)
     return course_list
 
 
