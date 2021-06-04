@@ -105,7 +105,6 @@ class APIClient:
         if self.debug:
             print_response(response)
         response.raise_for_status()
-        breakpoint()
         # FIXME check for exception, check if actually JSON
         return response.json()
 
