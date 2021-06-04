@@ -13,7 +13,7 @@ from agiocli import APIClient
 @click.group(context_settings={"help_option_names": ["-h", "--help"]})
 @click.option("-d", "--debug", is_flag=True, help="Debug output")
 @click.option("-a", "--all", "all_semesters", is_flag=True,
-              help="Do not limit listings to current and future semesters")
+              help="Do not filter out old semesters")
 @click.pass_context
 def main(ctx, debug, all_semesters):
     """Autograder.io command line interface."""
