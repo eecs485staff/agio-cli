@@ -6,6 +6,7 @@ Andrew DeOrio <awdeorio@umich.edu>
 import sys
 import click
 import webbrowser
+from platform import uname
 from agiocli import APIClient, utils
 
 
@@ -23,6 +24,8 @@ def main(ctx, debug, all_semesters, web):
     ctx.obj["DEBUG"] = debug
     ctx.obj["ALL"] = all_semesters
     ctx.obj["WEB"] = web
+    if web and 'microsoft' in uname().release:
+        sys.exit("Error: --web flag is not yet supported on WSL.")
 
 
 @main.command()
