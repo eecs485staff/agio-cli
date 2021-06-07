@@ -40,6 +40,7 @@ setuptools.setup(
             "pytest",
         ],
     },
+    python_requires='>=3.6',
 
     # Python command line utilities will be installed in a PATH-accessible bin/
     entry_points={
