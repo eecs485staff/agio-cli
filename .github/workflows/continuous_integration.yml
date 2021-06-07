@@ -1,5 +1,5 @@
 # GitHub Continuous Integration Configuration
-name: regression tests
+name: Regression
 
 # Define conditions for when to run this action
 on:
@@ -13,7 +13,7 @@ on:
 # example, one of our jobs is "lint"
 jobs:
   test:
-    name: test-suite-python${{ matrix.python-version }}
+    name: Lint {{ matrix.python-version }}
     runs-on: ${{ matrix.os }}
     strategy:
       # Define OS and Python versions to use. We are only testing against one
