@@ -1,7 +1,0 @@
-#!/bin/bash
-set -Eeuxo pipefail
-
-pylint agiocli setup.py
-pycodestyle agiocli setup.py
-pydocstyle agiocli setup.py
-check-manifest

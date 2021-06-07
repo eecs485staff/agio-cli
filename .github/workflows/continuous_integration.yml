@@ -47,7 +47,10 @@ jobs:
         if: ${{ steps.changes.outputs.notdocs == 'true' }}
         run: |
           source env/bin/activate
-          ./test
+          pylint agiocli setup.py
+          pycodestyle agiocli setup.py
+          pydocstyle agiocli setup.py
+          check-manifest
 
       # Uncomment this chunk of YML code to open an SSH debug session to the GH
       # actions server in case of a hard-to-debug failure. The SSH session is
