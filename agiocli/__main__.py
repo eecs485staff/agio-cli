@@ -5,7 +5,6 @@ Andrew DeOrio <awdeorio@umich.edu>
 """
 import sys
 import click
-import webbrowser
 from platform import uname
 from agiocli import APIClient, utils
 
@@ -24,8 +23,6 @@ def main(ctx, debug, all_semesters, web):
     ctx.obj["DEBUG"] = debug
     ctx.obj["ALL"] = all_semesters
     ctx.obj["WEB"] = web
-    if web and 'microsoft' in uname().release:
-        sys.exit("Error: --web flag is not yet supported on WSL.")
 
 
 @main.command()
@@ -52,10 +49,10 @@ def courses(ctx, course_pks):
     if ctx.obj["WEB"]:
         if not course_pks:
             # Open AG page with all courses
-            webbrowser.open("https://autograder.io")
+            utils.open_web("https://autograder.io")
         else:
             # Open AG page with provided course pk
-            webbrowser.open(f"https://autograder.io/web/course/{course_pks[0]}") 
+            utils.open_web(f"https://autograder.io/web/course/{course_pks[0]}") 
         return
     
     client = APIClient.make_default(debug=ctx.obj["DEBUG"])
@@ -93,7 +90,7 @@ def projects(ctx, project_pks):
         elif len(project_pks) > 1:
             sys.exit("Error: specify only one project primary key")
             # Open AG page with provided course pk
-        webbrowser.open(f"https://autograder.io/web/project/{project_pks[0]}") 
+        utils.open_web(f"https://autograder.io/web/project/{project_pks[0]}") 
         return
 
     client = APIClient.make_default(debug=ctx.obj["DEBUG"])
@@ -170,7 +167,9 @@ def groups(ctx, project_pk, group_pk_or_uniqname):
     # Show group detail
     
     if ctx.obj["WEB"]:
-        webbrowser.open(f"https://autograder.io/web/project/{project_pk}?current_tab=student_lookup&current_student_lookup={group_pk}")
+        utils.open_web(f"https://autograder.io/web/project/{project_pk}"
+                       f"?current_tab=student_lookup"
+                       f"&current_student_lookup={group_pk}")
         return
 
     group = client.get(f"/api/groups/{group_pk}/")

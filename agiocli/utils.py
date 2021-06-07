@@ -2,6 +2,9 @@
 import datetime as dt
 import json
 import sys
+import platform
+import subprocess
+import webbrowser
 
 
 # Map semester name to number
@@ -109,3 +112,16 @@ def find_group(uniqname, groups):
     if len(matches) > 1:
         sys.exit(f"Error: uniqname in more than one group: {uniqname}")
     return matches[0]
+
+def is_wsl():
+    return 'microsoft' in platform.uname().release
+
+
+def open_web(url):
+    if is_wsl():
+        # Need to escape & in Windows
+        url = url.replace('&', '^&')
+        subprocess.run(['cmd.exe', '/c', 'start', url], 
+                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    else:
+        webbrowser.open(url)
