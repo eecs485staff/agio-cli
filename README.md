@@ -33,22 +33,6 @@ $ pylint agcli setup.py
 $ check-manifest
 ```
 
-## Todo
-- [x] Pass verbosity to subcommands
-- [x] Name that doesn't clash with existing PyPI packages
-- [ ] Publish to PyPI
-- [x] Automatically call `.json()`
-- [ ] User friendly login and logout (token acquisition)
-- [ ] Integrate Amir's scripts
-- [ ] Integrate EECS 280 scripts
-- [ ] Document design philosophy and how to modify
-- [ ] Bash and zsh completion
-- [x] Guess current semester pk
-- [x] Guess current course pk
-- [ ] Prompt for {course, project, semester, etc.} pk
-- [ ] Open autograder.io web interface similar to `gh pr --web`
-- [x] CI runs linters
-
 ## Acknowledgments
 Autograder.io CLI is written by Andrew DeOrio <awdeorio@umich.edu>
 
