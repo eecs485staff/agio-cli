@@ -1,5 +1,6 @@
 """Common utility functions."""
 import datetime as dt
+import difflib
 import json
 import sys
 
@@ -61,22 +62,6 @@ def is_current_course(course):
     )
 
 
-def filter_courses(courses, all_semesters=False):
-    """Filter out old courses and return a sorted list."""
-    if not all_semesters:
-        courses = filter(is_current_course, courses)
-    courses = sorted(courses, key=course_key)
-    return courses
-
-
-def print_course(course):
-    """Print course to stdout."""
-    print(
-        f"[{course['pk']}] {course['name']} "
-        f"{course['semester']} {course['year']}"
-    )
-
-
 def print_dict(obj):
     """Pretty print a dictionary."""
     print(json.dumps(obj, indent=4))
@@ -109,3 +94,23 @@ def find_group(uniqname, groups):
     if len(matches) > 1:
         sys.exit(f"Error: uniqname in more than one group: {uniqname}")
     return matches[0]
+
+
+def get_close_matches(term, objs, keyfunc):
+    # Build search target strings with name, semester and year.  Convert case
+    # for case-insensitive search.  We need a dictionary so that we can
+    # retrieve the original object from the search results.  For example: 'eecs
+    # 280 spring 2018', 'eecs 485 winter 2019'
+    targets = {keyfunc(x).lower(): x for x in objs}
+
+    # Case insensitive search term
+    term = term.lower()
+
+    # difflib does the match
+    # https://docs.python.org/3/library/difflib.html#difflib.get_close_matches
+    results = difflib.get_close_matches(term, targets.keys(), n=1)
+
+    # Results are search target strings (see above).  Convert search target
+    # string to course object.
+    match_courses = [targets[x] for x in results]
+    return match_courses

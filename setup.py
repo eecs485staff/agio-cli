@@ -27,6 +27,7 @@ setuptools.setup(
     ],
     install_requires=[
         "click",
+        "pick",
         "requests",
     ],
     extras_require={

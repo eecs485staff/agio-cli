@@ -3,8 +3,10 @@ A command line interface to autograder.io.
 
 Andrew DeOrio <awdeorio@umich.edu>
 """
+import difflib
 import sys
 import click
+import pick
 from agiocli import APIClient, utils
 
 
@@ -32,31 +34,75 @@ def login(ctx):
 
 
 @main.command()
-@click.argument("course_pks", nargs=-1)
+@click.argument("course_args", nargs=-1)
+@click.option("-l", "--list", "show_list", is_flag=True, help="List courses and exit")
 @click.pass_context
-def courses(ctx, course_pks):
-    """List courses or show course detail.
+def courses(ctx, course_args, show_list):
+    """Should course detail or list courses.
 
-    When called with no arguments, list courses.  When called with a course
-    primary key, show course detail.
+    FIXME better description here.
 
     """
     client = APIClient.make_default(debug=ctx.obj["DEBUG"])
 
-    # If the user doesn't specify a course, list courses
-    if not course_pks:
-        user = client.get("/api/users/current/")
-        user_pk = user["pk"]
-        course_list = client.get(f"/api/users/{user_pk}/courses_is_admin_for/")
-        course_list = utils.filter_courses(course_list, ctx.obj["ALL"])
+    # Get a list of courses
+    user = client.get("/api/users/current/")
+    course_list = client.get(f"/api/users/{user['pk']}/courses_is_admin_for/")
+    course_list = sorted(course_list, key=utils.course_key, reverse=True)
+
+    # Handle --list: list courses and exit
+    if show_list:
         for i in course_list:
-            utils.print_course(i)
+            print(f"[{i['pk']}]\t{i['name']} {i['semester']} {i['year']}")
         return
 
-    # If the user provides course pks, show course detail
-    for course_pk in course_pks:
-        course = client.get(f"/api/courses/{course_pk}/")
-        utils.print_dict(course)
+    # User provides primary key
+    if len(course_args) == 1 and course_args[0].isnumeric():
+        course_pk = course_args[0]
+
+    # User provides strings, try to match a course
+    elif len(course_args) == 1:
+        matches = utils.get_close_matches(
+            term=course_args[0],
+            objs=course_list,
+            keyfunc=lambda x: f"{x['name']} {x['semester']} {x['year']}",
+        )
+        if not matches:
+            print(f"Error: couldn't find a course matching '{course_args[0]}'")
+            for i in course_list:
+                print(f"[{i['pk']}]\t{i['name']} {i['semester']} {i['year']}")
+            sys.exit(1)
+        course_pk = matches[0]["pk"]
+
+    # No course input from the user, start the selection process
+    elif len(course_args) == 0:
+        print("FIXME hint how to list all courses and specify one")
+        course_list = filter(utils.is_current_course, course_list)
+
+        # Prompt user to select course, with special case for only one current
+        # course
+        course_list = list(course_list)
+        if not course_list:
+            sys.exit("FIXME: No current courses, FIXME hint here")
+        elif len(course_list) == 1:
+            course_pk = list(course_list)[0]["pk"]
+        else:
+            selected_courses = pick.pick(
+                options=course_list,
+                title="Select a course:",
+                options_map_func=lambda x: f"{x['name']} {x['semester']} {x['year']}",
+                multiselect=False,
+            )
+            assert selected_courses
+            course_pk = selected_courses[0]["pk"]
+
+    # More than 1 input from user
+    else:
+        sys.exit("FIXME error")
+
+    # Show course detail
+    course = client.get(f"/api/courses/{course_pk}/")
+    utils.print_dict(course)
 
 
 @main.command()
