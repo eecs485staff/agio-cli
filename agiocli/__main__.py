@@ -3,7 +3,6 @@ A command line interface to autograder.io.
 
 Andrew DeOrio <awdeorio@umich.edu>
 """
-import difflib
 import sys
 import click
 import pick
@@ -63,9 +62,8 @@ def courses(ctx, course_args, show_list):
     # User provides strings, try to match a course
     elif len(course_args) == 1:
         matches = utils.get_close_matches(
-            term=course_args[0],
-            objs=course_list,
-            keyfunc=lambda x: f"{x['name']} {x['semester']} {x['year']}",
+            course_args[0], course_list,
+            strfunc=lambda x: f"{x['name']} {x['semester']} {x['year']}",
         )
         if not matches:
             print(f"Error: couldn't find a course matching '{course_args[0]}'")
