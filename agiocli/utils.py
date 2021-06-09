@@ -62,6 +62,21 @@ def is_current_course(course):
     )
 
 
+def filter_courses(courses, all_semesters=False):
+    """Filter out old courses and return a sorted list."""
+    if not all_semesters:
+        courses = filter(is_current_course, courses)
+    courses = sorted(courses, key=course_key)
+    return courses
+
+
+def print_course(course):
+    """Print course to stdout."""
+    print(
+        f"[{course['pk']}] {course['name']} "
+        f"{course['semester']} {course['year']}"
+    )
+
 def print_dict(obj):
     """Pretty print a dictionary."""
     print(json.dumps(obj, indent=4))
