@@ -75,7 +75,7 @@ def filter_courses(courses, all_semesters=False):
 
 
 def find_course(search, courses):
-    """Given a search term, return the best match or None."""
+    """Given a search term, return the best matching course or None."""
     course_in = transform_course_input(search)
     matches = get_close_matches(
         course_in,
