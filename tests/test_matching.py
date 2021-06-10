@@ -22,7 +22,7 @@ COURSES = [
 
 def test_course_match_returns_object():
     """Verify match is an unmodified course object."""
-    course = utils.course_match("EECS 485 Spring 2021", COURSES)
+    course = utils.find_course_filter("EECS 485 Spring 2021", COURSES)
     assert course == {
         'pk': 109, 'name': 'EECS 485', 'semester': 'Spring', 'year': 2021
     }
@@ -45,7 +45,7 @@ def test_course_match_returns_object():
 )
 def test_course_match_input_patterns(user_input, expected_course_pk):
     """Many supported input patterns."""
-    course = utils.course_match(user_input, COURSES)
+    course = utils.find_course_filter(user_input, COURSES)
     assert course["pk"] == expected_course_pk
 
 
@@ -66,5 +66,5 @@ def test_course_match_input_patterns(user_input, expected_course_pk):
 )
 def test_course_match_bad_year(user_input):
     """Bad year in pattern."""
-    course = utils.course_match(user_input, COURSES)
+    course = utils.find_course_filter(user_input, COURSES)
     assert course is None

@@ -234,7 +234,7 @@ def find_course_filter(course_in, course_list):
         course_code = course
     else:
         department, course_code = list(filter(None, re.split(r'(\d+)', course)))
-    
+
     # Filter by course name
     if department:
         course_list = list(filter(lambda x: department.lower() in\
@@ -244,7 +244,7 @@ def find_course_filter(course_in, course_list):
     # If there's only 1 course, return that
     if len(course_list) == 1:
         return course_list[0]
-    elif len(course_list) == 0:
+    if len(course_list) == 0:
         return None
 
     # Split term and year
@@ -266,7 +266,7 @@ def find_course_filter(course_in, course_list):
             year = today.year
 
     term = term.strip()
-    
+
     # Filter by semester
     if year:
         course_list = list(filter(lambda x: x["year"] == year, course_list))
@@ -276,7 +276,7 @@ def find_course_filter(course_in, course_list):
     # Filtering complete here
     if len(course_list) == 1:
         return course_list[0]
-    elif len(course_list) == 0:
+    if len(course_list) == 0:
         return None
     print("FIXME: Found more than one match")
     return None
