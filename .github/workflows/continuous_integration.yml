@@ -49,9 +49,9 @@ jobs:
       # Run linters
       - name: Run linters
         run: |
-          pylint agiocli setup.py
-          pycodestyle agiocli setup.py
-          pydocstyle agiocli setup.py
+          pylint agiocli tests setup.py
+          pycodestyle agiocli tests setup.py
+          pydocstyle agiocli tests setup.py
           check-manifest
 
       # Uncomment this chunk of YML code to open an SSH debug session to the GH

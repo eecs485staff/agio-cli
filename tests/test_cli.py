@@ -9,7 +9,6 @@ import click.testing
 from agiocli.__main__ import main
 
 
-
 def test_example():
     """Dummy example test."""
     runner = click.testing.CliRunner(mix_stderr=False)
