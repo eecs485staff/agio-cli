@@ -31,14 +31,20 @@ def test_find_course_returns_object():
 @pytest.mark.parametrize(
     "user_input, expected_course_pk",
     [
-        ("EECS 485 Spring 2021", 109),
-        ("EECS 485 Spring 21", 109),
-        ("EECS 485 sp 21", 109),
-        ("485 sp 21", 109),
         ("EECS 280 Spring 2021", 111),
+        ("EECS 485 Spring 2021", 109),
+
         ("EECS 280 Spring 21", 111),
+        ("EECS 485 Spring 21", 109),
+
         ("EECS 280 sp 21", 111),
+        ("EECS 485 sp 21", 109),
+
         ("280 sp 21", 111),
+        ("485 sp 21", 109),
+
+        ("eecs280sp21", 111),
+        ("eecs485sp21", 109),
     ]
 )
 def test_find_course_input_patterns(user_input, expected_course_pk):
