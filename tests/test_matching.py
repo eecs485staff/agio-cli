@@ -19,8 +19,15 @@ COURSES = [
 ]
 
 
-def test_find_course():
-    course = utils.find_course("eecs485sp21", COURSES)
+def test_find_course_returns_object():
+    """Verify find_course() return an unmodified course object."""
+    course = utils.find_course("EECS 485 Spring 2021", COURSES)
     assert course == {
         'pk': 109, 'name': 'EECS 485', 'semester': 'Spring', 'year': 2021
     }
+
+
+def test_find_course_input_patterns():
+    """Many supported input patterns."""
+    course = utils.find_course("EECS 485 Spring 2021", COURSES)
+    assert course["pk"] == 109

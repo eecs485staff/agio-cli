@@ -174,7 +174,7 @@ def transform_course_input(course_input):
         course_name = f"EECS {parsed[0]} "\
                       f"{letter_to_term(parsed[1])} {four_digit_year(parsed[2])}"
 
-    return course_name
+    return course_input
 
 
 def get_close_matches(word, possibilities, strfunc, *args, **kwargs):
