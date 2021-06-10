@@ -34,11 +34,11 @@ def login(ctx):
 
 
 @main.command()
-@click.argument("course_args", required=False)
+@click.argument("course_arg", required=False)
 @click.option("-l", "--list", "show_list", is_flag=True, help="List courses and exit")
 @click.option("-p", "--course_pk", type=str, default=None, help="Specify a course primary key")
 @click.pass_context
-def courses(ctx, course_args, show_list, course_pk):
+def courses(ctx, course_arg, show_list, course_pk):
     """Should course detail or list courses.
 
     FIXME better description here.
@@ -58,17 +58,17 @@ def courses(ctx, course_args, show_list, course_pk):
         return
 
     # User provides strings, try to match a course
-    if not course_pk and len(course_args) == 1:
-        match = utils.find_course_filter(course_args[0], course_list)
+    if not course_pk and course_arg:
+        match = utils.find_course_filter(course_arg, course_list)
         if not match:
-            print(f"Error: couldn't find a course matching '{course_args[0]}'")
+            print(f"Error: couldn't find a course matching '{course_arg}'")
             for i in course_list:
                 print(f"[{i['pk']}]\t{i['name']} {i['semester']} {i['year']}")
             sys.exit(1)
         course_pk = match["pk"]
 
     # No course input from the user, start the selection process
-    elif len(course_args) == 0:
+    elif not course_arg:
         print("FIXME hint how to list all courses and specify one")
         course_list = filter(utils.is_current_course, course_list)
 
@@ -92,9 +92,9 @@ def courses(ctx, course_args, show_list, course_pk):
     # More than 1 input from user
     # TODO: this could have spaces now
     else:
-        match = utils.course_match(course_args, course_list)
+        match = utils.course_match(course_arg, course_list)
         if not match:
-            print(f"Error: couldn't find a course matching '{course_args}'")
+            print(f"Error: couldn't find a course matching '{course_arg}'")
             for i in course_list:
                 print(f"[{i['pk']}]\t{i['name']} {i['semester']} {i['year']}")
             sys.exit(1)
