@@ -164,21 +164,20 @@ def transform_course_input(course_input):
         return f"{parsed[0].upper()} {parsed[1]} {current_term}"
 
     # eecs485s21
-    elif re.match(r"^[A-Za-z]+\d+[A-Za-z]+\d+$", course_input):
+    if re.match(r"^[A-Za-z]+\d+[A-Za-z]+\d+$", course_input):
         return (
             f"{parsed[0].upper()} {parsed[1]} "
             f"{letter_to_term(parsed[2])} {four_digit_year(parsed[3])}"
         )
 
     # 485s21
-    elif re.match(r"^\d+[A-Za-z]+\d+$", course_input):
+    if re.match(r"^\d+[A-Za-z]+\d+$", course_input):
         return (
             f"EECS {parsed[0]} "
             f"{letter_to_term(parsed[1])} {four_digit_year(parsed[2])}"
         )
 
-    else:
-        return course_input
+    return course_input
 
 
 def get_close_matches(word, possibilities, strfunc, *args, **kwargs):
