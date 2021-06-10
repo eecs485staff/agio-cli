@@ -70,13 +70,10 @@ def courses(ctx, course_args, show_list):
             sys.exit(1)
         course_pk = match["pk"]
 
-    # No course input from the user, start the selection process
+    # No course input from the user, start the selection process.  If there's
+    # only one current course, select it automatically.  Otherwise, prompt.
     elif len(course_args) == 0:
-        print("FIXME hint how to list all courses and specify one")
         course_list = filter(utils.is_current_course, course_list)
-
-        # Prompt user to select course, with special case for only one current
-        # course
         course_list = list(course_list)
         if not course_list:
             sys.exit("FIXME: No current courses, FIXME hint here")
@@ -92,7 +89,7 @@ def courses(ctx, course_args, show_list):
             assert selected_courses
             course_pk = selected_courses[0]["pk"]
 
-    # More than 1 input from user
+    # More than 1 argument from user
     else:
         sys.exit("FIXME error")
 
