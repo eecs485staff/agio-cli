@@ -212,10 +212,10 @@ def find_course_filter(course_in, course_list):
     """Procedurally filter courses from course list."""
 
     # If there's only 1 course, return that
-    if len(course_list) == 1:
-        return course_list[0]
-    elif len(course_list) == 0:
-        return None
+    # if len(course_list) == 1:
+    #     return course_list[0]
+    # elif len(course_list) == 0:
+    #     return None
 
     # The first number should be interpreted as the course code
     # Everything after the first number should be interpreted as the term
@@ -224,6 +224,9 @@ def find_course_filter(course_in, course_list):
     # Extract the course and the term (optional) from input
     course, *semester = list(filter(None, re.split(r'(\D*\d+)', course_in)))
     semester = semester[0] if semester else None
+
+    course = course.strip()
+    semester = semester.strip()
 
     # Split department name and course code
     if course.isnumeric():
@@ -262,6 +265,8 @@ def find_course_filter(course_in, course_list):
             # occurance of that term?
             year = today.year
 
+    term = term.strip()
+    
     # Filter by semester
     if year:
         course_list = list(filter(lambda x: x["year"] == year, course_list))
