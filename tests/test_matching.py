@@ -33,16 +33,12 @@ def test_course_match_returns_object():
     [
         ("EECS 280 Spring 2021", 111),
         ("EECS 485 Spring 2021", 109),
-
         ("EECS 280 Spring 21", 111),
         ("EECS 485 Spring 21", 109),
-
         ("EECS 280 sp 21", 111),
         ("EECS 485 sp 21", 109),
-
         ("280 sp 21", 111),
         ("485 sp 21", 109),
-
         ("eecs280sp21", 111),
         ("eecs485sp21", 109),
     ]
@@ -51,3 +47,24 @@ def test_course_match_input_patterns(user_input, expected_course_pk):
     """Many supported input patterns."""
     course = utils.course_match(user_input, COURSES)
     assert course["pk"] == expected_course_pk
+
+
+@pytest.mark.parametrize(
+    "user_input, expected_course_pk",
+    [
+        ("EECS 280 Spring 2016", 111),
+        ("EECS 485 Spring 2016", 109),
+        ("EECS 280 Spring 16", 111),
+        ("EECS 485 Spring 16", 109),
+        ("EECS 280 sp 16", 111),
+        ("EECS 485 sp 16", 109),
+        ("280 sp 16", 111),
+        ("485 sp 16", 109),
+        ("eecs280sp16", 111),
+        ("eecs485sp16", 109),
+    ]
+)
+def test_course_match_bad_year(user_input, expected_course_pk):
+    """Bad year in pattern."""
+    course = utils.course_match(user_input, COURSES)
+    assert course is None
