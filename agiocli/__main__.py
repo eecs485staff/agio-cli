@@ -35,8 +35,9 @@ def login(ctx):
 @main.command()
 @click.argument("course_args", nargs=-1)
 @click.option("-l", "--list", "show_list", is_flag=True, help="List courses and exit")
+@click.option("-p", "--course_pk", type=str, default=None, help="Specify a course primary key")
 @click.pass_context
-def courses(ctx, course_args, show_list):
+def courses(ctx, course_args, show_list, course_pk):
     """Should course detail or list courses.
 
     FIXME better description here.
@@ -56,12 +57,17 @@ def courses(ctx, course_args, show_list):
         return
 
     # User provides primary key
-    if len(course_args) == 1 and course_args[0].isnumeric():
-        course_pk = course_args[0]
+    if course_pk:
+        # TODO: Refactor these ifs
+        pass
 
     # User provides strings, try to match a course
     elif len(course_args) == 1:
-        match = utils.find_course(course_args[0], course_list)
+        #TODO: This could have spaces now
+        # match = utils.find_course(course_args[0], course_list) TODO: remove 
+        # TODO: remove below line (dev only)
+        course_list = [{'pk': 17, 'name': 'EECS 280', 'semester': 'Spring', 'year': 2018, 'subtitle': '', 'num_late_days': 0, 'allowed_guest_domain': '@umich.edu', 'last_modified': '2019-02-07T21:06:01.782885Z'}, {'pk': 26, 'name': 'EECS 280', 'semester': 'Fall', 'year': 2018, 'subtitle': '', 'num_late_days': 0, 'allowed_guest_domain': '@umich.edu', 'last_modified': '2019-02-07T21:06:01.783493Z'}, {'pk': 32, 'name': 'EECS 280', 'semester': 'Winter', 'year': 2019, 'subtitle': '', 'num_late_days': 0, 'allowed_guest_domain': '@umich.edu', 'last_modified': '2019-02-07T21:06:01.784124Z'}, {'pk': 43, 'name': 'EECS 280', 'semester': 'Spring', 'year': 2019, 'subtitle': '', 'num_late_days': 0, 'allowed_guest_domain': '@umich.edu', 'last_modified': '2019-04-18T17:42:33.614023Z'}, {'pk': 50, 'name': 'EECS 280', 'semester': 'Fall', 'year': 2019, 'subtitle': '', 'num_late_days': 0, 'allowed_guest_domain': '@umich.edu', 'last_modified': '2019-07-19T00:04:29.552204Z'}, {'pk': 100, 'name': 'EECS 280', 'semester': 'Winter', 'year': 2021, 'subtitle': '', 'num_late_days': 0, 'allowed_guest_domain': '@umich.edu', 'last_modified': '2021-01-12T04:41:40.166665Z'}, {'pk': 111, 'name': 'EECS 280', 'semester': 'Spring', 'year': 2021, 'subtitle': '', 'num_late_days': 0, 'allowed_guest_domain': '@umich.edu', 'last_modified': '2021-05-03T01:12:28.049482Z'}, {'pk': 21, 'name': 'EECS 280 Diagnostic', 'semester': None, 'year': None, 'subtitle': '', 'num_late_days': 0, 'allowed_guest_domain': '@umich.edu', 'last_modified': '2019-02-07T21:06:01.784735Z'}, {'pk': 35, 'name': 'EECS 485', 'semester': 'Winter', 'year': 2019, 'subtitle': '', 'num_late_days': 0, 'allowed_guest_domain': '@umich.edu', 'last_modified': '2019-02-07T21:06:01.790858Z'}, {'pk': 46, 'name': 'EECS 485', 'semester': 'Fall', 'year': 2019, 'subtitle': '', 'num_late_days': 0, 'allowed_guest_domain': '@umich.edu', 'last_modified': '2019-04-29T00:42:54.079515Z'}, {'pk': 74, 'name': 'EECS 485', 'semester': 'Summer', 'year': 2020, 'subtitle': 'Web Systems', 'num_late_days': 0, 'allowed_guest_domain': '@umich.edu', 'last_modified': '2020-05-09T16:29:00.430046Z'}, {'pk': 85, 'name': 'EECS 485', 'semester': 'Fall', 'year': 2020, 'subtitle': 'Web Systems', 'num_late_days': 0, 'allowed_guest_domain': '@umich.edu', 'last_modified': '2020-08-20T17:50:57.540867Z'}, {'pk': 109, 'name': 'EECS 485', 'semester': 'Spring', 'year': 2021, 'subtitle': 'Web Systems', 'num_late_days': 0, 'allowed_guest_domain': '@umich.edu', 'last_modified': '2021-04-07T02:19:22.818992Z'}]
+        match = utils.find_course_filter(course_args[0], course_list)
         if not match:
             print(f"Error: couldn't find a course matching '{course_args[0]}'")
             for i in course_list:
@@ -92,6 +98,7 @@ def courses(ctx, course_args, show_list):
             course_pk = selected_courses[0]["pk"]
 
     # More than 1 input from user
+    # TODO: this could have spaces now
     else:
         sys.exit("FIXME error")
 

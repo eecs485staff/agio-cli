@@ -147,8 +147,8 @@ def letter_to_term(letter):
 def four_digit_year(year):
     """Convert two-digit year into four-digit year."""
     if len(year) == 2:
-        return f"20{year}"
-    return year
+        return int(f"20{year}")
+    return int(year)
 
 
 def transform_course_input(course_input):
@@ -202,3 +202,73 @@ def get_close_matches(word, possibilities, strfunc, *args, **kwargs):
     # Look up difflib's result to get the corresponding original object
     match_courses = [targets[x] for x in results]
     return match_courses
+
+
+
+def find_course_filter(course_in, course_list):
+    """Procedurally filter courses from course list."""
+
+    # If there's only 1 course, return that
+    if len(course_list) == 1:
+        return course_list[0]
+    elif len(course_list) == 0:
+        return None
+
+    # The first number should be interpreted as the course code
+    # Everything after the first number should be interpreted as the term
+    # Everything before the first number should be interpreted as the department
+
+    # Extract the course and the term (optional) from input
+    course, *semester = list(filter(None, re.split(r'(\D*\d+)', course_in)))
+    semester = semester[0] if semester else None
+
+    # Split department name and course code
+    if course.isnumeric():
+        department = None
+        course_code = course
+    else:
+        department, course_code = list(filter(None, re.split(r'(\d+)', course)))
+    
+    # Filter by course name
+    if department:
+        course_list = list(filter(lambda x: department.lower() in\
+            x["name"].lower(), course_list))
+    course_list = list(filter(lambda x: course_code in x["name"], course_list))
+
+    # If there's only 1 course, return that
+    if len(course_list) == 1:
+        return course_list[0]
+    elif len(course_list) == 0:
+        return None
+
+    # Split term and year
+    today = dt.date.today()
+    if not semester:
+        # TODO: if semester not provided, should it just be the most recent
+        # occurance of that class?
+        term = SEMESTER_NAME[MONTH_SEMESTER_NUM[today.month]]
+        year = today.year
+    else:
+        term, *year = list(filter(None, re.split(r'(\D+)', semester)))
+        year = year[0] if year else None
+        term = letter_to_term(term)
+        if year:
+            year = four_digit_year(year)
+        else:
+            # TODO: if year not provided, should it just be the most recent
+            # occurance of that term?
+            year = today.year
+
+    # Filter by semester
+    if year:
+        course_list = list(filter(lambda x: x["year"] == year, course_list))
+    course_list = list(filter(lambda x: x["semester"] == term, course_list))
+    # FIXME: 's' input as summer will fail here
+
+    # Filtering complete here
+    if len(course_list) == 1:
+        return course_list[0]
+    elif len(course_list) == 0:
+        return None
+    print("FIXME: Found more than one match")
+    return None
