@@ -13,7 +13,7 @@ on:
 # example, one of our jobs is "lint"
 jobs:
   test:
-    name: Lint ${{ matrix.python-version }}
+    name: Tests ${{ matrix.python-version }}
     runs-on: ${{ matrix.os }}
     strategy:
       # Define OS and Python versions to use. We are only testing against one
@@ -38,18 +38,20 @@ jobs:
 
       # Install dependencies
       - name: Install dependencies
-        if: ${{ steps.changes.outputs.notdocs == 'true' }}
         run: |
           pip install -e .[dev]
 
-      # Run linters
-      - name: Run tests
-        if: ${{ steps.changes.outputs.notdocs == 'true' }}
+      # Run tests
+      - name: Run unit and system tests
         run: |
-          source env/bin/activate
-          pylint agiocli setup.py
-          pycodestyle agiocli setup.py
-          pydocstyle agiocli setup.py
+          pytest -v tests
+
+      # Run linters
+      - name: Run linters
+        run: |
+          pylint agiocli tests setup.py
+          pycodestyle agiocli tests setup.py
+          pydocstyle agiocli tests setup.py
           check-manifest
 
       # Uncomment this chunk of YML code to open an SSH debug session to the GH

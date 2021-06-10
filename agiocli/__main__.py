@@ -10,6 +10,7 @@ from agiocli import APIClient, utils
 
 
 @click.group(context_settings={"help_option_names": ["-h", "--help"]})
+@click.version_option()
 @click.option("-d", "--debug", is_flag=True, help="Debug output")
 @click.option("-a", "--all", "all_semesters", is_flag=True,
               help="Do not filter out old semesters")
@@ -33,7 +34,7 @@ def login(ctx):
 
 
 @main.command()
-@click.argument("course_args", nargs=-1)
+@click.argument("course_arg", required=False)
 @click.option("-l", "--list", "show_list", is_flag=True, help="List courses and exit")
 @click.option("-p", "--course_pk", type=str, default=None, help="Specify a course primary key")
 @click.pass_context
@@ -45,7 +46,7 @@ def courses(ctx, course_args, show_list, course_pk):
     """
     client = APIClient.make_default(debug=ctx.obj["DEBUG"])
 
-    # Get a list of courses
+    # Get a list of courses sorted by year, semester and name
     user = client.get("/api/users/current/")
     course_list = client.get(f"/api/users/{user['pk']}/courses_is_admin_for/")
     course_list = sorted(course_list, key=utils.course_key, reverse=True)
@@ -84,7 +85,7 @@ def courses(ctx, course_args, show_list, course_pk):
         # course
         course_list = list(course_list)
         if not course_list:
-            sys.exit("FIXME: No current courses, FIXME hint here")
+            sys.exit("Error: No current courses")
         elif len(course_list) == 1:
             course_pk = list(course_list)[0]["pk"]
         else:
@@ -100,7 +101,13 @@ def courses(ctx, course_args, show_list, course_pk):
     # More than 1 input from user
     # TODO: this could have spaces now
     else:
-        sys.exit("FIXME error")
+        match = utils.course_match(course_arg, course_list)
+        if not match:
+            print(f"Error: couldn't find a course matching '{course_arg}'")
+            for i in course_list:
+                print(f"[{i['pk']}]\t{i['name']} {i['semester']} {i['year']}")
+            sys.exit(1)
+        course_pk = match["pk"]
 
     # Show course detail
     course = client.get(f"/api/courses/{course_pk}/")

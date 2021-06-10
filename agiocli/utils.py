@@ -74,8 +74,8 @@ def filter_courses(courses, all_semesters=False):
     return courses
 
 
-def find_course(search, courses):
-    """Given a search term, return the best match or None."""
+def course_match(search, courses):
+    """Given a search term, return the best matching course or None."""
     course_in = transform_course_input(search)
     matches = get_close_matches(
         course_in,
@@ -161,20 +161,23 @@ def transform_course_input(course_input):
         # Term not provided, assume current term
         today = dt.date.today()
         current_term = f"{SEMESTER_NAME[MONTH_SEMESTER_NUM[today.month]]} {today.year}"
-
-        course_name = f"{parsed[0].upper()} {parsed[1]} {current_term}"
+        return f"{parsed[0].upper()} {parsed[1]} {current_term}"
 
     # eecs485s21
-    elif re.match(r"^[A-Za-z]+\d+[A-Za-z]+\d+$", course_input):
-        course_name = f"{parsed[0].upper()} {parsed[1]} "\
-                      f"{letter_to_term(parsed[2])} {four_digit_year(parsed[3])}"
+    if re.match(r"^[A-Za-z]+\d+[A-Za-z]+\d+$", course_input):
+        return (
+            f"{parsed[0].upper()} {parsed[1]} "
+            f"{letter_to_term(parsed[2])} {four_digit_year(parsed[3])}"
+        )
 
     # 485s21
-    elif re.match(r"^\d+[A-Za-z]+\d+$", course_input):
-        course_name = f"EECS {parsed[0]} "\
-                      f"{letter_to_term(parsed[1])} {four_digit_year(parsed[2])}"
+    if re.match(r"^\d+[A-Za-z]+\d+$", course_input):
+        return (
+            f"EECS {parsed[0]} "
+            f"{letter_to_term(parsed[1])} {four_digit_year(parsed[2])}"
+        )
 
-    return course_name
+    return course_input
 
 
 def get_close_matches(word, possibilities, strfunc, *args, **kwargs):

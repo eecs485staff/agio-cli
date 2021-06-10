@@ -25,11 +25,16 @@ $ source .venv/bin/activate
 $ pip install -e .[dev]
 ```
 
+Run tests
+```console
+$ pytest tests
+```
+
 Test code style
 ```console
-$ pycodestyle agcli setup.py
-$ pydocstyle agcli setup.py
-$ pylint agcli setup.py
+$ pycodestyle agcli tests setup.py
+$ pydocstyle agcli tests setup.py
+$ pylint agcli tests setup.py
 $ check-manifest
 ```
 
