@@ -38,13 +38,17 @@ jobs:
 
       # Install dependencies
       - name: Install dependencies
-        if: ${{ steps.changes.outputs.notdocs == 'true' }}
         run: |
           pip install -e .[dev]
 
+      # Run tests
+      - name: Run unit and system tests
+        run: |
+          source env/bin/activate
+          pytest -v tests
+
       # Run linters
-      - name: Run tests
-        if: ${{ steps.changes.outputs.notdocs == 'true' }}
+      - name: Run linters
         run: |
           source env/bin/activate
           pylint agiocli setup.py
