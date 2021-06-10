@@ -3,10 +3,14 @@ import datetime as dt
 import difflib
 import json
 import sys
+import re
 
 
 # Map semester name to number
 SEMESTER_NUM = {"Winter": 1, "Spring": 2, "Summer": 3, "Fall": 4}
+
+# Map semester number to name
+SEMESTER_NAME = {1: "Winter", 2: "Spring", 3: "Summer", 4: "Fall"}
 
 # Map month number to semester number
 MONTH_SEMESTER_NUM = {
@@ -111,7 +115,60 @@ def find_group(uniqname, groups):
     return matches[0]
 
 
+def split_digits(course_input):
+    """Split string between digit and alphabetical groups."""
+    return list(filter(None, re.split(r'(\d+)', course_input)))
+
+
+def letter_to_term(letter):
+    """Normalize term names by first letter(s)."""
+    if letter[0].lower() == 'w':
+        return "Winter"
+    if letter[0].lower() == 'f':
+        return "Fall"
+    if len(letter) == 1 or letter[1].lower() == 'p':
+        return "Spring"
+    if letter[1].lower() == 'u':
+        return "Summer"
+    return ""
+
+
+def four_digit_year(year):
+    """Convert two-digit year into four-digit year."""
+    if len(year) == 2:
+        return f"20{year}"
+    return year
+
+
+def transform_course_input(course_input):
+    """Transform set course inputs to improve difflib matching."""
+
+    parsed = split_digits(course_input)
+
+    # eecs485
+    if re.match(r"^[A-Za-z]+\d+$", course_input):
+        # Term not provided, assume current term
+        today = dt.date.today()
+        current_term = f"{SEMESTER_NAME[MONTH_SEMESTER_NUM[today.month]]} {today.year}"
+
+        course_name = f"{parsed[0].upper()} {parsed[1]} {current_term}"
+
+    # eecs485s21
+    elif re.match(r"^[A-Za-z]+\d+[A-Za-z]+\d+$", course_input):
+        course_name = f"{parsed[0].upper()} {parsed[1]} "\
+                      f"{letter_to_term(parsed[2])} {four_digit_year(parsed[3])}"
+
+    # 485s21
+    elif re.match(r"^\d+[A-Za-z]+\d+$", course_input):
+        course_name = f"EECS {parsed[0]} "\
+                      f"{letter_to_term(parsed[1])} {four_digit_year(parsed[2])}"
+
+    return course_name
+
+
 def get_close_matches(term, objs, keyfunc):
+    """Build search target strings with name, semester and year."""
+
     # Build search target strings with name, semester and year.  Convert case
     # for case-insensitive search.  We need a dictionary so that we can
     # retrieve the original object from the search results.  For example: 'eecs
