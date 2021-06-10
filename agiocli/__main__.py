@@ -61,17 +61,13 @@ def courses(ctx, course_args, show_list):
 
     # User provides strings, try to match a course
     elif len(course_args) == 1:
-        course_in = utils.transform_course_input(course_args[0])
-        matches = utils.get_close_matches(
-            course_in, course_list,
-            strfunc=lambda x: f"{x['name']} {x['semester']} {x['year']}",
-        )
-        if not matches:
+        match = utils.find_course(course_args[0], course_list)
+        if not match:
             print(f"Error: couldn't find a course matching '{course_args[0]}'")
             for i in course_list:
                 print(f"[{i['pk']}]\t{i['name']} {i['semester']} {i['year']}")
             sys.exit(1)
-        course_pk = matches[0]["pk"]
+        course_pk = match["pk"]
 
     # No course input from the user, start the selection process
     elif len(course_args) == 0:

@@ -74,6 +74,17 @@ def filter_courses(courses, all_semesters=False):
     return courses
 
 
+def find_course(search, courses):
+    """Given a search term, return the best match or None."""
+    course_in = transform_course_input(search)
+    matches = get_close_matches(
+        course_in,
+        courses,
+        strfunc=lambda x: f"{x['name']} {x['semester']} {x['year']}",
+    )
+    return matches[0] if matches else None
+
+
 def print_course(course):
     """Print course to stdout."""
     print(
