@@ -45,7 +45,7 @@ def courses(ctx, course_arg, show_list):
     """
     client = APIClient.make_default(debug=ctx.obj["DEBUG"])
 
-    # Get a list of courses
+    # Get a list of courses sorted by year, semester and name
     user = client.get("/api/users/current/")
     course_list = client.get(f"/api/users/{user['pk']}/courses_is_admin_for/")
     course_list = sorted(course_list, key=utils.course_key, reverse=True)
@@ -56,13 +56,12 @@ def courses(ctx, course_arg, show_list):
             print(f"[{i['pk']}]\t{i['name']} {i['semester']} {i['year']}")
         return
 
-    # No course input from the user, start the selection process.  If there's
-    # only one current course, select it automatically.  Otherwise, prompt.
+    # No argument from the user.  If there's only one current course, select it
+    # automatically.  Otherwise, prompt.
     if not course_arg:
-        course_list = filter(utils.is_current_course, course_list)
-        course_list = list(course_list)
+        course_list = list(filter(utils.is_current_course, course_list))
         if not course_list:
-            sys.exit("FIXME: No current courses, FIXME hint here")
+            sys.exit("Error: No current courses")
         elif len(course_list) == 1:
             course_pk = list(course_list)[0]["pk"]
         else:
