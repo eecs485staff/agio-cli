@@ -63,9 +63,8 @@ def courses(ctx, course_args, show_list):
     elif len(course_args) == 1:
         course_in = utils.transform_course_input(course_args[0])
         matches = utils.get_close_matches(
-            term=course_in,
-            objs=course_list,
-            keyfunc=lambda x: f"{x['name']} {x['semester']} {x['year']}",
+            course_in, course_list,
+            strfunc=lambda x: f"{x['name']} {x['semester']} {x['year']}",
         )
         if not matches:
             print(f"Error: couldn't find a course matching '{course_args[0]}'")

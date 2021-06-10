@@ -166,23 +166,28 @@ def transform_course_input(course_input):
     return course_name
 
 
-def get_close_matches(term, objs, keyfunc):
-    """Build search target strings with name, semester and year."""
+def get_close_matches(word, possibilities, strfunc, *args, **kwargs):
+    """Return a subset of possibilities matching word.
 
-    # Build search target strings with name, semester and year.  Convert case
-    # for case-insensitive search.  We need a dictionary so that we can
-    # retrieve the original object from the search results.  For example: 'eecs
-    # 280 spring 2018', 'eecs 485 winter 2019'
-    targets = {keyfunc(x).lower(): x for x in objs}
+    A wrapper around difflib.get_close_matches(), extending it work on
+    arbitrary objects and providing case-insensitive search.
+
+    References:
+    https://docs.python.org/3/library/difflib.html#difflib.get_close_matches
+    https://stackoverflow.com/questions/11384714/ignore-case-with-difflib-get-close-matches
+    """
+    # Convert each object to a string.  Each key is a string that will be
+    # matched against the user-provided search word.  Each value is a reference
+    # to the original object.  We also convert to lower case for
+    # case-insensitive matching.
+    targets = {strfunc(x).lower(): x for x in possibilities}
 
     # Case insensitive search term
-    term = term.lower()
+    word = word.lower()
 
-    # difflib does the match
-    # https://docs.python.org/3/library/difflib.html#difflib.get_close_matches
-    results = difflib.get_close_matches(term, targets.keys(), n=1)
+    # Call difflib for the match
+    results = difflib.get_close_matches(word, targets.keys(), *args, **kwargs)
 
-    # Results are search target strings (see above).  Convert search target
-    # string to course object.
+    # Look up difflib's result to get the corresponding original object
     match_courses = [targets[x] for x in results]
     return match_courses
