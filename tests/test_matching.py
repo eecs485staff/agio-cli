@@ -1,4 +1,5 @@
 """Test smart user input string matching."""
+import pytest
 from agiocli import utils
 
 
@@ -27,7 +28,20 @@ def test_find_course_returns_object():
     }
 
 
-def test_find_course_input_patterns():
+@pytest.mark.parametrize(
+    "user_input, expected_course_pk",
+    [
+        ("EECS 485 Spring 2021", 109),
+        ("EECS 485 Spring 21", 109),
+        ("EECS 485 sp 21", 109),
+        ("485 sp 21", 109),
+        ("EECS 280 Spring 2021", 111),
+        ("EECS 280 Spring 21", 111),
+        ("EECS 280 sp 21", 111),
+        ("280 sp 21", 111),
+    ]
+)
+def test_find_course_input_patterns(user_input, expected_course_pk):
     """Many supported input patterns."""
-    course = utils.find_course("EECS 485 Spring 2021", COURSES)
-    assert course["pk"] == 109
+    course = utils.find_course(user_input, COURSES)
+    assert course["pk"] == expected_course_pk
