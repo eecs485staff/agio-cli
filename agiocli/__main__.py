@@ -34,10 +34,10 @@ def login(ctx):
 
 
 @main.command()
-@click.argument("course_args", nargs=-1)
+@click.argument("course_arg", required=False)
 @click.option("-l", "--list", "show_list", is_flag=True, help="List courses and exit")
 @click.pass_context
-def courses(ctx, course_args, show_list):
+def courses(ctx, course_arg, show_list):
     """Should course detail or list courses.
 
     FIXME better description here.
@@ -56,23 +56,9 @@ def courses(ctx, course_args, show_list):
             print(f"[{i['pk']}]\t{i['name']} {i['semester']} {i['year']}")
         return
 
-    # User provides primary key
-    if len(course_args) == 1 and course_args[0].isnumeric():
-        course_pk = course_args[0]
-
-    # User provides strings, try to match a course
-    elif len(course_args) == 1:
-        match = utils.find_course(course_args[0], course_list)
-        if not match:
-            print(f"Error: couldn't find a course matching '{course_args[0]}'")
-            for i in course_list:
-                print(f"[{i['pk']}]\t{i['name']} {i['semester']} {i['year']}")
-            sys.exit(1)
-        course_pk = match["pk"]
-
     # No course input from the user, start the selection process.  If there's
     # only one current course, select it automatically.  Otherwise, prompt.
-    elif len(course_args) == 0:
+    if not course_arg:
         course_list = filter(utils.is_current_course, course_list)
         course_list = list(course_list)
         if not course_list:
@@ -89,9 +75,19 @@ def courses(ctx, course_args, show_list):
             assert selected_courses
             course_pk = selected_courses[0]["pk"]
 
-    # More than 1 argument from user
+    # User provides primary key
+    elif course_arg.isnumeric():
+        course_pk = course_arg
+
+    # User provides a string, try to match a course
     else:
-        sys.exit("FIXME error")
+        match = utils.course_match(course_arg, course_list)
+        if not match:
+            print(f"Error: couldn't find a course matching '{course_arg}'")
+            for i in course_list:
+                print(f"[{i['pk']}]\t{i['name']} {i['semester']} {i['year']}")
+            sys.exit(1)
+        course_pk = match["pk"]
 
     # Show course detail
     course = client.get(f"/api/courses/{course_pk}/")
