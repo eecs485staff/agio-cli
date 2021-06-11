@@ -145,7 +145,7 @@ def parse_course_string(user_input):
     \s*                         # Optional whitespace
     (?P<num>\d{3})              # 3 digit course number
     \s*                         # Optional whitespace
-    (?P<sem>w|wn|winter|sp|spring|su|summer|s|spring/summer|sp/su|spsu|ss|f|fa|fall)  # Semester name or abbreviation
+    (?P<sem>w|wn|winter|sp|s|spring|su|summer|sp/su|spsu|ss|spring/summer|f|fa|fall)  # Semester name or abbreviation
     \s*                         # Optional whitespace
     (?P<year>\d{2,4})           # 2-4 digit year
     \s*                         # Optional whitespace
@@ -168,12 +168,14 @@ def parse_course_string(user_input):
         "wn": "Winter",
         "winter": "Winter",
         "sp": "Spring",
-        "su": "Spring",
+        "s": "Spring",
         "spring": "Spring",
-        "s": "Spring/Summer",
+        "su": "Summer",
+        "summer": "Summer",
         "sp/su": "Spring/Summer",
         "spsu": "Spring/Summer",
         "ss": "Spring/Summer",
+        "spring/summer": "Spring/Summer",
         "f": "Fall",
         "fa": "Fall",
         "fall": "Fall",
