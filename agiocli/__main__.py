@@ -70,16 +70,13 @@ def courses(ctx, course_arg, show_list):
             sys.exit(1)
         course_pk = match["pk"]
 
-    # No course input from the user, start the selection process
+    # No course input from the user.  Filter for current courses, and them
+    # prompt the user.  If there's only one, then don't bother to prompt.
     elif not course_arg:
         print("FIXME hint how to list all courses and specify one")
-        course_list = filter(utils.is_current_course, course_list)
-
-        # Prompt user to select course, with special case for only one current
-        # course
-        course_list = list(course_list)
+        course_list = list(filter(utils.is_current_course, course_list))
         if not course_list:
-            sys.exit("Error: No current courses")
+            sys.exit("Error: No current courses, try 'agio courses -l'")
         elif len(course_list) == 1:
             course_pk = list(course_list)[0]["pk"]
         else:
