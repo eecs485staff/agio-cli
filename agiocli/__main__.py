@@ -36,9 +36,8 @@ def login(ctx):
 @main.command()
 @click.argument("course_arg", required=False)
 @click.option("-l", "--list", "show_list", is_flag=True, help="List courses and exit")
-@click.option("-p", "--course_pk", type=str, default=None, help="Specify a course primary key")
 @click.pass_context
-def courses(ctx, course_arg, show_list, course_pk):
+def courses(ctx, course_arg, show_list):
     """Should course detail or list courses.
 
     FIXME better description here.
@@ -57,8 +56,12 @@ def courses(ctx, course_arg, show_list, course_pk):
             print(f"[{i['pk']}]\t{i['name']} {i['semester']} {i['year']}")
         return
 
+    # User provides a number, assume it's a course primary key
+    if course_arg.isnumeric():
+        course_pk = int(course_arg)
+
     # User provides strings, try to match a course
-    if not course_pk and course_arg:
+    elif course_arg:
         match = utils.course_match(course_arg, course_list)
         if not match:
             print(f"Error: couldn't find a course matching '{course_arg}'")
