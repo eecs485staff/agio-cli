@@ -1,6 +1,5 @@
 """Common utility functions."""
 import datetime as dt
-import difflib
 import json
 import sys
 import re
@@ -8,9 +7,6 @@ import re
 
 # Map semester name to number
 SEMESTER_NUM = {"Winter": 1, "Spring": 2, "Summer": 3, "Fall": 4}
-
-# Map semester number to name
-SEMESTER_NAME = {1: "Winter", 2: "Spring", 3: "Summer", 4: "Fall"}
 
 # Map month number to semester number
 MONTH_SEMESTER_NUM = {
@@ -133,33 +129,6 @@ def find_group(uniqname, groups):
     if len(matches) > 1:
         sys.exit(f"Error: uniqname in more than one group: {uniqname}")
     return matches[0]
-
-
-def get_close_matches(word, possibilities, strfunc, *args, **kwargs):
-    """Return a subset of possibilities matching word.
-
-    A wrapper around difflib.get_close_matches(), extending it work on
-    arbitrary objects and providing case-insensitive search.
-
-    References:
-    https://docs.python.org/3/library/difflib.html#difflib.get_close_matches
-    https://stackoverflow.com/questions/11384714/ignore-case-with-difflib-get-close-matches
-    """
-    # Convert each object to a string.  Each key is a string that will be
-    # matched against the user-provided search word.  Each value is a reference
-    # to the original object.  We also convert to lower case for
-    # case-insensitive matching.
-    targets = {strfunc(x).lower(): x for x in possibilities}
-
-    # Case insensitive search term
-    word = word.lower()
-
-    # Call difflib for the match
-    results = difflib.get_close_matches(word, targets.keys(), *args, **kwargs)
-
-    # Look up difflib's result to get the corresponding original object
-    match_courses = [targets[x] for x in results]
-    return match_courses
 
 
 def parse_course_string(user_input):
