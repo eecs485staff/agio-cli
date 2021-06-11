@@ -89,17 +89,6 @@ def courses(ctx, course_arg, show_list, course_pk):
             assert selected_courses
             course_pk = selected_courses[0]["pk"]
 
-    # More than 1 input from user
-    # TODO: this could have spaces now
-    else:
-        match = utils.course_match(course_arg, course_list)
-        if not match:
-            print(f"Error: couldn't find a course matching '{course_arg}'")
-            for i in course_list:
-                print(f"[{i['pk']}]\t{i['name']} {i['semester']} {i['year']}")
-            sys.exit(1)
-        course_pk = match["pk"]
-
     # Show course detail
     course = client.get(f"/api/courses/{course_pk}/")
     utils.print_dict(course)
