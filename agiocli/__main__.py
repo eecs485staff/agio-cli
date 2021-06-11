@@ -39,8 +39,9 @@ def login(ctx):
               help="List courses and exit.")
 @click.pass_context
 # The \b character in the docstring prevents Click from rewraping a paragraph.
+# We need to tell pycodestyle to ignore it.
 # https://click.palletsprojects.com/en/8.0.x/documentation/#preventing-rewrapping
-def courses(ctx, course_arg, show_list):
+def courses(ctx, course_arg, show_list):  # noqa: D301
     """Show course detail or list courses.
 
     COURSE_ARG is a primary key, name, or shorthand.
@@ -65,23 +66,9 @@ def courses(ctx, course_arg, show_list):
             print(f"[{i['pk']}]\t{i['name']} {i['semester']} {i['year']}")
         return
 
-    # User provides a number, assume it's a course primary key
-    if course_arg.isnumeric():
-        course_pk = int(course_arg)
-
-    # User provides strings, try to match a course
-    elif course_arg:
-        match = utils.course_match(course_arg, course_list)
-        if not match:
-            print(f"Error: couldn't find a course matching '{course_arg}'")
-            for i in course_list:
-                print(f"[{i['pk']}]\t{i['name']} {i['semester']} {i['year']}")
-            sys.exit(1)
-        course_pk = match["pk"]
-
     # No course input from the user.  Filter for current courses, and them
     # prompt the user.  If there's only one, then don't bother to prompt.
-    elif not course_arg:
+    if not course_arg:
         print("FIXME hint how to list all courses and specify one")
         course_list = list(filter(utils.is_current_course, course_list))
         if not course_list:
@@ -98,6 +85,20 @@ def courses(ctx, course_arg, show_list):
             )
             assert selected_courses
             course_pk = selected_courses[0]["pk"]
+
+    # User provides a number, assume it's a course primary key
+    elif course_arg.isnumeric():
+        course_pk = int(course_arg)
+
+    # User provides strings, try to match a course
+    else:
+        match = utils.course_match(course_arg, course_list)
+        if not match:
+            print(f"Error: couldn't find a course matching '{course_arg}'")
+            for i in course_list:
+                print(f"[{i['pk']}]\t{i['name']} {i['semester']} {i['year']}")
+            sys.exit(1)
+        course_pk = match["pk"]
 
     # Show course detail
     course = client.get(f"/api/courses/{course_pk}/")
