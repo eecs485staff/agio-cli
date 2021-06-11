@@ -38,9 +38,14 @@ def login(ctx):
 @click.option("-l", "--list", "show_list", is_flag=True,
               help="List courses and exit.")
 @click.pass_context
+# The \b character in the docstring prevents Click from rewraping a paragraph.
+# https://click.palletsprojects.com/en/8.0.x/documentation/#preventing-rewrapping
 def courses(ctx, course_arg, show_list):
     """Show course detail or list courses.
 
+    COURSE_ARG is a primary key, name, or shorthand.
+
+    \b
     EXAMPLES:
     agio courses 109
     agio courses "EECS 485 Spring 2021"
