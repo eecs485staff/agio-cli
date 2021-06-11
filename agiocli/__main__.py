@@ -35,12 +35,19 @@ def login(ctx):
 
 @main.command()
 @click.argument("course_arg", required=False)
-@click.option("-l", "--list", "show_list", is_flag=True, help="List courses and exit")
+@click.option("-l", "--list", "show_list", is_flag=True,
+              help="List courses and exit.")
 @click.pass_context
 def courses(ctx, course_arg, show_list):
-    """Should course detail or list courses.
+    """Show course detail or list courses.
 
-    FIXME better description here.
+    EXAMPLES:
+
+    agio courses 109
+
+    agio courses "EECS 485 Spring 2021"
+
+    agio courses eecs485sp21
 
     """
     client = APIClient.make_default(debug=ctx.obj["DEBUG"])
@@ -83,7 +90,8 @@ def courses(ctx, course_arg, show_list):
             selected_courses = pick.pick(
                 options=course_list,
                 title="Select a course:",
-                options_map_func=lambda x: f"{x['name']} {x['semester']} {x['year']}",
+                options_map_func=lambda x:
+                    f"{x['name']} {x['semester']} {x['year']}",
                 multiselect=False,
             )
             assert selected_courses

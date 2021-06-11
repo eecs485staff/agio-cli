@@ -74,9 +74,9 @@ def course_match(search, courses):
     """Given a search term, return the best matching course or None."""
     year, semester, name = parse_course_string(search)
     courses = filter(
-        lambda x: \
-            x["year"] == year and \
-            x["semester"] == semester and \
+        lambda x:
+            x["year"] == year and
+            x["semester"] == semester and
             x["name"] == name,
         courses
     )
@@ -96,6 +96,7 @@ def print_course(course):
         f"[{course['pk']}] {course['name']} "
         f"{course['semester']} {course['year']}"
     )
+
 
 def print_dict(obj):
     """Pretty print a dictionary."""
@@ -145,7 +146,12 @@ def parse_course_string(user_input):
     \s*                         # Optional whitespace
     (?P<num>\d{3})              # 3 digit course number
     \s*                         # Optional whitespace
-    (?P<sem>w|wn|winter|sp|s|spring|su|summer|sp/su|spsu|ss|spring/summer|f|fa|fall)  # Semester name or abbreviation
+    (?P<sem>                    # Semester name or abbreviation
+        w|wn|winter|
+        sp|s|spring|
+        su|summer|
+        sp/su|spsu|ss|spring/summer|
+        f|fa|fall)
     \s*                         # Optional whitespace
     (?P<year>\d{2,4})           # 2-4 digit year
     \s*                         # Optional whitespace
