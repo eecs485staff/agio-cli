@@ -76,13 +76,22 @@ def filter_courses(courses, all_semesters=False):
 
 def course_match(search, courses):
     """Given a search term, return the best matching course or None."""
-    course_in = transform_course_input(search)
-    matches = get_close_matches(
-        course_in,
-        courses,
-        strfunc=lambda x: f"{x['name']} {x['semester']} {x['year']}",
+    year, semester, name = parse_course_string(search)
+    courses = filter(
+        lambda x: \
+            x["year"] == year and \
+            x["semester"] == semester and \
+            x["name"] == name,
+        courses
     )
-    return matches[0] if matches else None
+
+    # If there's only 1 course, return that
+    courses = list(courses)
+    if not courses:
+        return None
+    if len(courses) == 1:
+        return courses[0]
+    sys.exit(f"Error: more than one course matches '{search}': {courses}")
 
 
 def print_course(course):
@@ -126,60 +135,6 @@ def find_group(uniqname, groups):
     return matches[0]
 
 
-def split_digits(course_input):
-    """Split string between digit and alphabetical groups."""
-    return list(filter(None, re.split(r'(\d+)', course_input)))
-
-
-def letter_to_term(letter):
-    """Normalize term names by first letter(s)."""
-    if letter[0].lower() == 'w':
-        return "Winter"
-    if letter[0].lower() == 'f':
-        return "Fall"
-    if len(letter) == 1 or letter[1].lower() == 'p':
-        return "Spring"
-    if letter[1].lower() == 'u':
-        return "Summer"
-    return ""
-
-
-def four_digit_year(year):
-    """Convert two-digit year into four-digit year."""
-    if len(year) == 2:
-        return int(f"20{year}")
-    return int(year)
-
-
-def transform_course_input(course_input):
-    """Transform set course inputs to improve difflib matching."""
-
-    parsed = split_digits(course_input)
-
-    # eecs485
-    if re.match(r"^[A-Za-z]+\d+$", course_input):
-        # Term not provided, assume current term
-        today = dt.date.today()
-        current_term = f"{SEMESTER_NAME[MONTH_SEMESTER_NUM[today.month]]} {today.year}"
-        return f"{parsed[0].upper()} {parsed[1]} {current_term}"
-
-    # eecs485s21
-    if re.match(r"^[A-Za-z]+\d+[A-Za-z]+\d+$", course_input):
-        return (
-            f"{parsed[0].upper()} {parsed[1]} "
-            f"{letter_to_term(parsed[2])} {four_digit_year(parsed[3])}"
-        )
-
-    # 485s21
-    if re.match(r"^\d+[A-Za-z]+\d+$", course_input):
-        return (
-            f"EECS {parsed[0]} "
-            f"{letter_to_term(parsed[1])} {four_digit_year(parsed[2])}"
-        )
-
-    return course_input
-
-
 def get_close_matches(word, possibilities, strfunc, *args, **kwargs):
     """Return a subset of possibilities matching word.
 
@@ -207,76 +162,65 @@ def get_close_matches(word, possibilities, strfunc, *args, **kwargs):
     return match_courses
 
 
+def parse_course_string(user_input):
+    """Return year, semester, and course name from a user input string.
 
-def find_course_filter(course_in, course_list):
-    """Procedurally filter courses from course list."""
+    EXAMPLE:
+    >>> parse_course_string("eecs485sp21")
+    (2021, 'Spring', 'EECS 485')
+    """
+    pattern = r"""(?ix)         # Regex options: case insensitive, verbose
+    ^                           # Match starts at beginning
+    \s*                         # Optional whitespace
+    (?P<dept>[a-z]*)            # Optional department
+    \s*                         # Optional whitespace
+    (?P<num>\d{3})              # 3 digit course number
+    \s*                         # Optional whitespace
+    (?P<sem>w|wn|winter|sp|spring|su|summer|s|spring/summer|sp/su|spsu|ss|f|fa|fall)  # Semester name or abbreviation
+    \s*                         # Optional whitespace
+    (?P<year>\d{2,4})           # 2-4 digit year
+    \s*                         # Optional whitespace
+    $                           # Match ends at the end
+    """
+    match = re.search(pattern, user_input, re.IGNORECASE)
+    if not match:
+        return None, None, None
 
-    # If there's only 1 course, return that
-    # if len(course_list) == 1:
-    #     return course_list[0]
-    # elif len(course_list) == 0:
-    #     return None
+    # Convert year to a number, handling 2-digit year as "20xx"
+    year = int(match.group("year"))
+    assert year >= 0
+    if year < 100:
+        year = 2000 + year
 
-    # The first number should be interpreted as the course code
-    # Everything after the first number should be interpreted as the term
-    # Everything before the first number should be interpreted as the department
+    # Convert semester abbreviation to semester name.  Make sure that the keys
+    # match the abbreviations in the regular expression above.
+    semester_names = {
+        "w": "Winter",
+        "wn": "Winter",
+        "winter": "Winter",
+        "sp": "Spring",
+        "su": "Spring",
+        "spring": "Spring",
+        "s": "Spring/Summer",
+        "sp/su": "Spring/Summer",
+        "spsu": "Spring/Summer",
+        "ss": "Spring/Summer",
+        "f": "Fall",
+        "fa": "Fall",
+        "fall": "Fall",
+    }
+    semester_abbrev = match.group("sem").lower()
+    semester = semester_names[semester_abbrev]
 
-    # Extract the course and the term (optional) from input
-    course, *semester = list(filter(None, re.split(r'(\D*\d+)', course_in)))
-    semester = semester[0] if semester else None
+    # Course name, with department and catalog number.  If no department is
+    # specified, assume "EECS".
+    dept = match.group("dept")
+    dept = dept.upper()
+    if not dept:
+        print("WARNING: no department specified, assuming 'EECS'")
+        dept = "EECS"
+    num = match.group("num")
+    name = f"{dept} {num}"
 
-    course = course.strip()
-    semester = semester.strip()
-
-    # Split department name and course code
-    if course.isnumeric():
-        department = None
-        course_code = course
-    else:
-        department, course_code = list(filter(None, re.split(r'(\d+)', course)))
-
-    # Filter by course name
-    if department:
-        course_list = list(filter(lambda x: department.lower() in\
-            x["name"].lower(), course_list))
-    course_list = list(filter(lambda x: course_code in x["name"], course_list))
-
-    # If there's only 1 course, return that
-    if len(course_list) == 1:
-        return course_list[0]
-    if len(course_list) == 0:
-        return None
-
-    # Split term and year
-    today = dt.date.today()
-    if not semester:
-        # TODO: if semester not provided, should it just be the most recent
-        # occurance of that class?
-        term = SEMESTER_NAME[MONTH_SEMESTER_NUM[today.month]]
-        year = today.year
-    else:
-        term, *year = list(filter(None, re.split(r'(\D+)', semester)))
-        year = year[0] if year else None
-        term = letter_to_term(term)
-        if year:
-            year = four_digit_year(year)
-        else:
-            # TODO: if year not provided, should it just be the most recent
-            # occurance of that term?
-            year = today.year
-
-    term = term.strip()
-
-    # Filter by semester
-    if year:
-        course_list = list(filter(lambda x: x["year"] == year, course_list))
-    course_list = list(filter(lambda x: x["semester"] == term, course_list))
-    # FIXME: 's' input as summer will fail here
-
-    # Filtering complete here
-    if len(course_list) == 1:
-        return course_list[0]
-    if len(course_list) == 0:
-        return None
-    print("FIXME: Found more than one match")
-    return None
+    # Return a tuple
+    return year, semester, name

@@ -59,7 +59,7 @@ def courses(ctx, course_arg, show_list, course_pk):
 
     # User provides strings, try to match a course
     if not course_pk and course_arg:
-        match = utils.find_course_filter(course_arg, course_list)
+        match = utils.course_match(course_arg, course_list)
         if not match:
             print(f"Error: couldn't find a course matching '{course_arg}'")
             for i in course_list:
