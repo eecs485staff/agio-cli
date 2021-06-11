@@ -42,11 +42,8 @@ def courses(ctx, course_arg, show_list):
     """Show course detail or list courses.
 
     EXAMPLES:
-
     agio courses 109
-
     agio courses "EECS 485 Spring 2021"
-
     agio courses eecs485sp21
 
     """
