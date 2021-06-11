@@ -69,7 +69,6 @@ def courses(ctx, course_arg, show_list):  # noqa: D301
     # No course input from the user.  Filter for current courses, and them
     # prompt the user.  If there's only one, then don't bother to prompt.
     if not course_arg:
-        print("FIXME hint how to list all courses and specify one")
         course_list = list(filter(utils.is_current_course, course_list))
         if not course_list:
             sys.exit("Error: No current courses, try 'agio courses -l'")
