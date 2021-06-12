@@ -159,6 +159,7 @@ def parse_course_string(user_input):
     """
     match = re.search(pattern, user_input, re.IGNORECASE)
     if not match:
+        print("Error: unsupported input format")
         return None, None, None
 
     # Convert year to a number, handling 2-digit year as "20xx"
