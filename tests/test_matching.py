@@ -50,7 +50,8 @@ ALL_COURSES = [
     {"pk": 31, "name": "EECS 498-001 (Data Mining)",
         "semester": "Fall", "year": 2018},
     {"pk": 32, "name": "EECS 280", "semester": "Winter", "year": 2019},
-    {"pk": 33, "name": "EECS 183 All Projects", "semester": None, "year": None},
+    {"pk": 33, "name": "EECS 183 All Projects",
+        "semester": None, "year": None},
     {"pk": 34, "name": "EECS 183", "semester": "Winter", "year": 2019},
     {"pk": 35, "name": "EECS 485", "semester": "Winter", "year": 2019},
     {"pk": 36, "name": "ENGR 101", "semester": "Winter", "year": 2019},
@@ -174,26 +175,30 @@ def test_course_match_input_patterns(user_input, expected_course_pk):
         ("EECS 598 Winter 2019", 38),
         ("EECS 398 Fall 2019", 53),
         ("EECS 490 Winter 2020", 67),
-        # ("EECS 484 Fall 2020", 77), # This won't match because there is a duplicate
-        ("EECS 498 Fall 2020", 79), # This won't match on EECS 598
+        # ("EECS 484 Fall 2020", 77)
+        # Above won't match because there is a duplicate
+        ("EECS 498 Fall 2020", 79),  # This won't match on EECS 598
         ("EECS 398 Winter 2021", 90),
         ("EECS 598 wn 19", 38),
         ("EECS 398 fa 19", 53),
         ("EECS 490 wn 20", 67),
-        # ("EECS 484 f 20", 77), # This won't match because there is a duplicate
-        ("EECS 498 f 20", 79), # This won't match on EECS 598
+        # ("EECS 484 f 20", 77),
+        # Above won't match because there is a duplicate
+        ("EECS 498 f 20", 79),  # This won't match on EECS 598
         ("EECS 398 w 21", 90),
         ("598 wn 19", 38),
         ("398 fa 19", 53),
         ("490 wn 20", 67),
-        # ("484 f 20", 77), # This won't match because there is a duplicate
-        ("498 f 20", 79), # This won't match on EECS 598
+        # ("484 f 20", 77),
+        # Above won't match because there is a duplicate
+        ("498 f 20", 79),  # This won't match on EECS 598
         ("398 w 21", 90),
         ("598wn19", 38),
         ("398fa19", 53),
         ("490wn20", 67),
-        # ("484f20", 77), # This won't match because there is a duplicate
-        ("498f20", 79), # This won't match on EECS 598
+        # ("484f20", 77),
+        # Above won't match because there is a duplicate
+        ("498f20", 79),  # This won't match on EECS 598
         ("398w21", 90),
     ]
 )
