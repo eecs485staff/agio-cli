@@ -77,7 +77,7 @@ def course_match(search, courses):
         lambda x:
             x["year"] == year and
             x["semester"] == semester and
-            x["name"] == name,
+            name in x["name"],
         courses
     )
 
