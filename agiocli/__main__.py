@@ -48,6 +48,7 @@ def courses(ctx, course_arg, show_list):  # noqa: D301
 
     \b
     EXAMPLES:
+    agio courses
     agio courses 109
     agio courses "EECS 485 Spring 2021"
     agio courses eecs485sp21
