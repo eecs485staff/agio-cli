@@ -4,22 +4,6 @@ from agiocli import utils
 
 
 COURSES = [
-    {'pk': 17, 'name': 'EECS 280', 'semester': 'Spring', 'year': 2018},
-    {'pk': 26, 'name': 'EECS 280', 'semester': 'Fall', 'year': 2018},
-    {'pk': 32, 'name': 'EECS 280', 'semester': 'Winter', 'year': 2019},
-    {'pk': 43, 'name': 'EECS 280', 'semester': 'Spring', 'year': 2019},
-    {'pk': 50, 'name': 'EECS 280', 'semester': 'Fall', 'year': 2019},
-    {'pk': 100, 'name': 'EECS 280', 'semester': 'Winter', 'year': 2021},
-    {'pk': 111, 'name': 'EECS 280', 'semester': 'Spring', 'year': 2021},
-    {'pk': 21, 'name': 'EECS 280 Diagnostic', 'semester': None, 'year': None},
-    {'pk': 35, 'name': 'EECS 485', 'semester': 'Winter', 'year': 2019},
-    {'pk': 46, 'name': 'EECS 485', 'semester': 'Fall', 'year': 2019},
-    {'pk': 74, 'name': 'EECS 485', 'semester': 'Summer', 'year': 2020},
-    {'pk': 85, 'name': 'EECS 485', 'semester': 'Fall', 'year': 2020},
-    {'pk': 109, 'name': 'EECS 485', 'semester': 'Spring', 'year': 2021}
-]
-
-ALL_COURSES = [
     {"pk": 1, "name": "EECS 280", "semester": "Fall", "year": 2016},
     {"pk": 2, "name": "EECS 280", "semester": "Winter", "year": 2017},
     {"pk": 3, "name": "EECS 490", "semester": "Fall", "year": 2017},
@@ -139,7 +123,6 @@ ALL_COURSES = [
     {"pk": 126, "name": "ENGR 101", "semester": "Fall", "year": 2021}
 ]
 
-
 def test_course_match_returns_object():
     """Verify match is an unmodified course object."""
     course = utils.course_match("EECS 485 Spring 2021", COURSES)
@@ -204,7 +187,7 @@ def test_course_match_input_patterns(user_input, expected_course_pk):
 )
 def test_course_match_strange_name(user_input, expected_course_pk):
     """Many supported input patterns."""
-    course = utils.course_match(user_input, ALL_COURSES)
+    course = utils.course_match(user_input, COURSES)
     assert course["pk"] == expected_course_pk
 
 
