@@ -63,16 +63,55 @@ def api_mock(requests_mock):
         ]
         """)
         )
+    # FIXME: should I index the array above?
+    requests_mock.get(
+        "https://autograder.io/api/courses/109/",
+        text=textwrap.dedent("""\
+        {
+            "pk": 109,
+            "name": "EECS 485",
+            "semester": "Spring",
+            "year": 2021,
+            "subtitle": "Web Systems",
+            "num_late_days": 0,
+            "allowed_guest_domain": "@umich.edu",
+            "last_modified": "2021-04-07T02:19:22.818992Z"
+        }        """)
+    )
 
 
 def test_courses_list(api_mock):
-    """Verify agio courses --list."""
-    runner = click.testing.CliRunner(mix_stderr=False)
+    """Verify agio courses list option.
+
+    $ agio courses --list
+    """
+    runner = click.testing.CliRunner()
     result = runner.invoke(main, ["courses", "--list"])
     assert result.exit_code == 0
-    assert result.output == '[129]\tEECS 485 Fall 2021\n[109]\tEECS 485 Spring 2021\n[111]\tEECS 280 Spring 2021\n'
     assert result.output == textwrap.dedent("""\
         [129]\tEECS 485 Fall 2021
         [109]\tEECS 485 Spring 2021
         [111]\tEECS 280 Spring 2021
     """)
+
+
+def test_courses_pk(api_mock):
+    """Verify courses subcommand with primary key input.
+
+    $ agio courses 109
+    """
+    runner = click.testing.CliRunner()
+    result = runner.invoke(main, ["courses", "109"])
+    assert result.exit_code == 0
+    assert result.output == textwrap.dedent("""\
+        {
+            "pk": 109,
+            "name": "EECS 485",
+            "semester": "Spring",
+            "year": 2021,
+            "subtitle": "Web Systems",
+            "num_late_days": 0,
+            "allowed_guest_domain": "@umich.edu",
+            "last_modified": "2021-04-07T02:19:22.818992Z"
+        }
+       """)
