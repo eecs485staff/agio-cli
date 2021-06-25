@@ -225,24 +225,7 @@ def smart_course_select(course_arg, course_list):
             assert selected_courses
             return selected_courses[0]
 
-    # User provides a number, assume it's a course primary key
-    if course_arg.isnumeric():
-        course_arg = int(course_arg)
-        matches = [x for x in course_list if x["pk"] == course_arg]
-        # FIXME copy pasta
-        if not matches:
-            print(f"Error: couldn't find a course matching '{course_arg}'")
-            for i in course_list:
-                print(f"[{i['pk']}]\t{i['name']} {i['semester']} {i['year']}")
-            sys.exit(1)
-        if len(matches) > 1:
-            print(f"Error: more than one course matches '{course_arg}'")
-            for i in course_list:
-                print(f"[{i['pk']}]\t{i['name']} {i['semester']} {i['year']}")
-            sys.exit(1)
-        return matches[0]
-
-    # User provides strings, try to match a course
+    # Try to match a course
     match = course_match(course_arg, course_list)
     if not match:
         print(f"Error: couldn't find a course matching '{course_arg}'")

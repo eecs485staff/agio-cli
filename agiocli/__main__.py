@@ -55,6 +55,12 @@ def courses(ctx, course_arg, show_list):  # noqa: D301
     """
     client = APIClient.make_default(debug=ctx.obj["DEBUG"])
 
+    # User provides course PK
+    if course_arg and course_arg.isnumeric():
+        course = client.get(f"/api/courses/{course_arg}/")
+        utils.print_dict(course)
+        return
+
     # Get a list of courses sorted by year, semester and name
     user = client.get("/api/users/current/")
     course_list = client.get(f"/api/users/{user['pk']}/courses_is_admin_for/")
@@ -86,12 +92,10 @@ def projects(ctx, project_arg, course_arg):
         utils.print_dict(project)
         return
 
-    # Get a list of courses sorted by year, semester and name
+    # Select a course
     user = client.get("/api/users/current/")
     course_list = client.get(f"/api/users/{user['pk']}/courses_is_admin_for/")
     course_list = sorted(course_list, key=utils.course_key, reverse=True)
-
-    # Select a course
     course = utils.smart_course_select(course_arg, course_list)
 
     # Get a list of projects for this course, sorted by name
