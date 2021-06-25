@@ -55,24 +55,29 @@ def courses(ctx, course_arg, show_list):  # noqa: D301
     """
     client = APIClient.make_default(debug=ctx.obj["DEBUG"])
 
+    # Handle --list: list courses and exit
+    if show_list:
+        # Get a list of courses sorted by year, semester and name
+        # FIXME copy pasta
+        user = client.get("/api/users/current/")
+        course_list = client.get(f"/api/users/{user['pk']}/courses_is_admin_for/")
+        course_list = sorted(course_list, key=utils.course_key, reverse=True)
+        for i in course_list:
+            print(f"[{i['pk']}]\t{i['name']} {i['semester']} {i['year']}")
+        return
+
     # User provides course PK
     if course_arg and course_arg.isnumeric():
         course = client.get(f"/api/courses/{course_arg}/")
         utils.print_dict(course)
         return
 
+    # FIXME comment smart select
     # Get a list of courses sorted by year, semester and name
+    # FIXME copy pasta
     user = client.get("/api/users/current/")
     course_list = client.get(f"/api/users/{user['pk']}/courses_is_admin_for/")
     course_list = sorted(course_list, key=utils.course_key, reverse=True)
-
-    # Handle --list: list courses and exit
-    if show_list:
-        for i in course_list:
-            print(f"[{i['pk']}]\t{i['name']} {i['semester']} {i['year']}")
-        return
-
-    # FIXME comment
     course = utils.smart_course_select(course_arg, course_list)
 
     # Show course detail
@@ -82,21 +87,28 @@ def courses(ctx, course_arg, show_list):  # noqa: D301
 @main.command()
 @click.argument("project_arg", required=False)
 @click.option("-c", "--course", "course_arg", help="Debug output")
+@click.option("-l", "--list", "show_list", is_flag=True,
+              help="List projects and exit.")
 @click.pass_context
-def projects(ctx, project_arg, course_arg):
+def projects(ctx, project_arg, course_arg, show_list):
     client = APIClient.make_default(debug=ctx.obj["DEBUG"])
+
+    # Handle --list: list projects and exit
+    # FIXME copy pasta
+    user = client.get("/api/users/current/")
+    course_list = client.get(f"/api/users/{user['pk']}/courses_is_admin_for/")
+    course_list = sorted(course_list, key=utils.course_key, reverse=True)
+    course = utils.smart_course_select(course_arg, course_list)
+
+    # Get a list of projects for this course, sorted by name
+    project_list = client.get(f"/api/courses/{course['pk']}/projects/")
+    project_list = sorted(project_list, key=lambda x: x["name"])
 
     # User provides project PK
     if project_arg and project_arg.isnumeric():
         project = client.get(f"/api/projects/{project_arg}/")
         utils.print_dict(project)
         return
-
-    # Select a course
-    user = client.get("/api/users/current/")
-    course_list = client.get(f"/api/users/{user['pk']}/courses_is_admin_for/")
-    course_list = sorted(course_list, key=utils.course_key, reverse=True)
-    course = utils.smart_course_select(course_arg, course_list)
 
     # Get a list of projects for this course, sorted by name
     project_list = client.get(f"/api/courses/{course['pk']}/projects/")
