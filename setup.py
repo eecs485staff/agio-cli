@@ -39,6 +39,7 @@ setuptools.setup(
             "pydocstyle",
             "pylint",
             "pytest",
+            "requests-mock",
         ],
     },
     python_requires='>=3.6',
