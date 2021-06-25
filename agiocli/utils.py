@@ -205,18 +205,28 @@ def parse_course_string(user_input):
     return year, semester, name
 
 
-def smart_course_select(course_arg, course_list):
+def get_course_smart(course_arg, client):
+    # User provides course PK
+    if course_arg and course_arg.isnumeric():
+        return client.get(f"/api/courses/{course_arg}/")
+
+    # Get a list of courses sorted by year, semester and name
+    user = client.get("/api/users/current/")
+    courses = client.get(f"/api/users/{user['pk']}/courses_is_admin_for/")
+    courses = sorted(courses, key=course_key, reverse=True)
+
     # No course input from the user.  Filter for current courses, and them
     # prompt the user.  If there's only one, then don't bother to prompt.
     if not course_arg:
-        course_list = list(filter(is_current_course, course_list))
-        if not course_list:
+        courses = list(filter(is_current_course, courses))
+        if not courses:
+            # FIXME raise exception
             sys.exit("Error: No current courses, try 'agio courses -l'")
-        elif len(course_list) == 1:
-            return course_list[0]
+        elif len(courses) == 1:
+            return courses[0]
         else:
             selected_courses = pick.pick(
-                options=course_list,
+                options=courses,
                 title="Select a course:",
                 options_map_func=lambda x:
                     f"{x['name']} {x['semester']} {x['year']}",
@@ -226,10 +236,11 @@ def smart_course_select(course_arg, course_list):
             return selected_courses[0]
 
     # Try to match a course
-    match = course_match(course_arg, course_list)
+    match = course_match(course_arg, courses)
     if not match:
+        # FIXME raise exception
         print(f"Error: couldn't find a course matching '{course_arg}'")
-        for i in course_list:
+        for i in courses:
             print(f"[{i['pk']}]\t{i['name']} {i['semester']} {i['year']}")
         sys.exit(1)
     return match
@@ -295,7 +306,21 @@ def project_match(search, projects):
     sys.exit(f"Error: more than one project matches '{search}': {projects}")
 
 
-def smart_project_select(project_arg, project_list):
+def get_project_smart(project_arg, course_arg, client):
+    # User provides project PK
+    if project_arg and project_arg.isnumeric():
+        return client.get(f"/api/projects/{project_arg}/")
+
+    # Get a course
+    course = get_course_smart(course_arg, client)
+
+    # Get a list of projects for this course, sorted by name
+    project_list = client.get(f"/api/courses/{course['pk']}/projects/")
+    project_list = sorted(project_list, key=lambda x: x["name"])
+    if not project_list:
+        # FIXME throw exception
+        sys.exit("Error: No projects for course, try 'agio courses -l'")
+
     # No project input from the user.  Show all projects for current course and
     # and prompt the user.
     if not project_arg:
@@ -307,23 +332,6 @@ def smart_project_select(project_arg, project_list):
         )
         assert selected_projects
         return selected_projects[0]
-
-    # User provides a number, assume it's a project primary key
-    if project_arg.isnumeric():
-        project_arg = int(project_arg)
-        matches = [x for x in project_list if x["pk"] == project_arg]
-        # FIXME copy pasta
-        if not matches:
-            print(f"Error: couldn't find a project matching '{project_arg}'")
-            for i in project_list:
-                print(f"[{i['pk']}]\t{i['name']}")
-            sys.exit(1)
-        if len(matches) > 1:
-            print(f"Error: more than one project matches '{project_arg}'")
-            for i in project_list:
-                print(f"[{i['pk']}]\t{i['name']}")
-            sys.exit(1)
-        return matches[0]
 
     # User provides strings, try to match a project
     match = project_match(project_arg, project_list)

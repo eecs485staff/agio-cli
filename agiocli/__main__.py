@@ -66,21 +66,8 @@ def courses(ctx, course_arg, show_list):  # noqa: D301
             print(f"[{i['pk']}]\t{i['name']} {i['semester']} {i['year']}")
         return
 
-    # User provides course PK
-    if course_arg and course_arg.isnumeric():
-        course = client.get(f"/api/courses/{course_arg}/")
-        utils.print_dict(course)
-        return
-
-    # FIXME comment smart select
-    # Get a list of courses sorted by year, semester and name
-    # FIXME copy pasta
-    user = client.get("/api/users/current/")
-    course_list = client.get(f"/api/users/{user['pk']}/courses_is_admin_for/")
-    course_list = sorted(course_list, key=utils.course_key, reverse=True)
-    course = utils.smart_course_select(course_arg, course_list)
-
-    # Show course detail
+    # Select a course and print it
+    course = utils.get_course_smart(course_arg, client)
     utils.print_dict(course)
 
 
@@ -94,33 +81,17 @@ def projects(ctx, project_arg, course_arg, show_list):
     client = APIClient.make_default(debug=ctx.obj["DEBUG"])
 
     # Handle --list: list projects and exit
-    # FIXME copy pasta
-    user = client.get("/api/users/current/")
-    course_list = client.get(f"/api/users/{user['pk']}/courses_is_admin_for/")
-    course_list = sorted(course_list, key=utils.course_key, reverse=True)
-    course = utils.smart_course_select(course_arg, course_list)
-
-    # Get a list of projects for this course, sorted by name
-    project_list = client.get(f"/api/courses/{course['pk']}/projects/")
-    project_list = sorted(project_list, key=lambda x: x["name"])
-
-    # User provides project PK
-    if project_arg and project_arg.isnumeric():
-        project = client.get(f"/api/projects/{project_arg}/")
-        utils.print_dict(project)
+    if show_list:
+        # FIXME copy pasta
+        course = utils.get_course_smart(course_arg, client)
+        project_list = client.get(f"/api/courses/{course['pk']}/projects/")
+        project_list = sorted(project_list, key=lambda x: x["name"])
+        for i in project_list:
+            print(f"[{i['pk']}]\t{i['name']}")
         return
 
-    # Get a list of projects for this course, sorted by name
-    project_list = client.get(f"/api/courses/{course['pk']}/projects/")
-    project_list = sorted(project_list, key=lambda x: x["name"])
-    if not project_list:
-        # FIXME better error message
-        sys.exit("Error: No projects for course, try 'agio courses -l'")
-
-    # FIXME comment
-    project = utils.smart_project_select(project_arg, project_list)
-
-    # Show project detail
+    # Select a project and print it
+    project = utils.get_project_smart(project_arg, course_arg, client)
     utils.print_dict(project)
 
 
