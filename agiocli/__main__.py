@@ -5,7 +5,6 @@ Andrew DeOrio <awdeorio@umich.edu>
 """
 import sys
 import click
-import pick
 from agiocli import APIClient, utils
 
 
@@ -67,74 +66,46 @@ def courses(ctx, course_arg, show_list):  # noqa: D301
             print(f"[{i['pk']}]\t{i['name']} {i['semester']} {i['year']}")
         return
 
-    # No course input from the user.  Filter for current courses, and them
-    # prompt the user.  If there's only one, then don't bother to prompt.
-    if not course_arg:
-        course_list = list(filter(utils.is_current_course, course_list))
-        if not course_list:
-            sys.exit("Error: No current courses, try 'agio courses -l'")
-        elif len(course_list) == 1:
-            course_pk = list(course_list)[0]["pk"]
-        else:
-            selected_courses = pick.pick(
-                options=course_list,
-                title="Select a course:",
-                options_map_func=lambda x:
-                    f"{x['name']} {x['semester']} {x['year']}",
-                multiselect=False,
-            )
-            assert selected_courses
-            course_pk = selected_courses[0]["pk"]
-
-    # User provides a number, assume it's a course primary key
-    elif course_arg.isnumeric():
-        course_pk = int(course_arg)
-
-    # User provides strings, try to match a course
-    else:
-        match = utils.course_match(course_arg, course_list)
-        if not match:
-            print(f"Error: couldn't find a course matching '{course_arg}'")
-            for i in course_list:
-                print(f"[{i['pk']}]\t{i['name']} {i['semester']} {i['year']}")
-            sys.exit(1)
-        course_pk = match["pk"]
+    # FIXME comment
+    course = utils.smart_course_select(course_arg, course_list)
 
     # Show course detail
-    course = client.get(f"/api/courses/{course_pk}/")
     utils.print_dict(course)
 
 
 @main.command()
-@click.argument("project_pks", nargs=-1)
+@click.argument("project_arg", required=False)
+@click.option("-c", "--course", "course_arg", help="Debug output")
 @click.pass_context
-def projects(ctx, project_pks):
-    """List projects or show project detail.
-
-    When called with no arguments, list courses and their projects.  When
-    called with a project primary key, show project detail.
-
-    """
+def projects(ctx, project_arg, course_arg):
     client = APIClient.make_default(debug=ctx.obj["DEBUG"])
 
-    # If the user doesn't specify a project, list courses and projects
-    if not project_pks:
-        user = client.get("/api/users/current/")
-        user_pk = user["pk"]
-        course_list = client.get(f"/api/users/{user_pk}/courses_is_admin_for/")
-        course_list = utils.filter_courses(course_list, ctx.obj["ALL"])
-        for course in course_list:
-            utils.print_course(course)
-            project_list = client.get(f"/api/courses/{course['pk']}/projects/")
-            project_list = sorted(project_list, key=lambda x: x["name"])
-            for project in project_list:
-                print(f"  [{project['pk']}] {project['name']}")
+    # User provides project PK
+    if project_arg and project_arg.isnumeric():
+        project = client.get(f"/api/projects/{project_arg}/")
+        utils.print_dict(project)
         return
 
-    # If the user provides project pks, show project detail
-    for project_pk in project_pks:
-        project = client.get(f"/api/projects/{project_pk}/")
-        utils.print_dict(project)
+    # Get a list of courses sorted by year, semester and name
+    user = client.get("/api/users/current/")
+    course_list = client.get(f"/api/users/{user['pk']}/courses_is_admin_for/")
+    course_list = sorted(course_list, key=utils.course_key, reverse=True)
+
+    # Select a course
+    course = utils.smart_course_select(course_arg, course_list)
+
+    # Get a list of projects for this course, sorted by name
+    project_list = client.get(f"/api/courses/{course['pk']}/projects/")
+    project_list = sorted(project_list, key=lambda x: x["name"])
+    if not project_list:
+        # FIXME better error message
+        sys.exit("Error: No projects for course, try 'agio courses -l'")
+
+    # FIXME comment
+    project = utils.smart_project_select(project_arg, project_list)
+
+    # Show project detail
+    utils.print_dict(project)
 
 
 @main.command()

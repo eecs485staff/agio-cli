@@ -3,6 +3,7 @@ import datetime as dt
 import json
 import sys
 import re
+import pick
 
 
 # Map semester name to number
@@ -202,3 +203,97 @@ def parse_course_string(user_input):
 
     # Return a tuple
     return year, semester, name
+
+
+def smart_course_select(course_arg, course_list):
+    # No course input from the user.  Filter for current courses, and them
+    # prompt the user.  If there's only one, then don't bother to prompt.
+    if not course_arg:
+        course_list = list(filter(is_current_course, course_list))
+        if not course_list:
+            sys.exit("Error: No current courses, try 'agio courses -l'")
+        elif len(course_list) == 1:
+            return course_list[0]
+        else:
+            selected_courses = pick.pick(
+                options=course_list,
+                title="Select a course:",
+                options_map_func=lambda x:
+                    f"{x['name']} {x['semester']} {x['year']}",
+                multiselect=False,
+            )
+            assert selected_courses
+            return selected_courses[0]
+
+    # User provides a number, assume it's a course primary key
+    if course_arg.isnumeric():
+        course_arg = int(course_arg)
+        matches = [x for x in course_list if x["pk"] == course_arg]
+        # FIXME copy pasta
+        if not matches:
+            print(f"Error: couldn't find a course matching '{course_arg}'")
+            for i in course_list:
+                print(f"[{i['pk']}]\t{i['name']} {i['semester']} {i['year']}")
+            sys.exit(1)
+        if len(matches) > 1:
+            print(f"Error: more than one course matches '{course_arg}'")
+            for i in course_list:
+                print(f"[{i['pk']}]\t{i['name']} {i['semester']} {i['year']}")
+            sys.exit(1)
+        return matches[0]
+
+    # User provides strings, try to match a course
+    match = course_match(course_arg, course_list)
+    if not match:
+        print(f"Error: couldn't find a course matching '{course_arg}'")
+        for i in course_list:
+            print(f"[{i['pk']}]\t{i['name']} {i['semester']} {i['year']}")
+        sys.exit(1)
+    return match
+
+
+def project_match(search, projects):
+    """Given a search term, return the best matching project or None."""
+    assert False, "IMPLEMENT ME"
+    return {}
+
+
+def smart_project_select(project_arg, project_list):
+    # No project input from the user.  Show all projects for current course and
+    # and prompt the user.
+    if not project_arg:
+        selected_projects = pick.pick(
+            options=project_list,
+            title="Select a project:",
+            options_map_func=lambda x: f"{x['name']}",
+            multiselect=False,
+        )
+        assert selected_projects
+        return selected_projects[0]
+
+    # User provides a number, assume it's a project primary key
+    if project_arg.isnumeric():
+        project_arg = int(project_arg)
+        matches = [x for x in project_list if x["pk"] == project_arg]
+        # FIXME copy pasta
+        if not matches:
+            print(f"Error: couldn't find a project matching '{project_arg}'")
+            for i in project_list:
+                print(f"[{i['pk']}]\t{i['name']}")
+            sys.exit(1)
+        if len(matches) > 1:
+            print(f"Error: more than one project matches '{project_arg}'")
+            for i in project_list:
+                print(f"[{i['pk']}]\t{i['name']}")
+            sys.exit(1)
+        return matches[0]
+
+    # User provides strings, try to match a project
+    match = project_match(project_arg, project_list)
+    if not match:
+        print(f"Error: couldn't find a project matching '{project_arg}'")
+        # FIXME copy pasta
+        for i in project_list:
+            print(f"[{i['pk']}]\t{i['name']}")
+        sys.exit(1)
+    return  match
