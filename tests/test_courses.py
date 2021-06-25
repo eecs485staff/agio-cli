@@ -119,3 +119,47 @@ def test_courses_pk(api_mock):
             "last_modified": "2021-04-07T02:19:22.818992Z"
         }
        """)
+
+
+def test_courses_name(api_mock):
+    """Verify courses subcommand with course name input.
+
+    $ agio courses "EECS 485 Spring 2021"
+    """
+    runner = click.testing.CliRunner()
+    result = runner.invoke(main, ["courses", "EECS 485 Spring 2021"])
+    assert result.exit_code == 0
+    assert result.output == textwrap.dedent("""\
+        {
+            "pk": 109,
+            "name": "EECS 485",
+            "semester": "Spring",
+            "year": 2021,
+            "subtitle": "Web Systems",
+            "num_late_days": 0,
+            "allowed_guest_domain": "@umich.edu",
+            "last_modified": "2021-04-07T02:19:22.818992Z"
+        }
+       """)
+
+
+def test_courses_shortcut(api_mock):
+    """Verify courses subcommand with shortcut input.
+
+    $ agio courses eecs485sp21
+    """
+    runner = click.testing.CliRunner()
+    result = runner.invoke(main, ["courses", "eecs485sp21"])
+    assert result.exit_code == 0
+    assert result.output == textwrap.dedent("""\
+        {
+            "pk": 109,
+            "name": "EECS 485",
+            "semester": "Spring",
+            "year": 2021,
+            "subtitle": "Web Systems",
+            "num_late_days": 0,
+            "allowed_guest_domain": "@umich.edu",
+            "last_modified": "2021-04-07T02:19:22.818992Z"
+        }
+       """)
