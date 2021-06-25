@@ -39,6 +39,7 @@ setuptools.setup(
             "pydocstyle",
             "pylint",
             "pytest",
+            "pytest-mock",
             "requests-mock",
         ],
     },

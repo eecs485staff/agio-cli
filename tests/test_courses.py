@@ -99,6 +99,42 @@ def test_courses_list(api_mock):
     """)
 
 
+def test_courses_empty(api_mock, mocker):
+    """Verify courses subcommand no input.
+
+    $ agio courses
+    """
+    # Mock user-selection menu, users selects course pk 109
+    course_109 = {
+        'pk': 109,
+        'name': 'EECS 485',
+        'semester': 'Spring',
+        'year': 2021,
+        'subtitle': 'Web Systems',
+        'num_late_days': 0,
+        'allowed_guest_domain': '@umich.edu',
+        'last_modified': '2021-04-07T02:19:22.818992Z'
+    }
+    mocker.patch("pick.pick", return_value=(course_109, 1))
+
+    # Run agio and check output
+    runner = click.testing.CliRunner()
+    result = runner.invoke(main, ["courses"])
+    assert result.exit_code == 0
+    assert result.output == textwrap.dedent("""\
+        {
+            "pk": 109,
+            "name": "EECS 485",
+            "semester": "Spring",
+            "year": 2021,
+            "subtitle": "Web Systems",
+            "num_late_days": 0,
+            "allowed_guest_domain": "@umich.edu",
+            "last_modified": "2021-04-07T02:19:22.818992Z"
+        }
+       """)
+
+
 def test_courses_pk(api_mock):
     """Verify courses subcommand with primary key input.
 
