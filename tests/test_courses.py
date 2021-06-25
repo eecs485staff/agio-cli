@@ -3,6 +3,7 @@
 These tests use the Click testing interface.
 https://click.palletsprojects.com/en/8.0.x/testing/
 """
+import json
 import textwrap
 import click
 import click.testing
@@ -10,9 +11,14 @@ import pytest
 from agiocli.__main__ import main
 
 
-@pytest.fixture
-def api_mock(requests_mock):
+# Unused arguments due to fixtures are endemic to pytest
+# pylint: disable=unused-argument
+
+
+@pytest.fixture(name="api_mock")
+def api_requests_mock(requests_mock):
     """Mock Autograder API with hardcoded responses."""
+    # User
     requests_mock.get(
         "https://autograder.io/api/users/current/",
         text=textwrap.dedent("""\
@@ -26,10 +32,10 @@ def api_mock(requests_mock):
         }
         """)
     )
+    # Course list
     requests_mock.get(
         "https://autograder.io/api/users/5/courses_is_admin_for/",
-        text=textwrap.dedent("""\
-        [
+        text=json.dumps([
             {
                 "pk": 111,
                 "name": "EECS 280",
@@ -60,14 +66,12 @@ def api_mock(requests_mock):
                 "allowed_guest_domain": "@umich.edu",
                 "last_modified": "2021-06-23T13:54:07.942973Z"
             }
-        ]
-        """)
-        )
-    # FIXME: should I index the array above?
+        ])
+    )
+    # Course detail
     requests_mock.get(
         "https://autograder.io/api/courses/109/",
-        text=textwrap.dedent("""\
-        {
+        text=json.dumps({
             "pk": 109,
             "name": "EECS 485",
             "semester": "Spring",
@@ -76,7 +80,7 @@ def api_mock(requests_mock):
             "num_late_days": 0,
             "allowed_guest_domain": "@umich.edu",
             "last_modified": "2021-04-07T02:19:22.818992Z"
-        }        """)
+        })
     )
 
 
