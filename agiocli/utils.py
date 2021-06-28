@@ -235,10 +235,64 @@ def smart_course_select(course_arg, course_list):
     return match
 
 
+def parse_project_string(user_input):
+    """Return title, subtitle from a user input string.
+
+    EXAMPLE:
+    >>> parse_course_string("p4mapreduce")
+    ('Project', 4, 'mapreduce')
+    """
+
+    if user_input[0].isdigit() or user_input.lower().startswith('p'):
+        type = "Project"
+    elif user_input.lower().startswith('l'):
+        type = "Lab"
+    elif user_input.lower().startswith('h'):
+        type = "Homework"
+    else:
+        print("Error: unsupported input format")
+        return None, None
+
+    pattern = r"""(?ix)         # Regex options: case insensitive, verbose
+    ^
+    \D*
+    (?P<num>\d*)                # Assignment number
+    \W*                         # Optional whitespace/delimeters
+    (?P<name>[\w\s]*)           # Assignment name
+    \s*                         # Optional whitespace
+    $                           # Match ends at the end
+    """
+
+    match = re.search(pattern, user_input, re.IGNORECASE)
+    if not match:
+        print("Error: unsupported input format")
+        return None, None
+
+    num = int(match.group("num"))
+    name = match.group("name")
+    if type == "Project":
+        return f"{type} {num}", name
+    else:
+        return f"{type} {num:02d}", name
+
+
 def project_match(search, projects):
     """Given a search term, return the best matching project or None."""
-    assert False, "IMPLEMENT ME"
-    return {}
+    title, subtitle = parse_project_string(search)
+    print((title, subtitle))
+    projects = filter(
+        lambda x:
+            x["name"].startswith(title) and
+            subtitle.lower().replace(
+                " ", "") in x["name"].lower().replace(" ", ""),
+        projects
+    )
+    projects = list(projects)
+    if not projects:
+        return None
+    if len(projects) == 1:
+        return projects[0]
+    sys.exit(f"Error: more than one project matches '{search}': {projects}")
 
 
 def smart_project_select(project_arg, project_list):
@@ -279,4 +333,4 @@ def smart_project_select(project_arg, project_list):
         for i in project_list:
             print(f"[{i['pk']}]\t{i['name']}")
         sys.exit(1)
-    return  match
+    return match
