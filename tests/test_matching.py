@@ -3,6 +3,138 @@ import pytest
 from agiocli import utils
 
 
+@pytest.mark.parametrize(
+    "search, expected_course_pk",
+    [
+        ("EECS 280 Spring 2021", 111),
+        ("EECS 485 Spring 2021", 109),
+        ("EECS 280 Spring 21", 111),
+        ("EECS 485 Spring 21", 109),
+        ("EECS 280 sp 21", 111),
+        ("EECS 485 sp 21", 109),
+        ("280 sp 21", 111),
+        ("485 sp 21", 109),
+        ("eecs280sp21", 111),
+        ("eecs485sp21", 109),
+    ]
+)
+def test_course_match_input_patterns(search, expected_course_pk):
+    """Many supported input patterns."""
+    course = utils.course_match(search, COURSES)
+    assert course["pk"] == expected_course_pk
+
+
+@pytest.mark.parametrize(
+    "search, expected_course_pk",
+    [
+        ("EECS 598 Winter 2019", 38),
+        ("EECS 398 Fall 2019", 53),
+        ("EECS 490 Winter 2020", 67),
+        # ("EECS 484 Fall 2020", 77)
+        # Above won't match because there is a duplicate
+        ("EECS 498 Fall 2020", 79),  # This won't match on EECS 598
+        ("EECS 398 Winter 2021", 90),
+        ("EECS 598 wn 19", 38),
+        ("EECS 398 fa 19", 53),
+        ("EECS 490 wn 20", 67),
+        # ("EECS 484 f 20", 77),
+        # Above won't match because there is a duplicate
+        ("EECS 498 f 20", 79),  # This won't match on EECS 598
+        ("EECS 398 w 21", 90),
+        ("598 wn 19", 38),
+        ("398 fa 19", 53),
+        ("490 wn 20", 67),
+        # ("484 f 20", 77),
+        # Above won't match because there is a duplicate
+        ("498 f 20", 79),  # This won't match on EECS 598
+        ("398 w 21", 90),
+        ("598wn19", 38),
+        ("398fa19", 53),
+        ("490wn20", 67),
+        # ("484f20", 77),
+        # Above won't match because there is a duplicate
+        ("498f20", 79),  # This won't match on EECS 598
+        ("398w21", 90),
+    ]
+)
+def test_course_match_pattern(search, expected_course_pk):
+    """Many supported input patterns."""
+    course = utils.course_match(search, COURSES)
+    assert course["pk"] == expected_course_pk
+
+
+@pytest.mark.parametrize(
+    "search",
+    [
+        ("EECS 280 Spring 2016"),
+        ("EECS 485 Spring 2016"),
+        ("EECS 280 Spring 16"),
+        ("EECS 485 Spring 16"),
+        ("EECS 280 sp 16"),
+        ("EECS 485 sp 16"),
+        ("280 sp 16"),
+        ("485 sp 16"),
+        ("eecs280sp16"),
+        ("eecs485sp16"),
+    ]
+)
+def test_course_match_bad_year(search):
+    """Bad year in pattern."""
+    course = utils.course_match(search, COURSES)
+    assert course is None
+
+
+@pytest.mark.parametrize(
+    "search, expected_project_pk",
+    [
+        ("Lab 01 - Getting Started", 435),
+        ("Lab 1 - Getting Started", 435),
+        ("Lab 1", 435),
+        ("lab 1", 435),
+        ("lab 01", 435),
+        ("Lab01", 435),
+        ("lab1", 435),
+        ("l1", 435),
+        ("L1", 435),
+        ("Project 2 - Images", 423),
+        ("Images", 423),
+        ("Project 2", 423),
+        ("Project2", 423),
+        ("Project 02", 423),
+        ("Project02", 423),
+        ("p2", 423),
+        ("P2", 423),
+        ("p02", 423),
+        ("P02", 423),
+        ("Project-2", 423),
+        ("Project-02", 423),
+        ("p-2", 423),
+        ("P-2", 423),
+        ("p-02", 423),
+        ("P-02", 423),
+    ]
+)
+def test_project_match_pattern(search, expected_project_pk):
+    """Many supported input patterns."""
+    project = utils.project_match(search, PROJECTS)
+    assert project["pk"] == expected_project_pk
+
+
+@pytest.mark.parametrize(
+    "search",
+    [
+        ("Lab27"),
+        ("P9"),
+        ("Project 9"),
+        ("Project 09"),
+    ]
+)
+def test_project_match_bad_num(search):
+    """Bad project number in pattern."""
+    project = utils.project_match(search, PROJECTS)
+    assert project is None
+
+
 COURSES = [
     {"pk": 1, "name": "EECS 280", "semester": "Fall", "year": 2016},
     {"pk": 2, "name": "EECS 280", "semester": "Winter", "year": 2017},
@@ -124,90 +256,23 @@ COURSES = [
 ]
 
 
-def test_course_match_returns_object():
-    """Verify match is an unmodified course object."""
-    course = utils.course_match("EECS 485 Spring 2021", COURSES)
-    assert course == {
-        'pk': 109, 'name': 'EECS 485', 'semester': 'Spring', 'year': 2021
-    }
-
-
-@pytest.mark.parametrize(
-    "user_input, expected_course_pk",
-    [
-        ("EECS 280 Spring 2021", 111),
-        ("EECS 485 Spring 2021", 109),
-        ("EECS 280 Spring 21", 111),
-        ("EECS 485 Spring 21", 109),
-        ("EECS 280 sp 21", 111),
-        ("EECS 485 sp 21", 109),
-        ("280 sp 21", 111),
-        ("485 sp 21", 109),
-        ("eecs280sp21", 111),
-        ("eecs485sp21", 109),
-    ]
-)
-def test_course_match_input_patterns(user_input, expected_course_pk):
-    """Many supported input patterns."""
-    course = utils.course_match(user_input, COURSES)
-    assert course["pk"] == expected_course_pk
-
-
-@pytest.mark.parametrize(
-    "user_input, expected_course_pk",
-    [
-        ("EECS 598 Winter 2019", 38),
-        ("EECS 398 Fall 2019", 53),
-        ("EECS 490 Winter 2020", 67),
-        # ("EECS 484 Fall 2020", 77)
-        # Above won't match because there is a duplicate
-        ("EECS 498 Fall 2020", 79),  # This won't match on EECS 598
-        ("EECS 398 Winter 2021", 90),
-        ("EECS 598 wn 19", 38),
-        ("EECS 398 fa 19", 53),
-        ("EECS 490 wn 20", 67),
-        # ("EECS 484 f 20", 77),
-        # Above won't match because there is a duplicate
-        ("EECS 498 f 20", 79),  # This won't match on EECS 598
-        ("EECS 398 w 21", 90),
-        ("598 wn 19", 38),
-        ("398 fa 19", 53),
-        ("490 wn 20", 67),
-        # ("484 f 20", 77),
-        # Above won't match because there is a duplicate
-        ("498 f 20", 79),  # This won't match on EECS 598
-        ("398 w 21", 90),
-        ("598wn19", 38),
-        ("398fa19", 53),
-        ("490wn20", 67),
-        # ("484f20", 77),
-        # Above won't match because there is a duplicate
-        ("498f20", 79),  # This won't match on EECS 598
-        ("398w21", 90),
-    ]
-)
-def test_course_match_strange_name(user_input, expected_course_pk):
-    """Many supported input patterns."""
-    course = utils.course_match(user_input, COURSES)
-    assert course["pk"] == expected_course_pk
-
-
-@pytest.mark.parametrize(
-    "user_input",
-    [
-        ("EECS 280 Spring 2016"),
-        ("EECS 485 Spring 2016"),
-        ("EECS 280 Spring 16"),
-        ("EECS 485 Spring 16"),
-        ("EECS 280 sp 16"),
-        ("EECS 485 sp 16"),
-        ("280 sp 16"),
-        ("485 sp 16"),
-        ("eecs280sp16"),
-        ("eecs485sp16"),
-    ]
-)
-def test_course_match_bad_year(user_input):
-    """Bad year in pattern."""
-    course = utils.course_match(user_input, COURSES)
-    assert course is None
+# These projects are from EECS 280 Fall 2019
+# GET https://autograder.io/api/courses/50/projects/
+# I removed the instructor_files and expected_student_files for brevity
+PROJECTS = [
+    {"pk": 424, "name": "Lab 05 - Inheritance and Subtype Polymorphism"},
+    {"pk": 422, "name": "Lab 08 - The Big Three"},
+    {"pk": 425, "name": "Lab 03 - Strings and I/O"},
+    {"pk": 423, "name": "Project 2 - Images"},
+    {"pk": 427, "name": "Project 3 - Euchre"},
+    {"pk": 435, "name": "Lab 01 - Getting Started"},
+    {"pk": 430, "name": "Project 1 - Statistics"},
+    {"pk": 429, "name": "Lab 09 - Recursion"},
+    {"pk": 432, "name": "Lab 10 - Functors"},
+    {"pk": 428, "name": "Lab 07 - Dynamic Memory"},
+    {"pk": 436, "name": "Project 4 - Web"},
+    {"pk": 433, "name": "Lab 04 - Abstract Data Types"},
+    {"pk": 431, "name": "Lab 02 - Arrays and Pointers"},
+    {"pk": 434, "name": "Project 5 - Machine Learning"},
+    {"pk": 426, "name": "Lab 06 - Container ADTs"},
+]
