@@ -83,7 +83,7 @@ def test_groups_uniqname(api_mock):
     assert output_obj["pk"] == 246965  # awdeorio's group
 
 
-def test_groups_empty(api_mock, mocker):
+def test_groups_empty(api_mock, mocker, constants):
     """Verify groups subcommand no input.
 
     $ agio groups
@@ -93,44 +93,11 @@ def test_groups_empty(api_mock, mocker):
 
     """
     # Mock user-selection menu, users selects course 109, then project 1005,
-    # then group 246965
-    course_109 = {
-        'pk': 109,
-        'name': 'EECS 485',
-        'semester': 'Spring',
-        'year': 2021,
-        'subtitle': 'Web Systems',
-        'num_late_days': 0,
-        'allowed_guest_domain': '@umich.edu',
-        'last_modified': '2021-04-07T02:19:22.818992Z'
-    }
-    project_1005 = {
-        "pk": 1005,
-        "name": "Project 1 - Templated Static Site Generator",
-        "last_modified": "2021-05-13T19:46:38.254102Z",
-        "course": 109,
-        "visible_to_students": True,
-        "closing_time": "2021-05-12T04:30:00Z",
-        "soft_closing_time": "2021-05-12T03:59:00Z",
-    }
-    group_246965 = {
-        "pk": 246965,
-        "project": 1005,
-        "members": [
-            {
-                "pk": 5,
-                "username": "awdeorio@umich.edu",
-                "first_name": "Andrew",
-                "last_name": "DeOrio",
-                "email": "",
-                "is_superuser": False
-            }
-        ],
-    }
+    # then group 246965.  These are constants in conftest.py
     mocker.patch("pick.pick", side_effect=[
-        (course_109, 1),  # First call to pick() selects course
-        (project_1005, 0),  # Second call to pick() selects project
-        (group_246965, 0),  # Third call to pick() selects group
+        (constants["COURSE_109"], 1),  # First call to pick() selects course
+        (constants["PROJECT_1005"], 0),  # Second call selects project
+        (constants["GROUP_246965"], 0),  # Third call selects group
     ])
 
     # Run agio and check output

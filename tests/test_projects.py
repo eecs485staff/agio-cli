@@ -98,7 +98,7 @@ def test_projects_shortcut(api_mock):
     assert output_obj["pk"] == 1005
 
 
-def test_projects_no_course(api_mock, mocker):
+def test_projects_no_course(api_mock, mocker, constants):
     """Verify projects subcommand with no --course specified.
 
     $ agio projects p3
@@ -107,18 +107,9 @@ def test_projects_no_course(api_mock, mocker):
     requests.  It is implemented in conftest.py.
 
     """
-    # Mock user-selection menu, users selects course 109
-    course_109 = {
-        'pk': 109,
-        'name': 'EECS 485',
-        'semester': 'Spring',
-        'year': 2021,
-        'subtitle': 'Web Systems',
-        'num_late_days': 0,
-        'allowed_guest_domain': '@umich.edu',
-        'last_modified': '2021-04-07T02:19:22.818992Z'
-    }
-    mocker.patch("pick.pick", return_value=(course_109, 1))
+    # Mock user-selection menu, users selects course 109.  This constant is
+    # defined in conftest.py
+    mocker.patch("pick.pick", return_value=(constants["COURSE_109"], 1))
 
     runner = click.testing.CliRunner()
     result = runner.invoke(main, ["projects", "p1"])
@@ -127,7 +118,7 @@ def test_projects_no_course(api_mock, mocker):
     assert output_obj["pk"] == 1005
 
 
-def test_projects_empty(api_mock, mocker):
+def test_projects_empty(api_mock, mocker, constants):
     """Verify projects subcommand no input.
 
     $ agio projects
@@ -136,29 +127,11 @@ def test_projects_empty(api_mock, mocker):
     requests.  It is implemented in conftest.py.
 
     """
-    # Mock user-selection menu, users selects course 109, then project 1005
-    course_109 = {
-        'pk': 109,
-        'name': 'EECS 485',
-        'semester': 'Spring',
-        'year': 2021,
-        'subtitle': 'Web Systems',
-        'num_late_days': 0,
-        'allowed_guest_domain': '@umich.edu',
-        'last_modified': '2021-04-07T02:19:22.818992Z'
-    }
-    project_1005 = {
-        "pk": 1005,
-        "name": "Project 1 - Templated Static Site Generator",
-        "last_modified": "2021-05-13T19:46:38.254102Z",
-        "course": 109,
-        "visible_to_students": True,
-        "closing_time": "2021-05-12T04:30:00Z",
-        "soft_closing_time": "2021-05-12T03:59:00Z",
-    }
+    # Mock user-selection menu, users selects course 109, then project 1005.
+    # These constants are defined in conftest.py
     mocker.patch("pick.pick", side_effect=[
-        (course_109, 1),  # First call to pick() selects course
-        (project_1005, 0),  # Second  call to pick() selects project
+        (constants["COURSE_109"], 1),  # First call to pick() selects course
+        (constants["PROJECT_1005"], 0),  # Second  call selects project
     ])
 
     # Run agio and check output
