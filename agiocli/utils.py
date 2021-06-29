@@ -63,14 +63,6 @@ def is_current_course(course):
     )
 
 
-def filter_courses(courses, all_semesters=False):
-    """Filter out old courses and return a sorted list."""
-    if not all_semesters:
-        courses = filter(is_current_course, courses)
-    courses = sorted(courses, key=course_key)
-    return courses
-
-
 def course_match(search, courses):
     """Given a search term, return the best matching course or None."""
     year, semester, name = parse_course_string(search)
@@ -89,14 +81,6 @@ def course_match(search, courses):
     if len(courses) == 1:
         return courses[0]
     sys.exit(f"Error: more than one course matches '{search}': {courses}")
-
-
-def print_course(course):
-    """Print course to stdout."""
-    print(
-        f"[{course['pk']}] {course['name']} "
-        f"{course['semester']} {course['year']}"
-    )
 
 
 def print_dict(obj):
