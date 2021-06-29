@@ -121,7 +121,7 @@ def groups(ctx, group_arg, project_arg, course_arg, show_list):  # noqa: D301
     \b
     EXAMPLES:
     agio groups
-    agio groups 248031
+    agio groups 246965
     agio groups awdeorio
     agio groups awdeorio --project 1005
     agio groups awdeorio --project p1 --course eecs485sp21
