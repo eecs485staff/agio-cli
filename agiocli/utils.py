@@ -88,35 +88,6 @@ def print_dict(obj):
     print(json.dumps(obj, indent=4))
 
 
-def group_uniqnames(group):
-    """Return a list of uniqnames who are members of group."""
-    members = group["members"]
-    return [x["username"].replace("@umich.edu", "") for x in members]
-
-
-def print_group(group):
-    """Print one group."""
-    uniqnames = group_uniqnames(group)
-    uniqnames_str = ", ".join(uniqnames)
-    print(f"[{group['pk']}] {uniqnames_str}")
-
-
-def is_group_member(uniqname, group):
-    """Return True if uniqname is in group."""
-    return uniqname in group_uniqnames(group)
-
-
-def find_group(uniqname, groups):
-    """Return group where uniqname is a member."""
-    matches = filter(lambda x: is_group_member(uniqname, x), groups)
-    matches = list(matches)
-    if not matches:
-        sys.exit(f"Error: uniqname not in any group: {uniqname}")
-    if len(matches) > 1:
-        sys.exit(f"Error: uniqname in more than one group: {uniqname}")
-    return matches[0]
-
-
 def parse_course_string(user_input):
     """Return year, semester, and course name from a user input string.
 
@@ -280,7 +251,6 @@ def parse_project_string(user_input):
 def project_match(search, projects):
     """Given a search term, return the best matching project or None."""
     title, subtitle = parse_project_string(search)
-    print((title, subtitle))
     projects = filter(
         lambda x:
             x["name"].startswith(title) and
@@ -339,3 +309,77 @@ def get_project_smart(project_arg, course_arg, client):
             print(f"[{i['pk']}]\t{i['name']}")
         sys.exit(1)
     return match
+
+
+def group_uniqnames(group):
+    """Return a list of uniqnames who are members of group."""
+    members = group["members"]
+    return [x["username"].replace("@umich.edu", "") for x in members]
+
+
+def group_str(group):
+    """Format group as string."""
+    uniqnames = group_uniqnames(group)
+    uniqnames_str = ", ".join(uniqnames)
+    return f"[{group['pk']}] {uniqnames_str}"
+
+
+def is_group_member(uniqname, group):
+    """Return True if uniqname is in group."""
+    return uniqname in group_uniqnames(group)
+
+
+def group_match(uniqname, groups):
+    """Return group where uniqname is a member."""
+    matches = filter(lambda x: is_group_member(uniqname, x), groups)
+    return list(matches)
+
+
+def get_group_list(project, client):
+    groups = client.get(f"/api/projects/{project['pk']}/groups/")
+    groups = sorted(groups, key=lambda x: x["pk"])
+    return groups
+
+
+def get_group_smart(group_arg, project_arg, course_arg, client):
+    # User provides group PK
+    if group_arg and group_arg.isnumeric():
+        return client.get(f"/api/groups/{group_arg}/")
+
+    # Get a project and list of groups
+    project = get_project_smart(project_arg, course_arg, client)
+    group_list = get_group_list(project, client)
+
+    # No group input from the user.  Show all groups for selected project and
+    # and prompt the user.
+    if not group_arg:
+        selected_groups = pick.pick(
+            options=group_list,
+            title="Select a group:",
+            options_map_func=group_str,
+            multiselect=False,
+        )
+        assert selected_groups
+        return selected_groups[0]
+
+    # # If the user provides a uniqname, look it up
+    # if not group_arg.isnumeric():
+    #     uniqname = group_pk_or_uniqname
+    #     group_list = client.get(f"/api/projects/{project_pk}/groups/")
+    #     group = utils.find_group(uniqname, group_list)
+    #     group_pk = group["pk"]
+    # else:
+    #     group_pk = group_pk_or_uniqname[0]
+
+
+    # User provides strings, try to match a group
+    matches = group_match(group_arg, group_list)
+    if not matches:
+        print(f"Error: uniqname not in any group: {group_arg}")
+        for i in group_list:
+            print(group_str(i))
+        sys.exit(1)
+    if len(matches) > 1:
+        print(f"Error: uniqname in more than one group: {group_arg}")
+        sys.exit(1)
+    return matches[0]

@@ -3,7 +3,6 @@ A command line interface to autograder.io.
 
 Andrew DeOrio <awdeorio@umich.edu>
 """
-import sys
 import click
 from agiocli import APIClient, utils
 
@@ -68,7 +67,8 @@ def courses(ctx, course_arg, show_list):  # noqa: D301
 
 @main.command()
 @click.argument("project_arg", required=False)
-@click.option("-c", "--course", "course_arg", help="Debug output")
+@click.option("-c", "--course", "course_arg",
+              help="Course pk, name or shorthand.")
 @click.option("-l", "--list", "show_list", is_flag=True,
               help="List projects and exit.")
 @click.pass_context
@@ -102,52 +102,28 @@ def projects(ctx, project_arg, course_arg, show_list):
 
 
 @main.command()
-@click.argument("project_pk", nargs=1)
-@click.argument("group_pk_or_uniqname", nargs=-1)
+@click.argument("group_arg", required=False)
+@click.option("-c", "--course", "course_arg",
+              help="Course pk, name or shorthand.")
+@click.option("-p", "--project", "project_arg",
+              help="Project pk, name or shorthand.")
+@click.option("-l", "--list", "show_list", is_flag=True,
+              help="List groups and exit.")
 @click.pass_context
-def groups(ctx, project_pk, group_pk_or_uniqname):
-    """List groups or show group detail.
-
-    When called without a group primary key or uniquename, list groups for one
-    project.  When called with a group primary key or uniqname, show group
-    detail.
-
-    """
+def groups(ctx, group_arg, project_arg, course_arg, show_list):
     client = APIClient.make_default(debug=ctx.obj["DEBUG"])
 
-    # Print course and project
-    project = client.get(f"/api/projects/{project_pk}/")
-    course_pk = project['course']
-    course = client.get(f"/api/courses/{course_pk}/")
-    print(
-        f"{course['name']} {course['semester']} {course['year']} "
-        f"{project['name']}\n"
-    )
-
-    # If the user doesn't specify a group, list groups
-    if not group_pk_or_uniqname:
-        group_list = client.get(f"/api/projects/{project_pk}/groups/")
-        for group in group_list:
-            utils.print_group(group)
+    # Handle --list: list groups and exit
+    if show_list:
+        project = utils.get_project_smart(project_arg, course_arg, client)
+        group_list = utils.get_group_list(project, client)
+        for i in group_list:
+            print(utils.group_str(i))
         return
 
-    # Verify only one group or uniqname
-    if len(group_pk_or_uniqname) > 1:
-        sys.exit("Error: specify only one group primary key or uniqname")
-    group_pk_or_uniqname = group_pk_or_uniqname[0]
-
-    # If the user provides a uniqname, look it up
-    if not group_pk_or_uniqname.isnumeric():
-        uniqname = group_pk_or_uniqname
-        group_list = client.get(f"/api/projects/{project_pk}/groups/")
-        group = utils.find_group(uniqname, group_list)
-        group_pk = group["pk"]
-    else:
-        group_pk = group_pk_or_uniqname[0]
-
-    # Show group detail
-    group = client.get(f"/api/groups/{group_pk}/")
-    utils.print_dict(group)
+    # Select a group and print it
+    project = utils.get_group_smart(group_arg, project_arg, course_arg, client)
+    utils.print_dict(project)
 
 
 if __name__ == "__main__":
