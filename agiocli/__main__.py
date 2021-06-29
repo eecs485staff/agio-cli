@@ -56,11 +56,7 @@ def courses(ctx, course_arg, show_list):  # noqa: D301
 
     # Handle --list: list courses and exit
     if show_list:
-        # Get a list of courses sorted by year, semester and name
-        # FIXME copy pasta
-        user = client.get("/api/users/current/")
-        course_list = client.get(f"/api/users/{user['pk']}/courses_is_admin_for/")
-        course_list = sorted(course_list, key=utils.course_key, reverse=True)
+        course_list = utils.get_current_course_list(client)
         for i in course_list:
             print(f"[{i['pk']}]\t{i['name']} {i['semester']} {i['year']}")
         return
@@ -94,10 +90,8 @@ def projects(ctx, project_arg, course_arg, show_list):
 
     # Handle --list: list projects and exit
     if show_list:
-        # FIXME copy pasta
         course = utils.get_course_smart(course_arg, client)
-        project_list = client.get(f"/api/courses/{course['pk']}/projects/")
-        project_list = sorted(project_list, key=lambda x: x["name"])
+        project_list = utils.get_course_project_list(course, client)
         for i in project_list:
             print(f"[{i['pk']}]\t{i['name']}")
         return

@@ -189,15 +189,21 @@ def parse_course_string(user_input):
     return year, semester, name
 
 
+def get_current_course_list(client):
+    """Return a sorted list of current and future courses."""
+    user = client.get("/api/users/current/")
+    courses = client.get(f"/api/users/{user['pk']}/courses_is_admin_for/")
+    courses = sorted(courses, key=course_key, reverse=True)
+    return courses
+
+
 def get_course_smart(course_arg, client):
     # User provides course PK
     if course_arg and course_arg.isnumeric():
         return client.get(f"/api/courses/{course_arg}/")
 
     # Get a list of courses sorted by year, semester and name
-    user = client.get("/api/users/current/")
-    courses = client.get(f"/api/users/{user['pk']}/courses_is_admin_for/")
-    courses = sorted(courses, key=course_key, reverse=True)
+    courses = get_current_course_list(client)
 
     # No course input from the user.  Filter for current courses, and them
     # prompt the user.  If there's only one, then don't bother to prompt.
@@ -211,7 +217,7 @@ def get_course_smart(course_arg, client):
         else:
             selected_courses = pick.pick(
                 options=courses,
-                title="Select a course:",
+                title=("Select a course:"),
                 options_map_func=lambda x:
                     f"{x['name']} {x['semester']} {x['year']}",
                 multiselect=False,
@@ -288,6 +294,13 @@ def project_match(search, projects):
     if len(projects) == 1:
         return projects[0]
     sys.exit(f"Error: more than one project matches '{search}': {projects}")
+
+
+def get_course_project_list(course, client):
+    """Return a sorted list of projects for course."""
+    projects = client.get(f"/api/courses/{course['pk']}/projects/")
+    projects = sorted(projects, key=lambda x: x["name"])
+    return projects
 
 
 def get_project_smart(project_arg, course_arg, client):
