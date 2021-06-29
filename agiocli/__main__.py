@@ -10,16 +10,13 @@ from agiocli import APIClient, utils
 @click.group(context_settings={"help_option_names": ["-h", "--help"]})
 @click.version_option()
 @click.option("-d", "--debug", is_flag=True, help="Debug output")
-@click.option("-a", "--all", "all_semesters", is_flag=True,
-              help="Do not filter out old semesters")
 @click.pass_context
-def main(ctx, debug, all_semesters):
+def main(ctx, debug):
     """Autograder.io command line interface."""
     # Pass global flags to subcommands via Click context
     # https://click.palletsprojects.com/en/latest/commands/#nested-handling-and-contexts
     ctx.ensure_object(dict)
     ctx.obj["DEBUG"] = debug
-    ctx.obj["ALL"] = all_semesters
 
 
 @main.command()
