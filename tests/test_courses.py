@@ -3,6 +3,7 @@
 These tests use the Click testing interface.
 https://click.palletsprojects.com/en/8.0.x/testing/
 """
+import json
 import textwrap
 import click
 import click.testing
@@ -58,18 +59,8 @@ def test_courses_empty(api_mock, mocker):
     runner = click.testing.CliRunner()
     result = runner.invoke(main, ["courses"])
     assert result.exit_code == 0
-    assert result.output == textwrap.dedent("""\
-        {
-            "pk": 109,
-            "name": "EECS 485",
-            "semester": "Spring",
-            "year": 2021,
-            "subtitle": "Web Systems",
-            "num_late_days": 0,
-            "allowed_guest_domain": "@umich.edu",
-            "last_modified": "2021-04-07T02:19:22.818992Z"
-        }
-       """)
+    output_obj = json.loads(result.output)
+    assert output_obj["pk"] == 109
 
 
 def test_courses_pk(api_mock):
@@ -84,18 +75,8 @@ def test_courses_pk(api_mock):
     runner = click.testing.CliRunner()
     result = runner.invoke(main, ["courses", "109"])
     assert result.exit_code == 0
-    assert result.output == textwrap.dedent("""\
-        {
-            "pk": 109,
-            "name": "EECS 485",
-            "semester": "Spring",
-            "year": 2021,
-            "subtitle": "Web Systems",
-            "num_late_days": 0,
-            "allowed_guest_domain": "@umich.edu",
-            "last_modified": "2021-04-07T02:19:22.818992Z"
-        }
-       """)
+    output_obj = json.loads(result.output)
+    assert output_obj["pk"] == 109
 
 
 def test_courses_name(api_mock):
@@ -110,18 +91,8 @@ def test_courses_name(api_mock):
     runner = click.testing.CliRunner()
     result = runner.invoke(main, ["courses", "EECS 485 Spring 2021"])
     assert result.exit_code == 0
-    assert result.output == textwrap.dedent("""\
-        {
-            "pk": 109,
-            "name": "EECS 485",
-            "semester": "Spring",
-            "year": 2021,
-            "subtitle": "Web Systems",
-            "num_late_days": 0,
-            "allowed_guest_domain": "@umich.edu",
-            "last_modified": "2021-04-07T02:19:22.818992Z"
-        }
-       """)
+    output_obj = json.loads(result.output)
+    assert output_obj["pk"] == 109
 
 
 def test_courses_shortcut(api_mock):
@@ -136,15 +107,5 @@ def test_courses_shortcut(api_mock):
     runner = click.testing.CliRunner()
     result = runner.invoke(main, ["courses", "eecs485sp21"])
     assert result.exit_code == 0
-    assert result.output == textwrap.dedent("""\
-        {
-            "pk": 109,
-            "name": "EECS 485",
-            "semester": "Spring",
-            "year": 2021,
-            "subtitle": "Web Systems",
-            "num_late_days": 0,
-            "allowed_guest_domain": "@umich.edu",
-            "last_modified": "2021-04-07T02:19:22.818992Z"
-        }
-       """)
+    output_obj = json.loads(result.output)
+    assert output_obj["pk"] == 109
