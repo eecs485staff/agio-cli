@@ -10,16 +10,14 @@ def api_requests_mock(requests_mock):
     # User
     requests_mock.get(
         "https://autograder.io/api/users/current/",
-        text=textwrap.dedent("""\
-        {
+        text=json.dumps({
             "pk": 5,
             "username": "awdeorio@umich.edu",
             "first_name": "Andrew",
             "last_name": "DeOrio",
             "email": "",
             "is_superuser": False
-        }
-        """)
+        })
     )
 
     # Course list
