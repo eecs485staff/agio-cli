@@ -1,4 +1,4 @@
-"""Test smart user input string matching."""
+"""Unit tests for smart user input string matching."""
 import pytest
 from agiocli import utils
 
