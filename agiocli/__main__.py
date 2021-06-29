@@ -93,7 +93,7 @@ def projects(ctx, project_arg, course_arg, show_list):
         course = utils.get_course_smart(course_arg, client)
         project_list = utils.get_course_project_list(course, client)
         for i in project_list:
-            print(f"[{i['pk']}]\t{i['name']}")
+            print(utils.project_str(i))
         return
 
     # Select a project and print it
@@ -111,6 +111,19 @@ def projects(ctx, project_arg, course_arg, show_list):
               help="List groups and exit.")
 @click.pass_context
 def groups(ctx, group_arg, project_arg, course_arg, show_list):
+    """Show group detail or list groups.
+
+    GROUP_ARG is a primary key, name, or member uniqname.
+
+    \b
+    EXAMPLES:
+    agio groups
+    agio groups 248031
+    agio groups awdeorio
+    agio groups awdeorio --project 1005
+    agio groups awdeorio --project p1 --course eecs485sp21
+
+    """
     client = APIClient.make_default(debug=ctx.obj["DEBUG"])
 
     # Handle --list: list groups and exit

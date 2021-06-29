@@ -169,6 +169,15 @@ def get_current_course_list(client):
 
 
 def get_course_smart(course_arg, client):
+    """Interact with the user to select a course.
+
+    1. If course_arg is a number, look up course by primary key
+    2. If course_arg is None, prompt with a list of current or futures courses
+    3. If course_arg is a string, try to extract semester, year and name, then
+       match against list of courses for which user is an admin.
+
+    This function provides sanity checks and may exit with an error message.
+    """
     # User provides course PK
     if course_arg and course_arg.isnumeric():
         return client.get(f"/api/courses/{course_arg}/")
@@ -181,7 +190,6 @@ def get_course_smart(course_arg, client):
     if not course_arg:
         courses = list(filter(is_current_course, courses))
         if not courses:
-            # FIXME raise exception
             sys.exit("Error: No current courses, try 'agio courses -l'")
         elif len(courses) == 1:
             return courses[0]
@@ -199,7 +207,6 @@ def get_course_smart(course_arg, client):
     # Try to match a course
     match = course_match(course_arg, courses)
     if not match:
-        # FIXME raise exception
         print(f"Error: couldn't find a course matching '{course_arg}'")
         for i in courses:
             print(f"[{i['pk']}]\t{i['name']} {i['semester']} {i['year']}")
@@ -216,11 +223,11 @@ def parse_project_string(user_input):
     """
 
     if user_input[0].isdigit() or user_input.lower().startswith('p'):
-        type = "Project"
+        assignment_type = "Project"
     elif user_input.lower().startswith('l'):
-        type = "Lab"
+        assignment_type = "Lab"
     elif user_input.lower().startswith('h'):
-        type = "Homework"
+        assignment_type = "Homework"
     else:
         print("Error: unsupported input format")
         return None, None
@@ -242,10 +249,14 @@ def parse_project_string(user_input):
 
     num = int(match.group("num"))
     name = match.group("name")
-    if type == "Project":
-        return f"{type} {num}", name
-    else:
-        return f"{type} {num:02d}", name
+    if assignment_type == "Project":
+        return f"{assignment_type} {num}", name
+    return f"{assignment_type} {num:02d}", name
+
+
+def project_str(project):
+    """Format project as a string."""
+    return f"[{project['pk']}]\t{project['name']}"
 
 
 def project_match(search, projects):
@@ -274,18 +285,27 @@ def get_course_project_list(course, client):
 
 
 def get_project_smart(project_arg, course_arg, client):
+    """Interact with the user to select a project.
+
+    1. If project_arg is a number, look up project by primary key
+    2. Use previously defined procedure for smart course selection
+    3. If project_arg is None, prompt with list of projects for selected course
+    4. If project_arg is a string, try to match project name
+
+    This function provides sanity checks and may exit with an error message.
+    """
     # User provides project PK
     if project_arg and project_arg.isnumeric():
         return client.get(f"/api/projects/{project_arg}/")
 
     # Get a course
     course = get_course_smart(course_arg, client)
+    assert course
 
     # Get a list of projects for this course, sorted by name
     project_list = client.get(f"/api/courses/{course['pk']}/projects/")
     project_list = sorted(project_list, key=lambda x: x["name"])
     if not project_list:
-        # FIXME throw exception
         sys.exit("Error: No projects for course, try 'agio courses -l'")
 
     # No project input from the user.  Show all projects for current course and
@@ -304,9 +324,8 @@ def get_project_smart(project_arg, course_arg, client):
     match = project_match(project_arg, project_list)
     if not match:
         print(f"Error: couldn't find a project matching '{project_arg}'")
-        # FIXME copy pasta
         for i in project_list:
-            print(f"[{i['pk']}]\t{i['name']}")
+            print(project_str(i))
         sys.exit(1)
     return match
 
@@ -336,12 +355,23 @@ def group_match(uniqname, groups):
 
 
 def get_group_list(project, client):
+    """Return a sorted list of groups for project."""
     groups = client.get(f"/api/projects/{project['pk']}/groups/")
     groups = sorted(groups, key=lambda x: x["pk"])
     return groups
 
 
 def get_group_smart(group_arg, project_arg, course_arg, client):
+    """Interact with the user to select a group.
+
+    1. If group_arg is a number, look up group by primary key
+    2. Use previously defined procedure for smart project selection, which in
+       turn may use the smart course selection procedure.
+    3. If group_arg is None, prompt with list of groups for selected project
+    4. If group_arg is a string, try to match it to a group member uniqname
+
+    This function provides sanity checks and may exit with an error message.
+    """
     # User provides group PK
     if group_arg and group_arg.isnumeric():
         return client.get(f"/api/groups/{group_arg}/")
@@ -349,6 +379,8 @@ def get_group_smart(group_arg, project_arg, course_arg, client):
     # Get a project and list of groups
     project = get_project_smart(project_arg, course_arg, client)
     group_list = get_group_list(project, client)
+    if not group_list:
+        sys.exit("Error: No groups for project, try 'agio projects -l'")
 
     # No group input from the user.  Show all groups for selected project and
     # and prompt the user.
