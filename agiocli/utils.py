@@ -83,9 +83,9 @@ def course_match(search, courses):
     sys.exit(f"Error: more than one course matches '{search}': {courses}")
 
 
-def print_dict(obj):
+def dict_str(obj):
     """Pretty print a dictionary."""
-    print(json.dumps(obj, indent=4))
+    return json.dumps(obj, indent=4)
 
 
 def parse_course_string(user_input):

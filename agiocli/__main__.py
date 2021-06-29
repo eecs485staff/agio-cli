@@ -62,7 +62,7 @@ def courses(ctx, course_arg, show_list):  # noqa: D301
 
     # Select a course and print it
     course = utils.get_course_smart(course_arg, client)
-    utils.print_dict(course)
+    print(utils.dict_str(course))
 
 
 @main.command()
@@ -98,7 +98,7 @@ def projects(ctx, project_arg, course_arg, show_list):
 
     # Select a project and print it
     project = utils.get_project_smart(project_arg, course_arg, client)
-    utils.print_dict(project)
+    print(utils.dict_str(project))
 
 
 @main.command()
@@ -123,7 +123,7 @@ def groups(ctx, group_arg, project_arg, course_arg, show_list):
 
     # Select a group and print it
     project = utils.get_group_smart(group_arg, project_arg, course_arg, client)
-    utils.print_dict(project)
+    print(utils.dict_str(project))
 
 
 if __name__ == "__main__":
