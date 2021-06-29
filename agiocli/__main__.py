@@ -69,7 +69,10 @@ def courses(ctx, course_arg, show_list):  # noqa: D301
 @click.option("-l", "--list", "show_list", is_flag=True,
               help="List projects and exit.")
 @click.pass_context
-def projects(ctx, project_arg, course_arg, show_list):
+# The \b character in the docstring prevents Click from rewraping a paragraph.
+# We need to tell pycodestyle to ignore it.
+# https://click.palletsprojects.com/en/8.0.x/documentation/#preventing-rewrapping
+def projects(ctx, project_arg, course_arg, show_list):  # noqa: D301
     """Show project detail or list projects.
 
     PROJECT_ARG is a primary key, name, or shorthand.
@@ -107,7 +110,10 @@ def projects(ctx, project_arg, course_arg, show_list):
 @click.option("-l", "--list", "show_list", is_flag=True,
               help="List groups and exit.")
 @click.pass_context
-def groups(ctx, group_arg, project_arg, course_arg, show_list):
+# The \b character in the docstring prevents Click from rewraping a paragraph.
+# We need to tell pycodestyle to ignore it.
+# https://click.palletsprojects.com/en/8.0.x/documentation/#preventing-rewrapping
+def groups(ctx, group_arg, project_arg, course_arg, show_list):  # noqa: D301
     """Show group detail or list groups.
 
     GROUP_ARG is a primary key, name, or member uniqname.

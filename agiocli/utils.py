@@ -221,7 +221,6 @@ def parse_project_string(user_input):
     >>> parse_course_string("p4mapreduce")
     ('Project', 4, 'mapreduce')
     """
-
     if user_input[0].isdigit() or user_input.lower().startswith('p'):
         assignment_type = "Project"
     elif user_input.lower().startswith('l'):
