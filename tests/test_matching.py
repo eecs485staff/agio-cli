@@ -123,6 +123,7 @@ COURSES = [
     {"pk": 126, "name": "ENGR 101", "semester": "Fall", "year": 2021}
 ]
 
+
 def test_course_match_returns_object():
     """Verify match is an unmodified course object."""
     course = utils.course_match("EECS 485 Spring 2021", COURSES)

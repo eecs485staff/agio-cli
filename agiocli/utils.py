@@ -394,16 +394,6 @@ def get_group_smart(group_arg, project_arg, course_arg, client):
         assert selected_groups
         return selected_groups[0]
 
-    # # If the user provides a uniqname, look it up
-    # if not group_arg.isnumeric():
-    #     uniqname = group_pk_or_uniqname
-    #     group_list = client.get(f"/api/projects/{project_pk}/groups/")
-    #     group = utils.find_group(uniqname, group_list)
-    #     group_pk = group["pk"]
-    # else:
-    #     group_pk = group_pk_or_uniqname[0]
-
-
     # User provides strings, try to match a group
     matches = group_match(group_arg, group_list)
     if not matches:

@@ -81,11 +81,12 @@ def test_projects_pk(api_mock):
 def test_projects_name(api_mock):
     """Verify projects subcommand with project name input.
 
-    $ agio projects --course eecs485sp21 "Project 3 - Client-side Dynamic Pages"
+    $ agio projects -c eecs485sp21 "Project 3 - Client-side Dynamic Pages"
     """
     runner = click.testing.CliRunner()
     result = runner.invoke(main, [
-        "projects", "--course", "eecs485sp21",
+        "projects",
+        "-c", "eecs485sp21",
         "Project 3 - Client-side Dynamic Pages",
     ])
     assert result.exit_code == 0
@@ -97,10 +98,14 @@ def test_projects_name(api_mock):
 def test_projects_shortcut(api_mock):
     """Verify projects subcommand with shortcut input.
 
-    $ agio projects --course eecs485sp21 p3
+    $ agio projects -c eecs485sp21 p3
     """
     runner = click.testing.CliRunner()
-    result = runner.invoke(main, ["projects", "eecs485sp21", "p3"])
+    result = runner.invoke(main, [
+        "projects",
+        "-c", "eecs485sp21",
+        "p3",
+    ])
     assert result.exit_code == 0
     assert result.output == textwrap.dedent("""\
         FIXME
