@@ -19,7 +19,7 @@ MONTH_SEMESTER_NUM = {
 
 
 def course_key(course):
-    """Return a tuple for sorting courses by year, then semester."""
+    """Return a tuple for sorting courses by year, semester, and name."""
     # Coerce year
     if course["year"] is None:
         year = 0

@@ -49,7 +49,6 @@ def courses(ctx, course_arg, show_list):  # noqa: D301
     EXAMPLES:
     agio courses
     agio courses 109
-    agio courses "EECS 485 Spring 2021"
     agio courses eecs485sp21
 
     """
@@ -78,6 +77,19 @@ def courses(ctx, course_arg, show_list):  # noqa: D301
               help="List projects and exit.")
 @click.pass_context
 def projects(ctx, project_arg, course_arg, show_list):
+    """Show project detail or list projects.
+
+    PROJECT_ARG is a primary key, name, or shorthand.
+
+    \b
+    EXAMPLES:
+    agio projects
+    agio projects 1005
+    agio projects p1
+    agio projects p1 --course 109
+    agio projects p1 --course eecs485sp21
+
+    """
     client = APIClient.make_default(debug=ctx.obj["DEBUG"])
 
     # Handle --list: list projects and exit
