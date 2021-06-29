@@ -27,15 +27,20 @@ $ pip install -e .[dev]
 
 Run tests
 ```console
-$ pytest tests
+$ pytest
 ```
 
 Test code style
 ```console
-$ pycodestyle agcli tests setup.py
-$ pydocstyle agcli tests setup.py
-$ pylint agcli tests setup.py
+$ pycodestyle agiocli tests setup.py
+$ pydocstyle agiocli tests setup.py
+$ pylint agiocli tests setup.py
 $ check-manifest
+```
+
+Regression, including tests and style checks
+```console
+$ ./test
 ```
 
 ## Acknowledgments
