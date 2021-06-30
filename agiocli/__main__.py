@@ -43,6 +43,7 @@ def courses(ctx, course_arg, show_list):  # noqa: D301
 
     \b
     EXAMPLES:
+    agio courses --list
     agio courses
     agio courses 109
     agio courses eecs485sp21
@@ -65,7 +66,7 @@ def courses(ctx, course_arg, show_list):  # noqa: D301
 @main.command()
 @click.argument("project_arg", required=False)
 @click.option("-c", "--course", "course_arg",
-              help="Course pk, name or shorthand.")
+              help="Course pk, name, or shorthand.")
 @click.option("-l", "--list", "show_list", is_flag=True,
               help="List projects and exit.")
 @click.pass_context
@@ -79,11 +80,12 @@ def projects(ctx, project_arg, course_arg, show_list):  # noqa: D301
 
     \b
     EXAMPLES:
+    agio projects --list
     agio projects
     agio projects 1005
+    agio projects --course 109 p1
+    agio projects --course eecs485sp21 p1
     agio projects p1
-    agio projects p1 --course 109
-    agio projects p1 --course eecs485sp21
 
     """
     client = APIClient.make_default(debug=ctx.obj["DEBUG"])
@@ -104,9 +106,9 @@ def projects(ctx, project_arg, course_arg, show_list):  # noqa: D301
 @main.command()
 @click.argument("group_arg", required=False)
 @click.option("-c", "--course", "course_arg",
-              help="Course pk, name or shorthand.")
+              help="Course pk, name, or shorthand.")
 @click.option("-p", "--project", "project_arg",
-              help="Project pk, name or shorthand.")
+              help="Project pk, name, or shorthand.")
 @click.option("-l", "--list", "show_list", is_flag=True,
               help="List groups and exit.")
 @click.pass_context
@@ -120,11 +122,12 @@ def groups(ctx, group_arg, project_arg, course_arg, show_list):  # noqa: D301
 
     \b
     EXAMPLES:
+    agio groups --list
     agio groups
     agio groups 246965
     agio groups awdeorio
     agio groups awdeorio --project 1005
-    agio groups awdeorio --project p1 --course eecs485sp21
+    agio groups awdeorio --course eecs485sp21 --project p1
 
     """
     client = APIClient.make_default(debug=ctx.obj["DEBUG"])
@@ -145,9 +148,9 @@ def groups(ctx, group_arg, project_arg, course_arg, show_list):  # noqa: D301
 @main.command()
 @click.argument("submission_arg", required=False)
 @click.option("-c", "--course", "course_arg",
-              help="Course pk, name or shorthand.")
+              help="Course pk, name, or shorthand.")
 @click.option("-p", "--project", "project_arg",
-              help="Project pk, name or shorthand.")
+              help="Project pk, name, or shorthand.")
 @click.option("-g", "--group", "group_arg",
               help="Group pk or member uniqname.")
 @click.option("-l", "--list", "show_list", is_flag=True,
@@ -163,9 +166,10 @@ def submissions(ctx, submission_arg, group_arg, project_arg, course_arg, show_li
 
     \b
     EXAMPLES:
+    agio submissions --list
     agio submissions
-    agio submissions FIXME
-    agio submissions --group awdeorio --project 1005
+    agio submissions 1128572
+    agio submissions --course eecs485sp21 --project p1 --group awdeorio
 
     """
     # We must have an function argument for each CLI argument or option
