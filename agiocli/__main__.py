@@ -8,6 +8,7 @@ from agiocli import APIClient, utils
 import os
 import pathlib
 import sys
+import shutil
 
 
 @click.group(context_settings={"help_option_names": ["-h", "--help"]})
@@ -208,10 +209,14 @@ def submissions(ctx, submission_arg, group_arg,
         if len(filenames) > 1:
             target = pathlib.Path(prefix)
             if target.exists():
-                confirm = input("Warning: the target path {prefix} already exists."
-                                "Continue? [y/N]")
+                confirm = input(
+                    f"Warning: the target directory {prefix}/ already exists. "
+                    "Continue? [y/N] "
+                )
                 if confirm[0].lower() != 'y':
                     sys.exit()
+                print(f"Deleting directory {target}/")
+                shutil.rmtree(target)
             os.mkdir(target)
             for filename in submission['submitted_filenames']:
                 utils.download_file(
@@ -221,20 +226,17 @@ def submissions(ctx, submission_arg, group_arg,
             filename = submission['submitted_filenames'][0]
             target = pathlib.Path(f"{prefix}-{filename}")
             if target.exists():
-                confirm = input("Warning: the target path {prefix} already exists. "
-                                "Continue? [y/N] ")
+                confirm = input(
+                    f"Warning: the target file {prefix} already exists. "
+                    "Continue? [y/N] "
+                )
                 if confirm[0].lower() != 'y':
                     sys.exit()
+                print(f"Deleting file {target}")
+                os.remove(target)
             utils.download_file(
                 filename, submission['pk'], target, client
             )
-        # submission_data = client.get(
-        #     f"/api/submissions/{submission['pk']}/"
-        # )
-        # filenames = submission_data['submitted_filenames']
-
-        # print(utils.dict_str(submission_data))
-        # print(filenames)
 
     else:
         print(utils.dict_str(submission))
