@@ -5,6 +5,9 @@ Andrew DeOrio <awdeorio@umich.edu>
 """
 import click
 from agiocli import APIClient, utils
+import os
+import pathlib
+import sys
 
 
 @click.group(context_settings={"help_option_names": ["-h", "--help"]})
@@ -155,11 +158,14 @@ def groups(ctx, group_arg, project_arg, course_arg, show_list):  # noqa: D301
               help="Group pk or member uniqname.")
 @click.option("-l", "--list", "show_list", is_flag=True,
               help="List groups and exit.")
+@click.option("-d", "--download", is_flag=True,
+              help="Download student submission.")
 @click.pass_context
 # The \b character in the docstring prevents Click from rewraping a paragraph.
 # We need to tell pycodestyle to ignore it.
 # https://click.palletsprojects.com/en/8.0.x/documentation/#preventing-rewrapping
-def submissions(ctx, submission_arg, group_arg, project_arg, course_arg, show_list):  # noqa: D301
+def submissions(ctx, submission_arg, group_arg,
+                project_arg, course_arg, show_list, download):  # noqa: D301
     """Show submission detail or list submissions.
 
     SUBMISSION_ARG is a primary key or group member uniqname.
@@ -170,7 +176,7 @@ def submissions(ctx, submission_arg, group_arg, project_arg, course_arg, show_li
     agio submissions
     agio submissions 1128572
     agio submissions --course eecs485sp21 --project p1 --group awdeorio
-
+    agio submissions --download -c eecs485sp21 -p p1 -g awdeorio 
     """
     # We must have an function argument for each CLI argument or option
     # pylint: disable=too-many-arguments
@@ -187,11 +193,51 @@ def submissions(ctx, submission_arg, group_arg, project_arg, course_arg, show_li
             print(utils.submission_str(i))
         return
 
-    # Select a submission and print it
+    # Select a submission
     submission = utils.get_submission_smart(
         submission_arg, group_arg, project_arg, course_arg, client
     )
-    print(utils.dict_str(submission))
+
+    # Handle --download: download the submission
+    if download:
+        filenames = submission['submitted_filenames']
+        if group_arg:
+            prefix = group_arg
+        else:
+            prefix = f"submission-{submission['pk']}"
+        if len(filenames) > 1:
+            target = pathlib.Path(prefix)
+            if target.exists():
+                confirm = input("Warning: the target path {prefix} already exists."
+                                "Continue? [y/N]")
+                if confirm[0].lower() != 'y':
+                    sys.exit()
+            os.mkdir(target)
+            for filename in submission['submitted_filenames']:
+                utils.download_file(
+                    filename, submission['pk'], target/filename, client
+                )
+        else:
+            filename = submission['submitted_filenames'][0]
+            target = pathlib.Path(f"{prefix}-{filename}")
+            if target.exists():
+                confirm = input("Warning: the target path {prefix} already exists. "
+                                "Continue? [y/N] ")
+                if confirm[0].lower() != 'y':
+                    sys.exit()
+            utils.download_file(
+                filename, submission['pk'], target, client
+            )
+        # submission_data = client.get(
+        #     f"/api/submissions/{submission['pk']}/"
+        # )
+        # filenames = submission_data['submitted_filenames']
+
+        # print(utils.dict_str(submission_data))
+        # print(filenames)
+
+    else:
+        print(utils.dict_str(submission))
 
 
 if __name__ == "__main__":

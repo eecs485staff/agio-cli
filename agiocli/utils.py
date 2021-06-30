@@ -457,3 +457,15 @@ def get_submission_smart(
 
     # Return most recent submission
     return submissions[-1]
+
+
+def download_file(filename, submission, target, client):
+    """Download the file named filename from submission pk submission.
+    Save the file in path target/filename.
+    """
+    data = client.get(
+        f"/api/submissions/{submission}/file/?filename={filename}"
+    )
+    with open(target, 'wb') as file:
+        file.write(data)
+    print(f"File saved to {target}")

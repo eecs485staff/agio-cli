@@ -120,7 +120,6 @@ class APIClient:
                 f"Error: {response.status_code} {response.reason} "
                 f"for url {response.url}"
             )
-
         # Decode JSON
         if 'application/json' in response.headers['Content-Type']:
             try:
