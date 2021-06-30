@@ -1,6 +1,7 @@
 """Common utility functions."""
 import datetime as dt
 import json
+import shutil
 import sys
 import re
 import dateutil.parser
@@ -457,6 +458,27 @@ def get_submission_smart(
 
     # Return most recent submission
     return submissions[-1]
+
+
+def check_existing(target):
+    if target.is_dir():
+        confirm = input(
+            f"Warning: the target directory {target}/ already exists. "
+            "Continue? [y/N] "
+        )
+        if confirm[0].lower() != 'y':
+            sys.exit()
+        print(f"Deleting directory {target}/")
+        shutil.rmtree(target)
+    elif target.is_file():
+        confirm = input(
+            f"Warning: the target file {target} already exists. "
+            "Continue? [y/N] "
+        )
+        if confirm[0].lower() != 'y':
+            sys.exit()
+        print(f"Deleting file {target}")
+        target.unlink()
 
 
 def download_file(filename, submission, target, client):
