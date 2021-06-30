@@ -40,6 +40,7 @@ setuptools.setup(
             "pylint",
             "pytest",
             "pytest-mock",
+            "python-dateutil",
             "requests-mock",
         ],
     },

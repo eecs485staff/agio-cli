@@ -142,6 +142,48 @@ def groups(ctx, group_arg, project_arg, course_arg, show_list):  # noqa: D301
     print(utils.dict_str(project))
 
 
+@main.command()
+@click.argument("submission_arg", required=False)
+@click.option("-c", "--course", "course_arg",
+              help="Course pk, name or shorthand.")
+@click.option("-p", "--project", "project_arg",
+              help="Project pk, name or shorthand.")
+@click.option("-g", "--group", "group_arg",
+              help="Group pk or member uniqname.")
+@click.option("-l", "--list", "show_list", is_flag=True,
+              help="List groups and exit.")
+@click.pass_context
+# The \b character in the docstring prevents Click from rewraping a paragraph.
+# We need to tell pycodestyle to ignore it.
+# https://click.palletsprojects.com/en/8.0.x/documentation/#preventing-rewrapping
+def submissions(ctx, submission_arg, group_arg, project_arg, course_arg, show_list):  # noqa: D301
+    """Show submission detail or list submissions.
+
+    SUBMISSION_ARG is a primary key or group member uniqname.
+
+    \b
+    EXAMPLES:
+    agio submissions
+    agio submissions FIXME
+    agio submissions --group awdeorio --project 1005
+
+    """
+    client = APIClient.make_default(debug=ctx.obj["DEBUG"])
+
+    # Handle --list: list submissions and exit
+    if show_list:
+        group = utils.get_group_smart(group_arg, project_arg, course_arg, client)
+        submission_list = utils.get_submission_list(group, client)
+        for i in submission_list:
+            print(utils.submission_str(i))
+        return
+
+    # Select a group and print it
+    assert False
+    # project = utils.get_group_smart(group_arg, project_arg, course_arg, client)
+    # print(utils.dict_str(project))
+
+
 if __name__ == "__main__":
     # These errors are endemic to click
     # pylint: disable=no-value-for-parameter,unexpected-keyword-arg

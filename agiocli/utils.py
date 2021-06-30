@@ -1,5 +1,6 @@
 """Common utility functions."""
 import datetime as dt
+import dateutil.parser
 import json
 import sys
 import re
@@ -412,3 +413,30 @@ def get_group_smart(group_arg, project_arg, course_arg, client):
             print(group_str(i))
         sys.exit(1)
     return matches[0]
+
+
+def submission_key(submission):
+    """Return a tuple for sorting submissions by timestamp."""
+    return dateutil.parser.parse(submission["timestamp"])
+
+
+def submission_str(submission):
+    """Format submission as a string."""
+    total_points = submission["results"]["total_points"]
+    total_points_possible = submission["results"]["total_points_possible"]
+
+    # FIXME HACK should parse
+    timestamp = dateutil.parser.parse(submission["timestamp"])
+    timestamp_human = timestamp.strftime("%Y-%m-%d %H:%M:%S")
+    return (
+        f"[{submission['pk']}] {timestamp_human}  "
+        f"{total_points}/{total_points_possible}"
+    )
+
+
+def get_submission_list(group, client):
+    """Return a sorted list of submissions for a group."""
+    pk = group["pk"]
+    submissions = client.get(f"/api/groups/{pk}/submissions_with_results/")
+    submissions = sorted(submissions, key=submission_key)
+    return submissions
