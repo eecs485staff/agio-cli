@@ -20,7 +20,9 @@ from agiocli import utils
 )
 def test_course_match_input_patterns(search, expected_course_pk):
     """Many supported input patterns."""
-    course = utils.course_match(search, COURSES)
+    matches = utils.course_match(search, COURSES)
+    assert len(matches) == 1
+    course = matches[0]
     assert course["pk"] == expected_course_pk
 
 
@@ -59,7 +61,9 @@ def test_course_match_input_patterns(search, expected_course_pk):
 )
 def test_course_match_pattern(search, expected_course_pk):
     """Many supported input patterns."""
-    course = utils.course_match(search, COURSES)
+    matches = utils.course_match(search, COURSES)
+    assert len(matches) == 1
+    course = matches[0]
     assert course["pk"] == expected_course_pk
 
 
@@ -80,8 +84,8 @@ def test_course_match_pattern(search, expected_course_pk):
 )
 def test_course_match_bad_year(search):
     """Bad year in pattern."""
-    course = utils.course_match(search, COURSES)
-    assert course is None
+    matches = utils.course_match(search, COURSES)
+    assert not matches
 
 
 @pytest.mark.parametrize(
@@ -116,7 +120,9 @@ def test_course_match_bad_year(search):
 )
 def test_project_match_pattern(search, expected_project_pk):
     """Many supported input patterns."""
-    project = utils.project_match(search, PROJECTS)
+    matches = utils.project_match(search, PROJECTS)
+    assert len(matches) == 1
+    project = matches[0]
     assert project["pk"] == expected_project_pk
 
 
@@ -131,8 +137,8 @@ def test_project_match_pattern(search, expected_project_pk):
 )
 def test_project_match_bad_num(search):
     """Bad project number in pattern."""
-    project = utils.project_match(search, PROJECTS)
-    assert project is None
+    matches = utils.project_match(search, PROJECTS)
+    assert not matches
 
 
 COURSES = [

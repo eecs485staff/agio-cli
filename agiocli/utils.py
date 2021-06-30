@@ -18,6 +18,14 @@ MONTH_SEMESTER_NUM = {
 }
 
 
+def course_str(course):
+    """Format course as a string."""
+    return (
+        f"[{course['pk']}]\t{course['name']} "
+        f"{course['semester']} {course['year']}"
+    )
+
+
 def course_key(course):
     """Return a tuple for sorting courses by year, semester, and name."""
     # Coerce year
@@ -64,7 +72,7 @@ def is_current_course(course):
 
 
 def course_match(search, courses):
-    """Given a search term, return the best matching course or None."""
+    """Return courses matching search term."""
     year, semester, name = parse_course_string(search)
     courses = filter(
         lambda x:
@@ -73,14 +81,7 @@ def course_match(search, courses):
             name in x["name"],
         courses
     )
-
-    # If there's only 1 course, return that
-    courses = list(courses)
-    if not courses:
-        return None
-    if len(courses) == 1:
-        return courses[0]
-    sys.exit(f"Error: more than one course matches '{search}': {courses}")
+    return list(courses)
 
 
 def dict_str(obj):
@@ -205,20 +206,25 @@ def get_course_smart(course_arg, client):
             return selected_courses[0]
 
     # Try to match a course
-    match = course_match(course_arg, courses)
-    if not match:
-        print(f"Error: couldn't find a course matching '{course_arg}'")
+    matches = course_match(course_arg, courses)
+    if not matches:
+        print(f"Error: no course matches '{course_arg}'")
         for i in courses:
-            print(f"[{i['pk']}]\t{i['name']} {i['semester']} {i['year']}")
+            print(course_str(i))
         sys.exit(1)
-    return match
+    elif len(matches) > 1:
+        print(f"Error: multiple courses match '{course_arg}'")
+        for i in matches:
+            print(course_str(i))
+        sys.exit(1)
+    return matches[0]
 
 
 def parse_project_string(user_input):
-    """Return title, subtitle from a user input string.
+    """Return assignment type, number and name from a user input string.
 
     EXAMPLE:
-    >>> parse_course_string("p4mapreduce")
+    >>> parse_project_string("p4mapreduce")
     ('Project', 4, 'mapreduce')
     """
     if user_input[0].isdigit() or user_input.lower().startswith('p'):
@@ -259,7 +265,7 @@ def project_str(project):
 
 
 def project_match(search, projects):
-    """Given a search term, return the best matching project or None."""
+    """Return projects matching search term."""
     title, subtitle = parse_project_string(search)
     projects = filter(
         lambda x:
@@ -268,12 +274,7 @@ def project_match(search, projects):
                 " ", "") in x["name"].lower().replace(" ", ""),
         projects
     )
-    projects = list(projects)
-    if not projects:
-        return None
-    if len(projects) == 1:
-        return projects[0]
-    sys.exit(f"Error: more than one project matches '{search}': {projects}")
+    return list(projects)
 
 
 def get_course_project_list(course, client):
@@ -302,16 +303,16 @@ def get_project_smart(project_arg, course_arg, client):
     assert course
 
     # Get a list of projects for this course, sorted by name
-    project_list = client.get(f"/api/courses/{course['pk']}/projects/")
-    project_list = sorted(project_list, key=lambda x: x["name"])
-    if not project_list:
+    projects = client.get(f"/api/courses/{course['pk']}/projects/")
+    projects = sorted(projects, key=lambda x: x["name"])
+    if not projects:
         sys.exit("Error: No projects for course, try 'agio courses -l'")
 
     # No project input from the user.  Show all projects for current course and
     # and prompt the user.
     if not project_arg:
         selected_projects = pick.pick(
-            options=project_list,
+            options=projects,
             title="Select a project:",
             options_map_func=lambda x: f"{x['name']}",
             multiselect=False,
@@ -320,13 +321,18 @@ def get_project_smart(project_arg, course_arg, client):
         return selected_projects[0]
 
     # User provides strings, try to match a project
-    match = project_match(project_arg, project_list)
-    if not match:
-        print(f"Error: couldn't find a project matching '{project_arg}'")
-        for i in project_list:
+    matches = project_match(project_arg, projects)
+    if not matches:
+        print(f"Error: no project matches '{project_arg}'")
+        for i in projects:
             print(project_str(i))
         sys.exit(1)
-    return match
+    elif len(matches) > 1:
+        print(f"Error: multiple projects match '{project_arg}'")
+        for i in matches:
+            print(project_str(i))
+        sys.exit(1)
+    return matches[0]
 
 
 def group_uniqnames(group):
@@ -348,7 +354,7 @@ def is_group_member(uniqname, group):
 
 
 def group_match(uniqname, groups):
-    """Return group where uniqname is a member."""
+    """Return groups where uniqname is a member."""
     matches = filter(lambda x: is_group_member(uniqname, x), groups)
     return list(matches)
 
@@ -377,15 +383,15 @@ def get_group_smart(group_arg, project_arg, course_arg, client):
 
     # Get a project and list of groups
     project = get_project_smart(project_arg, course_arg, client)
-    group_list = get_group_list(project, client)
-    if not group_list:
+    groups = get_group_list(project, client)
+    if not groups:
         sys.exit("Error: No groups for project, try 'agio projects -l'")
 
     # No group input from the user.  Show all groups for selected project and
     # and prompt the user.
     if not group_arg:
         selected_groups = pick.pick(
-            options=group_list,
+            options=groups,
             title="Select a group:",
             options_map_func=group_str,
             multiselect=False,
@@ -394,13 +400,15 @@ def get_group_smart(group_arg, project_arg, course_arg, client):
         return selected_groups[0]
 
     # User provides strings, try to match a group
-    matches = group_match(group_arg, group_list)
+    matches = group_match(group_arg, groups)
     if not matches:
         print(f"Error: uniqname not in any group: {group_arg}")
-        for i in group_list:
+        for i in groups:
             print(group_str(i))
         sys.exit(1)
-    if len(matches) > 1:
+    elif len(matches) > 1:
         print(f"Error: uniqname in more than one group: {group_arg}")
+        for i in matches:
+            print(group_str(i))
         sys.exit(1)
     return matches[0]
