@@ -168,18 +168,25 @@ def submissions(ctx, submission_arg, group_arg, project_arg, course_arg, show_li
     agio submissions --group awdeorio --project 1005
 
     """
+    # We must have an function argument for each CLI argument or option
+    # pylint: disable=too-many-arguments
+
     client = APIClient.make_default(debug=ctx.obj["DEBUG"])
 
     # Handle --list: list submissions and exit
     if show_list:
-        group = utils.get_group_smart(group_arg, project_arg, course_arg, client)
+        group = utils.get_group_smart(
+            group_arg, project_arg, course_arg, client
+        )
         submission_list = utils.get_submission_list(group, client)
         for i in submission_list:
             print(utils.submission_str(i))
         return
 
     # Select a submission and print it
-    submission = utils.get_submission_smart(submission_arg, group_arg, project_arg, course_arg, client)
+    submission = utils.get_submission_smart(
+        submission_arg, group_arg, project_arg, course_arg, client
+    )
     print(utils.dict_str(submission))
 
 

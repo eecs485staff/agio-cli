@@ -436,7 +436,8 @@ def get_submission_list(group, client):
     return submissions
 
 
-def get_submission_smart(submission_arg, group_arg, project_arg, course_arg, client):
+def get_submission_smart(
+        submission_arg, group_arg, project_arg, course_arg, client):
     """Interact with the user to select a submission.
 
     1. If submission_arg is a number, look up submission by primary key
@@ -455,5 +456,4 @@ def get_submission_smart(submission_arg, group_arg, project_arg, course_arg, cli
         sys.exit("Error: No submissions, try 'agio submissions -l'")
 
     # Return most recent submission
-    # FIXME: is this the right thing to do?
     return submissions[-1]
