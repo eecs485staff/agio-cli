@@ -179,9 +179,8 @@ def submissions(ctx, submission_arg, group_arg, project_arg, course_arg, show_li
         return
 
     # Select a submission and print it
-    # FIXME print more detail
     submission = utils.get_submission_smart(submission_arg, group_arg, project_arg, course_arg, client)
-    print(utils.submission_str(submission))
+    print(utils.dict_str(submission))
 
 
 if __name__ == "__main__":

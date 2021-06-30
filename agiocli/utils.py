@@ -422,22 +422,24 @@ def submission_key(submission):
 
 def submission_str(submission):
     """Format submission as a string."""
-    total_points = submission["results"]["total_points"]
-    total_points_possible = submission["results"]["total_points_possible"]
+    # FIXME with results?
+    # total_points = submission["results"]["total_points"]
+    # total_points_possible = submission["results"]["total_points_possible"]
 
-    # FIXME HACK should parse
+    # FIXME grading or queue status
     timestamp = dateutil.parser.parse(submission["timestamp"])
     timestamp_human = timestamp.strftime("%Y-%m-%d %H:%M:%S")
     return (
         f"[{submission['pk']}] {timestamp_human}  "
-        f"{total_points}/{total_points_possible}"
     )
 
 
 def get_submission_list(group, client):
     """Return a sorted list of submissions for a group."""
     pk = group["pk"]
-    submissions = client.get(f"/api/groups/{pk}/submissions_with_results/")
+    # FIXME with results?
+    # submissions = client.get(f"/api/groups/{pk}/submissions_with_results/")
+    submissions = client.get(f"/api/groups/{pk}/submissions/")
     submissions = sorted(submissions, key=submission_key)
     return submissions
 
@@ -451,8 +453,9 @@ def get_submission_smart(submission_arg, group_arg, project_arg, course_arg, cli
     This function provides sanity checks and may exit with an error message.
     """
     # User provides submission PK
+    # FIXME with results?
     if submission_arg and submission_arg.isnumeric():
-        return client.get(f"/api/groups/{group_arg}/")
+        return client.get(f"/api/submissions/{submission_arg}/")
 
     # Get a group and a list of submissions
     group = get_group_smart(group_arg, project_arg, course_arg, client)
