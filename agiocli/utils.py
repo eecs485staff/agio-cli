@@ -1,9 +1,9 @@
 """Common utility functions."""
 import datetime as dt
-import dateutil.parser
 import json
 import sys
 import re
+import dateutil.parser
 import pick
 
 
@@ -440,3 +440,26 @@ def get_submission_list(group, client):
     submissions = client.get(f"/api/groups/{pk}/submissions_with_results/")
     submissions = sorted(submissions, key=submission_key)
     return submissions
+
+
+def get_submission_smart(submission_arg, group_arg, project_arg, course_arg, client):
+    """Interact with the user to select a submission.
+
+    1. If submission_arg is a number, look up submission by primary key
+    2. Return most recent submission
+
+    This function provides sanity checks and may exit with an error message.
+    """
+    # User provides submission PK
+    if submission_arg and submission_arg.isnumeric():
+        return client.get(f"/api/groups/{group_arg}/")
+
+    # Get a group and a list of submissions
+    group = get_group_smart(group_arg, project_arg, course_arg, client)
+    submissions = get_submission_list(group, client)
+    if not submissions:
+        sys.exit("Error: No submissions, try 'agio submissions -l'")
+
+    # Return most recent submission
+    # FIXME: is this the right thing to do?
+    return submissions[-1]

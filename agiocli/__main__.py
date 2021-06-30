@@ -178,10 +178,10 @@ def submissions(ctx, submission_arg, group_arg, project_arg, course_arg, show_li
             print(utils.submission_str(i))
         return
 
-    # Select a group and print it
-    assert False
-    # project = utils.get_group_smart(group_arg, project_arg, course_arg, client)
-    # print(utils.dict_str(project))
+    # Select a submission and print it
+    # FIXME print more detail
+    submission = utils.get_submission_smart(submission_arg, group_arg, project_arg, course_arg, client)
+    print(utils.submission_str(submission))
 
 
 if __name__ == "__main__":
