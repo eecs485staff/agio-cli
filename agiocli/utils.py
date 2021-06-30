@@ -18,6 +18,11 @@ MONTH_SEMESTER_NUM = {
 }
 
 
+def dict_str(obj):
+    """Pretty print a dictionary."""
+    return json.dumps(obj, indent=4)
+
+
 def course_str(course):
     """Format course as a string."""
     return (
@@ -82,11 +87,6 @@ def course_match(search, courses):
         courses
     )
     return list(courses)
-
-
-def dict_str(obj):
-    """Pretty print a dictionary."""
-    return json.dumps(obj, indent=4)
 
 
 def parse_course_string(user_input):
@@ -335,17 +335,17 @@ def get_project_smart(project_arg, course_arg, client):
     return matches[0]
 
 
-def group_uniqnames(group):
-    """Return a list of uniqnames who are members of group."""
-    members = group["members"]
-    return [x["username"].replace("@umich.edu", "") for x in members]
-
-
 def group_str(group):
     """Format group as string."""
     uniqnames = group_uniqnames(group)
     uniqnames_str = ", ".join(uniqnames)
     return f"[{group['pk']}] {uniqnames_str}"
+
+
+def group_uniqnames(group):
+    """Return group member uniqnames."""
+    members = group["members"]
+    return [x["username"].replace("@umich.edu", "") for x in members]
 
 
 def is_group_member(uniqname, group):
