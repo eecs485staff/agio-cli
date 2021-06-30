@@ -5,7 +5,6 @@ Andrew DeOrio <awdeorio@umich.edu>
 """
 import click
 from agiocli import APIClient, utils
-import pathlib
 
 
 @click.group(context_settings={"help_option_names": ["-h", "--help"]})
@@ -174,7 +173,7 @@ def submissions(ctx, submission_arg, group_arg,
     agio submissions
     agio submissions 1128572
     agio submissions --course eecs485sp21 --project p1 --group awdeorio
-    agio submissions --download -c eecs485sp21 -p p1 -g awdeorio 
+    agio submissions --download -c eecs485sp21 -p p1 -g awdeorio
     """
     # We must have an function argument for each CLI argument or option
     # pylint: disable=too-many-arguments
@@ -198,29 +197,7 @@ def submissions(ctx, submission_arg, group_arg,
 
     # Handle --download: download the submission
     if download:
-
-        filenames = submission['submitted_filenames']
-        if group_arg:
-            prefix = group_arg
-        else:
-            prefix = f"submission-{submission['pk']}"
-
-        if len(filenames) > 1:
-            target = pathlib.Path(prefix)
-            utils.check_existing(target)
-            target.mkdir()
-            for filename in submission['submitted_filenames']:
-                utils.download_file(
-                    filename, submission['pk'], target/filename, client
-                )
-
-        else:
-            filename = submission['submitted_filenames'][0]
-            target = pathlib.Path(f"{prefix}-{filename}")
-            utils.check_existing(target)
-            utils.download_file(
-                filename, submission['pk'], target, client
-            )
+        utils.download_submission(submission, group_arg, client)
 
     else:
         print(utils.dict_str(submission))

@@ -1,6 +1,7 @@
 """Common utility functions."""
 import datetime as dt
 import json
+import pathlib
 import shutil
 import sys
 import re
@@ -460,7 +461,8 @@ def get_submission_smart(
     return submissions[-1]
 
 
-def check_existing(target):
+def delete_existing(target):
+    """Check if target exists, and ask user if okay to delete."""
     if target.is_dir():
         confirm = input(
             f"Warning: the target directory {target}/ already exists. "
@@ -481,8 +483,35 @@ def check_existing(target):
         target.unlink()
 
 
+def download_submission(submission, group_arg, client):
+    """Download the submission with data dict submission."""
+    filenames = submission['submitted_filenames']
+    if group_arg:
+        prefix = group_arg
+    else:
+        prefix = f"submission-{submission['pk']}"
+
+    if len(filenames) > 1:
+        target = pathlib.Path(prefix)
+        delete_existing(target)
+        target.mkdir()
+        for filename in submission['submitted_filenames']:
+            download_file(
+                filename, submission['pk'], target/filename, client
+            )
+
+    else:
+        filename = submission['submitted_filenames'][0]
+        target = pathlib.Path(f"{prefix}-{filename}")
+        delete_existing(target)
+        download_file(
+            filename, submission['pk'], target, client
+        )
+
+
 def download_file(filename, submission, target, client):
     """Download the file named filename from submission pk submission.
+
     Save the file in path target/filename.
     """
     data = client.get(
