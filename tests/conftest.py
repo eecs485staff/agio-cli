@@ -99,6 +99,26 @@ def constants_setup():
             "created_at": "2021-04-21T17:01:37.807261Z",
             "last_modified": "2021-04-21T17:01:37.807025Z"
         },
+        "SUBMISSION_1128572": {
+            "pk": 1128572,
+            "group": 246965,
+            "timestamp": "2021-06-29T14:55:57.886137Z",
+            "submitter": "awdeorio@umich.edu",
+            "submitted_filenames": [
+                "submit.tar.gz"
+            ],
+            "discarded_files": [],
+            "missing_files": {},
+            "status": "finished_grading",
+            "is_past_daily_limit": False,
+            "is_bonus_submission": False,
+            "count_towards_total_limit": True,
+            "does_not_count_for": [],
+            "position_in_queue": 0,
+            "grading_start_time": "2021-06-29T14:56:04.154353Z",
+            "non_deferred_grading_end_time": "2021-06-29T14:56:56.289720Z",
+            "last_modified": "2021-06-29T14:56:55.378590Z"
+        }
     }
 
 
@@ -454,8 +474,42 @@ def api_requests_mock(requests_mock, constants):
             ]),
     )
 
-    # Group detai
+    # Group detail
     requests_mock.get(
         "https://autograder.io/api/groups/246965/",
         text=json.dumps(constants["GROUP_246965"]),
+    )
+
+    # Submission list
+    requests_mock.get(
+        "https://autograder.io/api/groups/246965/submissions/",
+        text=json.dumps([
+            constants["SUBMISSION_1128572"],
+            {
+                "pk": 1125717,
+                "group": 246965,
+                "timestamp": "2021-06-09T12:49:16.047791Z",
+                "submitter": "awdeorio@umich.edu",
+                "submitted_filenames": [
+                    "submit.tar.gz"
+                ],
+                "discarded_files": [],
+                "missing_files": {},
+                "status": "finished_grading",
+                "is_past_daily_limit": False,
+                "is_bonus_submission": False,
+                "count_towards_total_limit": True,
+                "does_not_count_for": [],
+                "position_in_queue": 0,
+                "grading_start_time": "2021-06-09T12:49:21.340598Z",
+                "non_deferred_grading_end_time": "2021-06-09T12:50:26.978440Z",
+                "last_modified": "2021-06-09T12:50:25.899462Z"
+            }
+        ])
+    )
+
+    # Submission detail
+    requests_mock.get(
+        "https://autograder.io/api/submissions/1128572/",
+        text=json.dumps(constants["SUBMISSION_1128572"]),
     )
