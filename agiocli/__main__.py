@@ -198,7 +198,6 @@ def submissions(ctx, submission_arg, group_arg,
     # Handle --download: download the submission
     if download:
         utils.download_submission(submission, group_arg, client)
-
     else:
         print(utils.dict_str(submission))
 

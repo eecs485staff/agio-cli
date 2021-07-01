@@ -484,29 +484,33 @@ def delete_existing(target):
 
 
 def download_submission(submission, group_arg, client):
-    """Download the submission with data dict submission."""
-    filenames = submission['submitted_filenames']
-    if group_arg:
-        prefix = group_arg
-    else:
-        prefix = f"submission-{submission['pk']}"
+    """Download the submission files.
 
+    If there's one file, download it directly.  If there are multiple, then
+    download to a directory.
+
+    """
+    # If the user provides a group argument like a uniqname or group pk, use
+    # that as the filename.  Otherwise, default to submission-123.
+    if group_arg:
+        stem = group_arg
+    else:
+        stem = f"submission-{submission['pk']}"
+
+    # If there are multiple files, put them in a new directory.  If there's
+    # only one file, then download it to PWD.
+    filenames = submission['submitted_filenames']
     if len(filenames) > 1:
-        target = pathlib.Path(prefix)
+        target = pathlib.Path(stem)
         delete_existing(target)
         target.mkdir()
         for filename in submission['submitted_filenames']:
-            download_file(
-                filename, submission['pk'], target/filename, client
-            )
-
+            download_file(filename, submission['pk'], target/filename, client)
     else:
         filename = submission['submitted_filenames'][0]
-        target = pathlib.Path(f"{prefix}-{filename}")
+        target = pathlib.Path(f"{stem}-{filename}")
         delete_existing(target)
-        download_file(
-            filename, submission['pk'], target, client
-        )
+        download_file(filename, submission['pk'], target, client)
 
 
 def download_file(filename, submission, target, client):
@@ -519,4 +523,4 @@ def download_file(filename, submission, target, client):
     )
     with open(target, 'wb') as file:
         file.write(data)
-    print(f"Downloading file to {target}")
+    print(f"Saved {target}")
