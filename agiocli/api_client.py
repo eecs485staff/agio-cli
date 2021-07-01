@@ -120,7 +120,10 @@ class APIClient:
                 f"Error: {response.status_code} {response.reason} "
                 f"for url {response.url}"
             )
+
         # Decode JSON
+        if "Content-Type" not in response.headers:
+            sys.exit(f"Error: no Content-Type from: {response.url}")
         if 'application/json' in response.headers['Content-Type']:
             try:
                 return response.json()
@@ -133,7 +136,8 @@ class APIClient:
             return response.content
         else:
             sys.exit(
-                "Error: Unknown response type for url {response.url}"
+                "Error: Unknown Content-Type "
+                f"'{response.headers['Content-Type']}' for url {response.url}"
             )
 
 
