@@ -204,7 +204,6 @@ def submissions(ctx, submission_arg, group_arg,
     print(utils.dict_str(submission))
 
 
-
 if __name__ == "__main__":
     # These errors are endemic to click
     # pylint: disable=no-value-for-parameter,unexpected-keyword-arg

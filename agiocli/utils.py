@@ -2,7 +2,6 @@
 import datetime as dt
 import json
 import pathlib
-import shutil
 import sys
 import re
 import dateutil.parser
@@ -461,56 +460,38 @@ def get_submission_smart(
     return submissions[-1]
 
 
-def delete_existing(target):
-    """Check if target exists, and ask user if okay to delete."""
-    if target.is_dir():
-        confirm = input(
-            f"Warning: the target directory {target}/ already exists. "
-            "Continue? [y/N] "
-        )
-        if confirm[0].lower() != 'y':
-            sys.exit()
-        print(f"Deleting directory {target}/")
-        shutil.rmtree(target)
-    elif target.is_file():
-        confirm = input(
-            f"Warning: the target file {target} already exists. "
-            "Continue? [y/N] "
-        )
-        if confirm[0].lower() != 'y':
-            sys.exit()
-        print(f"Deleting file {target}")
-        target.unlink()
-
-
 def download_submission(submission, group_arg, client):
     """Download the submission files.
 
-    If there's one file, download it directly.  If there are multiple, then
-    download to a directory.
+    If there's one file, download it.  If there are multiple, then download to
+    a directory.
 
     """
-    # If the user provides a group argument like a uniqname or group pk, use
-    # that as the filename.  Otherwise, default to submission-123.
+    # If the user provides a group argument like a uniqname or group pk, prefix
+    # the filename with it.
     if group_arg:
-        stem = group_arg
+        prefix = f"{group_arg}-submission-{submission['pk']}"
     else:
-        stem = f"submission-{submission['pk']}"
+        prefix = f"submission-{submission['pk']}"
 
-    # If there are multiple files, put them in a new directory.  If there's
-    # only one file, then download it to PWD.
+    # Download file to PWD.  If there are multiple files, put them in a new
+    # directory.
     filenames = submission['submitted_filenames']
-    if len(filenames) > 1:
-        target = pathlib.Path(stem)
-        delete_existing(target)
-        target.mkdir()
-        for filename in submission['submitted_filenames']:
-            download_file(filename, submission['pk'], target/filename, client)
+    if not filenames:
+        print("Error: no files to download for submission")
+        print(submission_str(submission))
+        sys.exit(1)
+    elif len(filenames) == 1:
+        filename = filenames[0]
+        target = pathlib.Path(f"{prefix}-{filename}")
+        download_file(filename, submission, target, client)
     else:
-        filename = submission['submitted_filenames'][0]
-        target = pathlib.Path(f"{stem}-{filename}")
-        delete_existing(target)
-        download_file(filename, submission['pk'], target, client)
+        dirname = pathlib.Path(prefix)
+        if dirname.exists():
+            sys.exit(f"Error: refuse to clobber directory: {dirname}")
+        dirname.mkdir()
+        for filename in filenames:
+            download_file(filename, submission, dirname/filename, client)
 
 
 def download_file(filename, submission, target, client):
@@ -518,9 +499,10 @@ def download_file(filename, submission, target, client):
 
     Save the file in path target/filename.
     """
-    data = client.get(
-        f"/api/submissions/{submission}/file/?filename={filename}"
-    )
-    with open(target, 'wb') as file:
-        file.write(data)
+    if target.exists():
+        sys.exit(f"Error: refuse to clobber file: {target}")
+    url = f"/api/submissions/{submission['pk']}/file/?filename={filename}"
+    data = client.get(url)
+    with target.open("wb") as targetfile:
+        targetfile.write(data)
     print(f"Saved {target}")
