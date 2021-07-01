@@ -32,9 +32,9 @@ setuptools.setup(
     ],
     extras_require={
         "dev": [
-            "pdbpp",
-            "twine",
             "check-manifest",
+            "freezegun",
+            "pdbpp",
             "pycodestyle",
             "pydocstyle",
             "pylint",
@@ -42,6 +42,7 @@ setuptools.setup(
             "pytest-mock",
             "python-dateutil",
             "requests-mock",
+            "twine",
         ],
     },
     python_requires='>=3.6',

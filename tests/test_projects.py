@@ -7,6 +7,7 @@ import json
 import textwrap
 import click
 import click.testing
+import freezegun
 from agiocli.__main__ import main
 
 
@@ -111,8 +112,14 @@ def test_projects_no_course(api_mock, mocker, constants):
     # defined in conftest.py
     mocker.patch("pick.pick", return_value=(constants["COURSE_109"], 1))
 
+    # Run agio, mocking the date to be Jun 2021.  We need to mock the date
+    # because the prompt filters out past courses.
+    # https://github.com/spulec/freezegun
     runner = click.testing.CliRunner()
-    result = runner.invoke(main, ["projects", "p1"])
+    with freezegun.freeze_time("2021-06-15"):
+        result = runner.invoke(main, ["projects", "p1"])
+
+    # Check output
     assert result.exit_code == 0
     output_obj = json.loads(result.output)
     assert output_obj["pk"] == 1005
@@ -134,9 +141,14 @@ def test_projects_empty(api_mock, mocker, constants):
         (constants["PROJECT_1005"], 0),  # Second  call selects project
     ])
 
-    # Run agio and check output
+    # Run agio, mocking the date to be Jun 2021.  We need to mock the date
+    # because the prompt filters out past courses.
+    # https://github.com/spulec/freezegun
     runner = click.testing.CliRunner()
-    result = runner.invoke(main, ["projects"])
+    with freezegun.freeze_time("2021-06-15"):
+        result = runner.invoke(main, ["projects"])
+
+    # Check output
     assert result.exit_code == 0
     output_obj = json.loads(result.output)
     assert output_obj["pk"] == 1005

@@ -6,6 +6,7 @@ https://click.palletsprojects.com/en/8.0.x/testing/
 import json
 import click
 import click.testing
+import freezegun
 from agiocli.__main__ import main
 
 
@@ -90,9 +91,14 @@ def test_submissions_empty(api_mock, mocker, constants):
         (constants["GROUP_246965"], 0),  # Third call selects group
     ])
 
-    # Run agio and check output
+    # Run agio, mocking the date to be Jun 2021.  We need to mock the date
+    # because the prompt filters out past courses.
+    # https://github.com/spulec/freezegun
     runner = click.testing.CliRunner()
-    result = runner.invoke(main, ["submissions"])
+    with freezegun.freeze_time("2021-06-15"):
+        result = runner.invoke(main, ["submissions"])
+
+    # Check output
     assert result.exit_code == 0
     output_obj = json.loads(result.output)
     assert output_obj["pk"] == 1128572  # awdeorio's latest submission

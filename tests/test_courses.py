@@ -7,6 +7,7 @@ import json
 import textwrap
 import click
 import click.testing
+import freezegun
 from agiocli.__main__ import main
 
 
@@ -55,9 +56,14 @@ def test_courses_empty(api_mock, mocker):
     }
     mocker.patch("pick.pick", return_value=(course_109, 1))
 
-    # Run agio and check output
+    # Run agio, mocking the date to be Jun 2021.  We need to mock the date
+    # because the prompt filters out past courses.
+    # https://github.com/spulec/freezegun
     runner = click.testing.CliRunner()
-    result = runner.invoke(main, ["courses"])
+    with freezegun.freeze_time("2021-06-15"):
+        result = runner.invoke(main, ["courses"])
+
+    # Check output
     assert result.exit_code == 0
     output_obj = json.loads(result.output)
     assert output_obj["pk"] == 109
