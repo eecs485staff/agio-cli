@@ -128,6 +128,7 @@ def api_requests_mock(requests_mock, constants):
     # User
     requests_mock.get(
         "https://autograder.io/api/users/current/",
+        headers={"Content-Type": "application/json"},
         text=json.dumps({
             "pk": 5,
             "username": "awdeorio@umich.edu",
@@ -140,7 +141,8 @@ def api_requests_mock(requests_mock, constants):
 
     # Course list
     requests_mock.get(
-        "https://autograder.io/api/users/5/courses_is_admin_for/",
+        "https://autograder.io/api/users/5/courses_is_staff_for/",
+        headers={"Content-Type": "application/json"},
         text=json.dumps([
             {
                 "pk": 111,
@@ -169,12 +171,14 @@ def api_requests_mock(requests_mock, constants):
     # Course detail
     requests_mock.get(
         "https://autograder.io/api/courses/109/",
+        headers={"Content-Type": "application/json"},
         text=json.dumps(constants["COURSE_109"]),
     )
 
     # Project list
     requests_mock.get(
         "https://autograder.io/api/courses/109/projects/",
+        headers={"Content-Type": "application/json"},
         text=json.dumps([
             {
                 "pk": 1007,
@@ -415,12 +419,14 @@ def api_requests_mock(requests_mock, constants):
     # Project detail
     requests_mock.get(
         "https://autograder.io/api/projects/1005/",
+        headers={"Content-Type": "application/json"},
         text=json.dumps(constants["PROJECT_1005"]),
     )
 
     # Group list
     requests_mock.get(
         "https://autograder.io/api/projects/1005/groups/",
+        headers={"Content-Type": "application/json"},
         text=json.dumps(
             [
                 {
@@ -477,12 +483,14 @@ def api_requests_mock(requests_mock, constants):
     # Group detail
     requests_mock.get(
         "https://autograder.io/api/groups/246965/",
+        headers={"Content-Type": "application/json"},
         text=json.dumps(constants["GROUP_246965"]),
     )
 
     # Submission list
     requests_mock.get(
         "https://autograder.io/api/groups/246965/submissions/",
+        headers={"Content-Type": "application/json"},
         text=json.dumps([
             constants["SUBMISSION_1128572"],
             {
@@ -511,5 +519,6 @@ def api_requests_mock(requests_mock, constants):
     # Submission detail
     requests_mock.get(
         "https://autograder.io/api/submissions/1128572/",
+        headers={"Content-Type": "application/json"},
         text=json.dumps(constants["SUBMISSION_1128572"]),
     )
