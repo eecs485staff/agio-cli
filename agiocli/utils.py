@@ -3,6 +3,7 @@ import datetime as dt
 import json
 import pathlib
 import sys
+import itertools
 import re
 import dateutil.parser
 import pick
@@ -169,6 +170,7 @@ def get_current_course_list(client):
     courses = client.get(f"/api/users/{user['pk']}/courses_is_admin_for/")
     courses += client.get(f"/api/users/{user['pk']}/courses_is_staff_for/")
     courses = sorted(courses, key=course_key, reverse=True)
+    courses = [k for k,v in itertools.groupby(courses)]  # Unique
     return courses
 
 
