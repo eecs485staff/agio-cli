@@ -173,7 +173,7 @@ def submissions(ctx, submission_arg, group_arg,
     agio submissions
     agio submissions 1128572
     agio submissions --course eecs485sp21 --project p1 --group awdeorio
-    agio submissions --download -c eecs485sp21 -p p1 -g awdeorio
+    agio submissions [...] --download
     """
     # We must have an function argument for each CLI argument or option
     # pylint: disable=too-many-arguments
@@ -195,11 +195,14 @@ def submissions(ctx, submission_arg, group_arg,
         submission_arg, group_arg, project_arg, course_arg, client
     )
 
-    # Handle --download: download the submission
+    # Handle --download: download the submission and exit
     if download:
         utils.download_submission(submission, group_arg, client)
-    else:
-        print(utils.dict_str(submission))
+        return
+
+    # Default: print submission
+    print(utils.dict_str(submission))
+
 
 
 if __name__ == "__main__":
