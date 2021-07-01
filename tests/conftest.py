@@ -139,9 +139,9 @@ def api_requests_mock(requests_mock, constants):
         })
     )
 
-    # Course list
+    # Course list / admin
     requests_mock.get(
-        "https://autograder.io/api/users/5/courses_is_staff_for/",
+        "https://autograder.io/api/users/5/courses_is_admin_for/",
         headers={"Content-Type": "application/json"},
         text=json.dumps([
             {
@@ -165,6 +165,24 @@ def api_requests_mock(requests_mock, constants):
                 "allowed_guest_domain": "@umich.edu",
                 "last_modified": "2021-06-23T13:54:07.942973Z"
             }
+        ])
+    )
+
+    # Course list / staff
+    requests_mock.get(
+        "https://autograder.io/api/users/5/courses_is_staff_for/",
+        headers={"Content-Type": "application/json"},
+        text=json.dumps([
+            {
+                "pk": 1,
+                "name": "EECS 280",
+                "semester": "Fall",
+                "year": 2016,
+                "subtitle": "",
+                "num_late_days": 0,
+                "allowed_guest_domain": "@umich.edu",
+                "last_modified": "2019-02-07T21:06:01.779838Z"
+            },
         ])
     )
 

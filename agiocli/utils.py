@@ -166,7 +166,8 @@ def parse_course_string(user_input):
 def get_current_course_list(client):
     """Return a sorted list of current and future courses."""
     user = client.get("/api/users/current/")
-    courses = client.get(f"/api/users/{user['pk']}/courses_is_staff_for/")
+    courses = client.get(f"/api/users/{user['pk']}/courses_is_admin_for/")
+    courses += client.get(f"/api/users/{user['pk']}/courses_is_staff_for/")
     courses = sorted(courses, key=course_key, reverse=True)
     return courses
 

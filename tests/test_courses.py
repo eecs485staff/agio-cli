@@ -31,6 +31,7 @@ def test_courses_list(api_mock):
         [129]\tEECS 485 Fall 2021
         [109]\tEECS 485 Spring 2021
         [111]\tEECS 280 Spring 2021
+        [1]\tEECS 280 Fall 2016
     """)
 
 
