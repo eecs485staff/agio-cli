@@ -156,7 +156,7 @@ def groups(ctx, group_arg, project_arg, course_arg, show_list):  # noqa: D301
 @click.option("-l", "--list", "show_list", is_flag=True,
               help="List groups and exit.")
 @click.option("-d", "--download", is_flag=True,
-              help="Download student submission.")
+              help="Download submission files.")
 @click.pass_context
 # The \b character in the docstring prevents Click from rewraping a paragraph.
 # We need to tell pycodestyle to ignore it.
