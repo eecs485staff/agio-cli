@@ -173,7 +173,7 @@ def submissions(ctx, submission_arg, group_arg,
     agio submissions
     agio submissions 1128572
     agio submissions --course eecs485sp21 --project p1 --group awdeorio
-    agio submissions [...] ultimate
+    agio submissions [...] best
     agio submissions [...] last
     agio submissions [...] --download
     """

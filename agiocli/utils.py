@@ -442,7 +442,7 @@ def get_submission_smart(
     1. If submission_arg is a number, look up submission by primary key
     2. Use previously defined procedure for smart group selection, which in
        turn may use the smart project and course selection procedures.
-    3. If submission_arg is "ultimate", show submission with highest score
+    3. If submission_arg is "best", show submission with highest score
     4. If submission_arg is "last", show most recent submission
     5. If submission_arg is None, prompt with list of submissions for the
        selected group
