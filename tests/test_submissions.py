@@ -50,13 +50,14 @@ def test_submissions_pk(api_mock):
     assert output_obj["pk"] == 1128572
 
 
-def test_submissions_uniqname(api_mock):
-    """Verify groups subcommand with group member uniqname input.
+def test_submissions_last(api_mock):
+    """Verify groups subcommand with 'last' input.
 
     $ agio submissions \
         --course eecs485sp21 \
         --project p1 \
-        --group awdeorio
+        --group awdeorio \
+        last
 
     api_mock is a shared test fixture that mocks responses to REST API
     requests.  It is implemented in conftest.py.
@@ -68,10 +69,37 @@ def test_submissions_uniqname(api_mock):
         "--course", "eecs485sp21",
         "--project", "p1",
         "--group", "awdeorio",
+        "last",
     ])
     assert result.exit_code == 0
     output_obj = json.loads(result.output)
     assert output_obj["pk"] == 1128572  # awdeorio's latest submission
+
+
+def test_submissions_best(api_mock):
+    """Verify groups subcommand with 'best' input.
+
+    $ agio submissions \
+        --course eecs485sp21 \
+        --project p1 \
+        --group awdeorio \
+        best
+
+    api_mock is a shared test fixture that mocks responses to REST API
+    requests.  It is implemented in conftest.py.
+
+    """
+    runner = click.testing.CliRunner()
+    result = runner.invoke(main, [
+        "submissions",
+        "--course", "eecs485sp21",
+        "--project", "p1",
+        "--group", "awdeorio",
+        "best",
+    ])
+    assert result.exit_code == 0
+    output_obj = json.loads(result.output)
+    assert output_obj["pk"] == 1125717  # awdeorio's best submission
 
 
 def test_submissions_empty(api_mock, mocker, constants):
@@ -89,6 +117,7 @@ def test_submissions_empty(api_mock, mocker, constants):
         (constants["COURSE_109"], 1),  # First call to pick() selects course
         (constants["PROJECT_1005"], 0),  # Second call selects project
         (constants["GROUP_246965"], 0),  # Third call selects group
+        (constants["SUBMISSION_1128572"], 0),  # Fourth call selects submission
     ])
 
     # Run agio, mocking the date to be Jun 2021.  We need to mock the date

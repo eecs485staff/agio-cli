@@ -118,6 +118,26 @@ def constants_setup():
             "grading_start_time": "2021-06-29T14:56:04.154353Z",
             "non_deferred_grading_end_time": "2021-06-29T14:56:56.289720Z",
             "last_modified": "2021-06-29T14:56:55.378590Z"
+        },
+        "SUBMISSION_1125717": {
+            "pk": 1125717,
+            "group": 246965,
+            "timestamp": "2021-06-09T12:49:16.047791Z",
+            "submitter": "awdeorio@umich.edu",
+            "submitted_filenames": [
+                "submit.tar.gz"
+            ],
+            "discarded_files": [],
+            "missing_files": {},
+            "status": "finished_grading",
+            "is_past_daily_limit": False,
+            "is_bonus_submission": False,
+            "count_towards_total_limit": True,
+            "does_not_count_for": [],
+            "position_in_queue": 0,
+            "grading_start_time": "2021-06-09T12:49:21.340598Z",
+            "non_deferred_grading_end_time": "2021-06-09T12:50:26.978440Z",
+            "last_modified": "2021-06-09T12:50:25.899462Z"
         }
     }
 
@@ -511,26 +531,7 @@ def api_requests_mock(requests_mock, constants):
         headers={"Content-Type": "application/json"},
         text=json.dumps([
             constants["SUBMISSION_1128572"],
-            {
-                "pk": 1125717,
-                "group": 246965,
-                "timestamp": "2021-06-09T12:49:16.047791Z",
-                "submitter": "awdeorio@umich.edu",
-                "submitted_filenames": [
-                    "submit.tar.gz"
-                ],
-                "discarded_files": [],
-                "missing_files": {},
-                "status": "finished_grading",
-                "is_past_daily_limit": False,
-                "is_bonus_submission": False,
-                "count_towards_total_limit": True,
-                "does_not_count_for": [],
-                "position_in_queue": 0,
-                "grading_start_time": "2021-06-09T12:49:21.340598Z",
-                "non_deferred_grading_end_time": "2021-06-09T12:50:26.978440Z",
-                "last_modified": "2021-06-09T12:50:25.899462Z"
-            }
+            constants["SUBMISSION_1125717"],
         ])
     )
 
@@ -539,4 +540,11 @@ def api_requests_mock(requests_mock, constants):
         "https://autograder.io/api/submissions/1128572/",
         headers={"Content-Type": "application/json"},
         text=json.dumps(constants["SUBMISSION_1128572"]),
+    )
+
+    # Ultimate submission detail
+    requests_mock.get(
+        "https://autograder.io/api/groups/246965/ultimate_submission/",
+        headers={"Content-Type": "application/json"},
+        text=json.dumps(constants["SUBMISSION_1125717"]),
     )

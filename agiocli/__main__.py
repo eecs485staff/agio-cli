@@ -165,7 +165,7 @@ def submissions(ctx, submission_arg, group_arg,
                 project_arg, course_arg, show_list, download):  # noqa: D301
     """Show submission detail or list submissions.
 
-    SUBMISSION_ARG is a primary key or group member uniqname.
+    SUBMISSION_ARG is a primary key, 'best', or 'last'
 
     \b
     EXAMPLES:
@@ -173,6 +173,8 @@ def submissions(ctx, submission_arg, group_arg,
     agio submissions
     agio submissions 1128572
     agio submissions --course eecs485sp21 --project p1 --group awdeorio
+    agio submissions [...] ultimate
+    agio submissions [...] last
     agio submissions [...] --download
     """
     # We must have an function argument for each CLI argument or option

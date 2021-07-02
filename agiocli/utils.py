@@ -170,7 +170,7 @@ def get_current_course_list(client):
     courses = client.get(f"/api/users/{user['pk']}/courses_is_admin_for/")
     courses += client.get(f"/api/users/{user['pk']}/courses_is_staff_for/")
     courses = sorted(courses, key=course_key, reverse=True)
-    courses = [k for k,v in itertools.groupby(courses)]  # Unique
+    courses = [k for k, v in itertools.groupby(courses)]  # Unique
     return courses
 
 
@@ -442,14 +442,10 @@ def get_submission_smart(
     1. If submission_arg is a number, look up submission by primary key
     2. Use previously defined procedure for smart group selection, which in
        turn may use the smart project and course selection procedures.
-    3. If submission_arg is None, prompt with list of submissions for the
+    3. If submission_arg is "ultimate", show submission with highest score
+    4. If submission_arg is "last", show most recent submission
+    5. If submission_arg is None, prompt with list of submissions for the
        selected group
-
-
-    FIXME
-    4. If group_arg is a string, try to match it to a group member uniqname
-    2. Return most recent submission
-
 
     This function provides sanity checks and may exit with an error message.
     """
@@ -457,8 +453,14 @@ def get_submission_smart(
     if submission_arg and submission_arg.isnumeric():
         return client.get(f"/api/submissions/{submission_arg}/")
 
-    # Get a group and a sorted list of submissions
+    # Get a group
     group = get_group_smart(group_arg, project_arg, course_arg, client)
+
+    # User provides "best"
+    if submission_arg == "best":
+        return client.get(f"/api/groups/{group['pk']}/ultimate_submission/")
+
+    # Get a sorted list of submissions
     submissions = get_submission_list(group, client)
     if not submissions:
         sys.exit("Error: No submissions, try 'agio submissions -l'")
@@ -477,7 +479,7 @@ def get_submission_smart(
 
     # User provides string "last"
     if submission_arg == "last":
-        return submissions[-1]
+        return submissions[0]
 
     # No other attempt to match
     print(f"Error: no submission matches '{submission_arg}'.  "
