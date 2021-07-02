@@ -303,13 +303,9 @@ def get_project_smart(project_arg, course_arg, client):
     if project_arg and project_arg.isnumeric():
         return client.get(f"/api/projects/{project_arg}/")
 
-    # Get a course
+    # Get a course and a sorted list of projects
     course = get_course_smart(course_arg, client)
-    assert course
-
-    # Get a list of projects for this course, sorted by name
-    projects = client.get(f"/api/courses/{course['pk']}/projects/")
-    projects = sorted(projects, key=lambda x: x["name"])
+    projects = get_course_project_list(course, client)
     if not projects:
         sys.exit("Error: No projects for course, try 'agio courses -l'")
 
