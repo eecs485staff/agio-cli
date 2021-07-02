@@ -203,8 +203,7 @@ def get_course_smart(course_arg, client):
             selected_courses = pick.pick(
                 options=courses,
                 title=("Select a course:"),
-                options_map_func=lambda x:
-                    f"{x['name']} {x['semester']} {x['year']}",
+                options_map_func=course_str,
                 multiselect=False,
             )
             assert selected_courses
@@ -315,7 +314,7 @@ def get_project_smart(project_arg, course_arg, client):
         selected_projects = pick.pick(
             options=projects,
             title="Select a project:",
-            options_map_func=lambda x: f"{x['name']}",
+            options_map_func=project_str,
             multiselect=False,
         )
         assert selected_projects
@@ -432,7 +431,7 @@ def submission_str(submission):
 def get_submission_list(group, client):
     """Return a sorted list of submissions for a group."""
     submissions = client.get(f"/api/groups/{group['pk']}/submissions/")
-    submissions = sorted(submissions, key=submission_key)
+    submissions = sorted(submissions, key=submission_key, reverse=True)
     return submissions
 
 
@@ -441,7 +440,16 @@ def get_submission_smart(
     """Interact with the user to select a submission.
 
     1. If submission_arg is a number, look up submission by primary key
+    2. Use previously defined procedure for smart group selection, which in
+       turn may use the smart project and course selection procedures.
+    3. If submission_arg is None, prompt with list of submissions for the
+       selected group
+
+
+    FIXME
+    4. If group_arg is a string, try to match it to a group member uniqname
     2. Return most recent submission
+
 
     This function provides sanity checks and may exit with an error message.
     """
@@ -449,14 +457,34 @@ def get_submission_smart(
     if submission_arg and submission_arg.isnumeric():
         return client.get(f"/api/submissions/{submission_arg}/")
 
-    # Get a group and a list of submissions
+    # Get a group and a sorted list of submissions
     group = get_group_smart(group_arg, project_arg, course_arg, client)
     submissions = get_submission_list(group, client)
     if not submissions:
         sys.exit("Error: No submissions, try 'agio submissions -l'")
 
-    # Return most recent submission
-    return submissions[-1]
+    # No submissions input from the user.  Show all submissions for this group
+    # and prompt the user.
+    if not submission_arg:
+        selected_submissions = pick.pick(
+            options=submissions,
+            title="Select a submission:",
+            options_map_func=submission_str,
+            multiselect=False,
+        )
+        assert selected_submissions
+        return selected_submissions[0]
+
+    # User provides string "last"
+    if submission_arg == "last":
+        return submissions[-1]
+
+    # No other attempt to match
+    print(f"Error: no submission matches '{submission_arg}'.  "
+          "Provide a primary key or 'last'.")
+    for i in submissions:
+        print(submission_str(i))
+    sys.exit(1)
 
 
 def download_submission(submission, group_arg, client):
