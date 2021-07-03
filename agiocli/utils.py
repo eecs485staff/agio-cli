@@ -101,25 +101,27 @@ def parse_course_string(user_input):
     """
     pattern = r"""(?ix)         # Regex options: case insensitive, verbose
     ^                           # Match starts at beginning
-    \s*                         # Optional whitespace
+    [\s]*                       # Optional leading whitespace
     (?P<dept>[a-z]*)            # Optional department
-    \s*                         # Optional whitespace
+    [\s_-]*                     # Optional whitespace or delimiter
     (?P<num>\d{3})              # 3 digit course number
-    \s*                         # Optional whitespace
+    [\s_-]*                     # Optional whitespace or delimiter
     (?P<sem>                    # Semester name or abbreviation
         w|wn|winter|
         sp|s|spring|
         su|summer|
         sp/su|spsu|ss|spring/summer|
         f|fa|fall)
-    \s*                         # Optional whitespace
+    [\s_-]*                     # Optional whitespace or delimiter
     (?P<year>\d{2,4})           # 2-4 digit year
-    \s*                         # Optional whitespace
+    \s*                         # Optional trailing whitespace
     $                           # Match ends at the end
     """
-    match = re.search(pattern, user_input, re.IGNORECASE)
+    match = re.search(pattern, user_input)
     if not match:
-        print("Error: unsupported input format")
+        print(f"Error: unsupported input format: '{user_input}'")
+        # FIXME: it's weird to print an error then return None
+        # FIXME named tuple
         return None, None, None
 
     # Convert year to a number, handling 2-digit year as "20xx"
@@ -225,42 +227,64 @@ def get_course_smart(course_arg, client):
 
 
 def parse_project_string(user_input):
-    """Return assignment type, number and name from a user input string.
+    """Return assignment type, number, and name from a user input string.
 
     EXAMPLE:
     >>> parse_project_string("p4mapreduce")
     ('Project', 4, 'mapreduce')
     """
-    if user_input[0].isdigit() or user_input.lower().startswith('p'):
-        assignment_type = "Project"
-    elif user_input.lower().startswith('l'):
-        assignment_type = "Lab"
-    elif user_input.lower().startswith('h'):
-        assignment_type = "Homework"
-    else:
-        print("Error: unsupported input format")
-        return None, None
-
     pattern = r"""(?ix)         # Regex options: case insensitive, verbose
-    ^
-    \D*
-    (?P<num>\d*)                # Assignment number
-    \W*                         # Optional whitespace/delimeters
-    (?P<name>[\w\s]*)           # Assignment name
-    \s*                         # Optional whitespace
+    ^                           # Match starts at beginning
+    \s*                         # Optional leading whitespace
+    (?P<asstype>[a-z]*)         # Assignment type
+    [\s_-]*                     # Optional whitespace or delimiter
+    (?P<num>[\d]*)              # Assignment number
+    [\s_-]*                     # Optional whitespace or delimiter
+    (?P<name>.*)                # Assignment name
+    \s*                         # Optional trailing whitespace
     $                           # Match ends at the end
     """
-
-    match = re.search(pattern, user_input, re.IGNORECASE)
+    assert isinstance(user_input, str)
+    match = re.search(pattern, user_input)
     if not match:
-        print("Error: unsupported input format")
-        return None, None
+        print(f"Error: unsupported input format: '{user_input}'")
+        # FIXME: it's weird to print an error then return None
+        return None, None, None
 
+    # FIXME HACK
+    # If input is "Images", then we'll get asstype="images", num="", name=""
+    if match.group("asstype") and not match.group("num") and not match.group("name"):
+        name = match.group("asstype")
+        return None, None, name
+
+    # Convert assignment type abbreviations to canonical "Project", "Lab", etc.
+    assignment_types = {
+        "p": "Project",
+        "proj": "Project",
+        "project": "Project",
+        "l": "Lab",
+        "lab": "Lab",
+        "h": "Homework",
+        "hw": "Homework",
+        "hwk": "Homework",
+        "homework": "Homework",
+    }
+    asstype_abbrev = match.group("asstype").lower()
+    if asstype_abbrev not in assignment_types:
+        asstypes = ", ".join(assignment_types.keys())
+        print(
+            f"Error: unsupported assignment type: '{asstype_abbrev}'.  "
+            f"Recognized shortcuts: {asstypes}"
+        )
+        sys.exit(1)
+    asstype = assignment_types[asstype_abbrev]
+
+    # Assignment number and name
     num = int(match.group("num"))
     name = match.group("name")
-    if assignment_type == "Project":
-        return f"{assignment_type} {num}", name
-    return f"{assignment_type} {num:02d}", name
+
+    # FIXME return a named tuple
+    return asstype, num, name
 
 
 def project_str(project):
@@ -270,14 +294,24 @@ def project_str(project):
 
 def project_match(search, projects):
     """Return projects matching search term."""
-    title, subtitle = parse_project_string(search)
-    projects = filter(
-        lambda x:
-            x["name"].startswith(title) and
-            subtitle.lower().replace(
-                " ", "") in x["name"].lower().replace(" ", ""),
-        projects
-    )
+    assert projects
+    asstype, num, name = parse_project_string(search)
+    if asstype:
+        projects = filter(
+            lambda x: parse_project_string(x["name"])[0].lower() == asstype.lower(),
+            projects
+        )
+    if num:
+        projects = filter(
+            lambda x: parse_project_string(x["name"])[1] == num,
+            projects
+        )
+    # FIXME fuzzy match
+    if name:
+        projects = filter(
+            lambda x: parse_project_string(x["name"])[2].lower() == name.lower(),
+            projects
+        )
     return list(projects)
 
 
