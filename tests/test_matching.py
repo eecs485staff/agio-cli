@@ -140,6 +140,10 @@ def test_project_match_pattern(search, expected_project_pk):
         ("P9"),
         ("Project 9"),
         ("Project 09"),
+        ("Project 1 Polymorphism"),
+        ("Project 3 - Images"),
+        ("Lab 2 - Images"),
+        ("L14"),
     ]
 )
 def test_project_match_bad_num(search):
