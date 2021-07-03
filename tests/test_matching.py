@@ -7,6 +7,7 @@ from agiocli import utils
     "search, expected_course_pk",
     [
         ("EECS 280 Spring 2021", 111),
+        ("eecs 280 spring 2021", 111),
         ("EECS 485 Spring 2021", 109),
         ("EECS 280 Spring 21", 111),
         ("EECS 485 Spring 21", 109),
@@ -16,6 +17,8 @@ from agiocli import utils
         ("485 sp 21", 109),
         ("eecs280sp21", 111),
         ("eecs485sp21", 109),
+        ("eecs485-sp-21", 109),
+        ("eecs485-sp_21", 109),
     ]
 )
 def test_course_match_input_patterns(search, expected_course_pk):
@@ -101,6 +104,7 @@ def test_course_match_bad_year(search):
         ("l1", 435),
         ("L1", 435),
         ("Project 2 - Images", 423),
+        ("project 2 - images", 423),
         ("Images", 423),
         ("Project 2", 423),
         ("Project2", 423),
@@ -116,6 +120,8 @@ def test_course_match_bad_year(search):
         ("P-2", 423),
         ("p-02", 423),
         ("P-02", 423),
+        ("P_02", 423),
+        ("P_02_images", 423),
     ]
 )
 def test_project_match_pattern(search, expected_project_pk):
