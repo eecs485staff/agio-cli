@@ -122,6 +122,7 @@ def test_course_match_bad_year(search):
         ("P-02", 423),
         ("P_02", 423),
         ("P_02_images", 423),
+        ("Polymorphism", 424),
     ]
 )
 def test_project_match_pattern(search, expected_project_pk):

@@ -119,10 +119,7 @@ def parse_course_string(user_input):
     """
     match = re.search(pattern, user_input)
     if not match:
-        print(f"Error: unsupported input format: '{user_input}'")
-        # FIXME: it's weird to print an error then return None
-        # FIXME named tuple
-        return None, None, None
+        sys.exit(f"Error: unsupported input format: '{user_input}'")
 
     # Convert year to a number, handling 2-digit year as "20xx"
     year = int(match.group("year"))
@@ -227,7 +224,7 @@ def get_course_smart(course_arg, client):
 
 
 def parse_project_string(user_input):
-    """Return assignment type, number, and name from a user input string.
+    """Return assignment type, number, and subtitle from a user input string.
 
     EXAMPLE:
     >>> parse_project_string("p4mapreduce")
@@ -240,22 +237,21 @@ def parse_project_string(user_input):
     [\s_-]*                     # Optional whitespace or delimiter
     (?P<num>[\d]*)              # Assignment number
     [\s_-]*                     # Optional whitespace or delimiter
-    (?P<name>.*)                # Assignment name
+    (?P<subtitle>.*)            # Assignment subtitle
     \s*                         # Optional trailing whitespace
     $                           # Match ends at the end
     """
     assert isinstance(user_input, str)
     match = re.search(pattern, user_input)
     if not match:
-        print(f"Error: unsupported input format: '{user_input}'")
-        # FIXME: it's weird to print an error then return None
-        return None, None, None
+        sys.exit(f"Error: unsupported input format: '{user_input}'")
 
-    # FIXME HACK
-    # If input is "Images", then we'll get asstype="images", num="", name=""
-    if match.group("asstype") and not match.group("num") and not match.group("name"):
-        name = match.group("asstype")
-        return None, None, name
+    # HACK: If the input is just a string, e.g., "images", then it will be
+    # mis-classified as asstype.
+    if (match.group("asstype") and not match.group("num")
+            and not match.group("subtitle")):
+        subtitle = match.group("asstype")
+        return None, None, subtitle
 
     # Convert assignment type abbreviations to canonical "Project", "Lab", etc.
     assignment_types = {
@@ -279,12 +275,11 @@ def parse_project_string(user_input):
         sys.exit(1)
     asstype = assignment_types[asstype_abbrev]
 
-    # Assignment number and name
+    # Assignment number and subtitle
     num = int(match.group("num"))
-    name = match.group("name")
+    subtitle = match.group("subtitle")
 
-    # FIXME return a named tuple
-    return asstype, num, name
+    return asstype, num, subtitle
 
 
 def project_str(project):
@@ -295,23 +290,31 @@ def project_str(project):
 def project_match(search, projects):
     """Return projects matching search term."""
     assert projects
-    asstype, num, name = parse_project_string(search)
+    asstype, num, subtitle = parse_project_string(search)
+
+    # Remove projects with an assignment type mismatch (Lab vs. Project, etc.)
     if asstype:
         projects = filter(
-            lambda x: parse_project_string(x["name"])[0].lower() == asstype.lower(),
+            lambda x:
+                parse_project_string(x["name"])[0].lower() == asstype.lower(),
             projects
         )
+
+    # Remove projects with a number mismatch
     if num:
         projects = filter(
             lambda x: parse_project_string(x["name"])[1] == num,
             projects
         )
-    # FIXME fuzzy match
-    if name:
+
+    # Remove projects with a name mismatch, tolerating substring match
+    if subtitle:
         projects = filter(
-            lambda x: parse_project_string(x["name"])[2].lower() == name.lower(),
+            lambda x:
+                subtitle.lower() in parse_project_string(x["name"])[2].lower(),
             projects
         )
+
     return list(projects)
 
 
