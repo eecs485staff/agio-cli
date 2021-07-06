@@ -156,6 +156,7 @@ def groups(ctx, group_arg, project_arg, course_arg, show_list):  # noqa: D301
         utils.open_web(f"project/{project['project']}"
                        f"?current_tab=student_lookup"
                        f"&current_student_lookup={project['pk']}")
+        return
     print(utils.dict_str(project))
 
 
