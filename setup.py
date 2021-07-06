@@ -27,19 +27,25 @@ setuptools.setup(
     ],
     install_requires=[
         "click",
+        "pick",
         "requests",
     ],
     extras_require={
         "dev": [
-            "pdbpp",
-            "twine",
             "check-manifest",
+            "freezegun",
+            "pdbpp",
             "pycodestyle",
             "pydocstyle",
             "pylint",
             "pytest",
+            "pytest-mock",
+            "python-dateutil",
+            "requests-mock",
+            "twine",
         ],
     },
+    python_requires='>=3.6',
 
     # Python command line utilities will be installed in a PATH-accessible bin/
     entry_points={
