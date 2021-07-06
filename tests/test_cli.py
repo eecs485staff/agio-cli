@@ -13,5 +13,5 @@ def test_example():
     """Dummy example test."""
     runner = click.testing.CliRunner(mix_stderr=False)
     result = runner.invoke(main, ["--version"])
-    assert result.exit_code == 0
+    assert result.exit_code == 0, result.output
     assert "version" in result.output

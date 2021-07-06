@@ -29,7 +29,7 @@ def test_submissions_list(api_mock):
         "--list",
         "--group", "246965",
     ])
-    assert result.exit_code == 0
+    assert result.exit_code == 0, result.output
     assert "[1125717] 2021-06-09" in result.output
     assert "[1128572] 2021-06-29" in result.output
 
@@ -45,7 +45,7 @@ def test_submissions_pk(api_mock):
     """
     runner = click.testing.CliRunner()
     result = runner.invoke(main, ["submissions", "1128572"])
-    assert result.exit_code == 0
+    assert result.exit_code == 0, result.output
     output_obj = json.loads(result.output)
     assert output_obj["pk"] == 1128572
 
@@ -71,7 +71,7 @@ def test_submissions_last(api_mock):
         "--group", "awdeorio",
         "last",
     ])
-    assert result.exit_code == 0
+    assert result.exit_code == 0, result.output
     output_obj = json.loads(result.output)
     assert output_obj["pk"] == 1128572  # awdeorio's latest submission
 
@@ -97,7 +97,7 @@ def test_submissions_best(api_mock):
         "--group", "awdeorio",
         "best",
     ])
-    assert result.exit_code == 0
+    assert result.exit_code == 0, result.output
     output_obj = json.loads(result.output)
     assert output_obj["pk"] == 1125717  # awdeorio's best submission
 
@@ -128,6 +128,6 @@ def test_submissions_empty(api_mock, mocker, constants):
         result = runner.invoke(main, ["submissions"])
 
     # Check output
-    assert result.exit_code == 0
+    assert result.exit_code == 0, result.output
     output_obj = json.loads(result.output)
     assert output_obj["pk"] == 1128572  # awdeorio's latest submission

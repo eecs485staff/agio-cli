@@ -4,4 +4,4 @@ pycodestyle agiocli tests setup.py
 pydocstyle agiocli tests setup.py
 pylint agiocli tests setup.py
 check-manifest
-pytest
+pytest -vvs --log-cli-level=DEBUG

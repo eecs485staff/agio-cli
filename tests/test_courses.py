@@ -26,7 +26,7 @@ def test_courses_list(api_mock):
     """
     runner = click.testing.CliRunner()
     result = runner.invoke(main, ["courses", "--list"])
-    assert result.exit_code == 0
+    assert result.exit_code == 0, result.output
     assert result.output == textwrap.dedent("""\
         [129]\tEECS 485 Fall 2021
         [109]\tEECS 485 Spring 2021
@@ -65,7 +65,7 @@ def test_courses_empty(api_mock, mocker):
         result = runner.invoke(main, ["courses"])
 
     # Check output
-    assert result.exit_code == 0
+    assert result.exit_code == 0, result.output
     output_obj = json.loads(result.output)
     assert output_obj["pk"] == 109
 
@@ -81,7 +81,7 @@ def test_courses_pk(api_mock):
     """
     runner = click.testing.CliRunner()
     result = runner.invoke(main, ["courses", "109"])
-    assert result.exit_code == 0
+    assert result.exit_code == 0, result.output
     output_obj = json.loads(result.output)
     assert output_obj["pk"] == 109
 
@@ -97,7 +97,7 @@ def test_courses_name(api_mock):
     """
     runner = click.testing.CliRunner()
     result = runner.invoke(main, ["courses", "EECS 485 Spring 2021"])
-    assert result.exit_code == 0
+    assert result.exit_code == 0, result.output
     output_obj = json.loads(result.output)
     assert output_obj["pk"] == 109
 
@@ -113,6 +113,6 @@ def test_courses_shortcut(api_mock):
     """
     runner = click.testing.CliRunner()
     result = runner.invoke(main, ["courses", "eecs485sp21"])
-    assert result.exit_code == 0
+    assert result.exit_code == 0, result.output
     output_obj = json.loads(result.output)
     assert output_obj["pk"] == 109

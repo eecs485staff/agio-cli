@@ -30,7 +30,7 @@ def test_projects_list_course_pk(api_mock):
         "--list",
         "--course", "109",
     ])
-    assert result.exit_code == 0
+    assert result.exit_code == 0, result.output
     assert result.output == textwrap.dedent("""\
         [1005]	Project 1 - Templated Static Site Generator
         [1009]	Project 2 - Server-side Dynamic Pages
@@ -51,7 +51,7 @@ def test_projects_pk(api_mock):
     """
     runner = click.testing.CliRunner()
     result = runner.invoke(main, ["projects", "1005"])
-    assert result.exit_code == 0
+    assert result.exit_code == 0, result.output
     output_obj = json.loads(result.output)
     assert output_obj["pk"] == 1005
     assert output_obj["name"] == "Project 1 - Templated Static Site Generator"
@@ -73,7 +73,7 @@ def test_projects_name(api_mock):
         "-c", "eecs485sp21",
         "Project 1 - Templated Static Site Generator",
     ])
-    assert result.exit_code == 0
+    assert result.exit_code == 0, result.output
     output_obj = json.loads(result.output)
     assert output_obj["pk"] == 1005
     assert output_obj["name"] == "Project 1 - Templated Static Site Generator"
@@ -94,7 +94,7 @@ def test_projects_shortcut(api_mock):
         "-c", "eecs485sp21",
         "p1",
     ])
-    assert result.exit_code == 0
+    assert result.exit_code == 0, result.output
     output_obj = json.loads(result.output)
     assert output_obj["pk"] == 1005
 
@@ -120,7 +120,7 @@ def test_projects_no_course(api_mock, mocker, constants):
         result = runner.invoke(main, ["projects", "p1"])
 
     # Check output
-    assert result.exit_code == 0
+    assert result.exit_code == 0, result.output
     output_obj = json.loads(result.output)
     assert output_obj["pk"] == 1005
 
@@ -149,6 +149,6 @@ def test_projects_empty(api_mock, mocker, constants):
         result = runner.invoke(main, ["projects"])
 
     # Check output
-    assert result.exit_code == 0
+    assert result.exit_code == 0, result.output
     output_obj = json.loads(result.output)
     assert output_obj["pk"] == 1005

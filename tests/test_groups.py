@@ -29,7 +29,7 @@ def test_groups_list(api_mock):
         "--list",
         "--project", "1005",
     ])
-    assert result.exit_code == 0
+    assert result.exit_code == 0, result.output
     assert "[243636] achitta" in result.output
     assert "[246965] awdeorio" in result.output
 
@@ -45,7 +45,7 @@ def test_groups_pk(api_mock):
     """
     runner = click.testing.CliRunner()
     result = runner.invoke(main, ["groups", "246965"])
-    assert result.exit_code == 0
+    assert result.exit_code == 0, result.output
     output_obj = json.loads(result.output)
     assert output_obj["pk"] == 246965
     assert output_obj["members"] == [
@@ -79,7 +79,7 @@ def test_groups_uniqname(api_mock):
         "--project", "p1",
         "awdeorio",
     ])
-    assert result.exit_code == 0
+    assert result.exit_code == 0, result.output
     output_obj = json.loads(result.output)
     assert output_obj["pk"] == 246965  # awdeorio's group
 
@@ -109,6 +109,6 @@ def test_groups_empty(api_mock, mocker, constants):
         result = runner.invoke(main, ["groups"])
 
     # Check output
-    assert result.exit_code == 0
+    assert result.exit_code == 0, result.output
     output_obj = json.loads(result.output)
     assert output_obj["pk"] == 246965  # awdeorio's group
