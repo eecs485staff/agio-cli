@@ -3,7 +3,6 @@ A command line interface to autograder.io.
 
 Andrew DeOrio <awdeorio@umich.edu>
 """
-import sys
 import click
 from agiocli import APIClient, utils
 
@@ -30,112 +29,181 @@ def login(ctx):
 
 
 @main.command()
-@click.argument("course_pks", nargs=-1)
+@click.argument("course_arg", required=False)
+@click.option("-l", "--list", "show_list", is_flag=True,
+              help="List courses and exit.")
 @click.pass_context
-def courses(ctx, course_pks):
-    """List courses or show course detail.
+# The \b character in the docstring prevents Click from rewraping a paragraph.
+# We need to tell pycodestyle to ignore it.
+# https://click.palletsprojects.com/en/8.0.x/documentation/#preventing-rewrapping
+def courses(ctx, course_arg, show_list):  # noqa: D301
+    """Show course detail or list courses.
 
-    When called with no arguments, list courses.  When called with a course
-    primary key, show course detail.
+    COURSE_ARG is a primary key, name, or shorthand.
+
+    \b
+    EXAMPLES:
+    agio courses --list
+    agio courses
+    agio courses 109
+    agio courses eecs485sp21
 
     """
     client = APIClient.make_default(debug=ctx.obj["DEBUG"])
 
-    # If the user doesn't specify a course, list courses
-    if not course_pks:
-        user = client.get("/api/users/current/")
-        user_pk = user["pk"]
-        course_list = client.get(f"/api/users/{user_pk}/courses_is_admin_for/")
-        course_list = utils.filter_courses(course_list, ctx.obj["ALL"])
+    # Handle --list: list courses and exit
+    if show_list:
+        course_list = utils.get_current_course_list(client)
         for i in course_list:
-            utils.print_course(i)
+            print(f"[{i['pk']}]\t{i['name']} {i['semester']} {i['year']}")
         return
 
-    # If the user provides course pks, show course detail
-    for course_pk in course_pks:
-        course = client.get(f"/api/courses/{course_pk}/")
-        utils.print_dict(course)
+    # Select a course and print it
+    course = utils.get_course_smart(course_arg, client)
+    print(utils.dict_str(course))
 
 
 @main.command()
-@click.argument("project_pks", nargs=-1)
+@click.argument("project_arg", required=False)
+@click.option("-c", "--course", "course_arg",
+              help="Course pk, name, or shorthand.")
+@click.option("-l", "--list", "show_list", is_flag=True,
+              help="List projects and exit.")
 @click.pass_context
-def projects(ctx, project_pks):
-    """List projects or show project detail.
+# The \b character in the docstring prevents Click from rewraping a paragraph.
+# We need to tell pycodestyle to ignore it.
+# https://click.palletsprojects.com/en/8.0.x/documentation/#preventing-rewrapping
+def projects(ctx, project_arg, course_arg, show_list):  # noqa: D301
+    """Show project detail or list projects.
 
-    When called with no arguments, list courses and their projects.  When
-    called with a project primary key, show project detail.
+    PROJECT_ARG is a primary key, name, or shorthand.
+
+    \b
+    EXAMPLES:
+    agio projects --list
+    agio projects
+    agio projects 1005
+    agio projects --course 109 p1
+    agio projects --course eecs485sp21 p1
+    agio projects p1
 
     """
     client = APIClient.make_default(debug=ctx.obj["DEBUG"])
 
-    # If the user doesn't specify a project, list courses and projects
-    if not project_pks:
-        user = client.get("/api/users/current/")
-        user_pk = user["pk"]
-        course_list = client.get(f"/api/users/{user_pk}/courses_is_admin_for/")
-        course_list = utils.filter_courses(course_list, ctx.obj["ALL"])
-        for course in course_list:
-            utils.print_course(course)
-            project_list = client.get(f"/api/courses/{course['pk']}/projects/")
-            project_list = sorted(project_list, key=lambda x: x["name"])
-            for project in project_list:
-                print(f"  [{project['pk']}] {project['name']}")
+    # Handle --list: list projects and exit
+    if show_list:
+        course = utils.get_course_smart(course_arg, client)
+        project_list = utils.get_course_project_list(course, client)
+        for i in project_list:
+            print(utils.project_str(i))
         return
 
-    # If the user provides project pks, show project detail
-    for project_pk in project_pks:
-        project = client.get(f"/api/projects/{project_pk}/")
-        utils.print_dict(project)
+    # Select a project and print it
+    project = utils.get_project_smart(project_arg, course_arg, client)
+    print(utils.dict_str(project))
 
 
 @main.command()
-@click.argument("project_pk", nargs=1)
-@click.argument("group_pk_or_uniqname", nargs=-1)
+@click.argument("group_arg", required=False)
+@click.option("-c", "--course", "course_arg",
+              help="Course pk, name, or shorthand.")
+@click.option("-p", "--project", "project_arg",
+              help="Project pk, name, or shorthand.")
+@click.option("-l", "--list", "show_list", is_flag=True,
+              help="List groups and exit.")
 @click.pass_context
-def groups(ctx, project_pk, group_pk_or_uniqname):
-    """List groups or show group detail.
+# The \b character in the docstring prevents Click from rewraping a paragraph.
+# We need to tell pycodestyle to ignore it.
+# https://click.palletsprojects.com/en/8.0.x/documentation/#preventing-rewrapping
+def groups(ctx, group_arg, project_arg, course_arg, show_list):  # noqa: D301
+    """Show group detail or list groups.
 
-    When called without a group primary key or uniquename, list groups for one
-    project.  When called with a group primary key or uniqname, show group
-    detail.
+    GROUP_ARG is a primary key, name, or member uniqname.
+
+    \b
+    EXAMPLES:
+    agio groups --list
+    agio groups
+    agio groups 246965
+    agio groups awdeorio
+    agio groups awdeorio --project 1005
+    agio groups awdeorio --course eecs485sp21 --project p1
 
     """
     client = APIClient.make_default(debug=ctx.obj["DEBUG"])
 
-    # Print course and project
-    project = client.get(f"/api/projects/{project_pk}/")
-    course_pk = project['course']
-    course = client.get(f"/api/courses/{course_pk}/")
-    print(
-        f"{course['name']} {course['semester']} {course['year']} "
-        f"{project['name']}\n"
+    # Handle --list: list groups and exit
+    if show_list:
+        project = utils.get_project_smart(project_arg, course_arg, client)
+        group_list = utils.get_group_list(project, client)
+        for i in group_list:
+            print(utils.group_str(i))
+        return
+
+    # Select a group and print it
+    project = utils.get_group_smart(group_arg, project_arg, course_arg, client)
+    print(utils.dict_str(project))
+
+
+@main.command()
+@click.argument("submission_arg", required=False)
+@click.option("-c", "--course", "course_arg",
+              help="Course pk, name, or shorthand.")
+@click.option("-p", "--project", "project_arg",
+              help="Project pk, name, or shorthand.")
+@click.option("-g", "--group", "group_arg",
+              help="Group pk or member uniqname.")
+@click.option("-l", "--list", "show_list", is_flag=True,
+              help="List groups and exit.")
+@click.option("-d", "--download", is_flag=True,
+              help="Download submission files.")
+@click.pass_context
+# The \b character in the docstring prevents Click from rewraping a paragraph.
+# We need to tell pycodestyle to ignore it.
+# https://click.palletsprojects.com/en/8.0.x/documentation/#preventing-rewrapping
+def submissions(ctx, submission_arg, group_arg,
+                project_arg, course_arg, show_list, download):  # noqa: D301
+    """Show submission detail or list submissions.
+
+    SUBMISSION_ARG is a primary key, 'best', or 'last'
+
+    \b
+    EXAMPLES:
+    agio submissions --list
+    agio submissions
+    agio submissions 1128572
+    agio submissions --course eecs485sp21 --project p1 --group awdeorio
+    agio submissions [...] best
+    agio submissions [...] last
+    agio submissions [...] --download
+    """
+    # We must have an function argument for each CLI argument or option
+    # pylint: disable=too-many-arguments
+
+    client = APIClient.make_default(debug=ctx.obj["DEBUG"])
+
+    # Handle --list: list submissions and exit
+    if show_list:
+        group = utils.get_group_smart(
+            group_arg, project_arg, course_arg, client
+        )
+        submission_list = utils.get_submission_list(group, client)
+        for i in submission_list:
+            print(utils.submission_str(i))
+        return
+
+    # Select a submission
+    submission = utils.get_submission_smart(
+        submission_arg, group_arg, project_arg, course_arg, client
     )
 
-    # If the user doesn't specify a group, list groups
-    if not group_pk_or_uniqname:
-        group_list = client.get(f"/api/projects/{project_pk}/groups/")
-        for group in group_list:
-            utils.print_group(group)
+    # Handle --download: download the submission and exit
+    if download:
+        utils.download_submission(submission, group_arg, client)
         return
 
-    # Verify only one group or uniqname
-    if len(group_pk_or_uniqname) > 1:
-        sys.exit("Error: specify only one group primary key or uniqname")
-    group_pk_or_uniqname = group_pk_or_uniqname[0]
-
-    # If the user provides a uniqname, look it up
-    if not group_pk_or_uniqname.isnumeric():
-        uniqname = group_pk_or_uniqname
-        group_list = client.get(f"/api/projects/{project_pk}/groups/")
-        group = utils.find_group(uniqname, group_list)
-        group_pk = group["pk"]
-    else:
-        group_pk = group_pk_or_uniqname[0]
-
-    # Show group detail
-    group = client.get(f"/api/groups/{group_pk}/")
-    utils.print_dict(group)
+    # Default: print submission
+    print(utils.dict_str(submission))
 
 
 if __name__ == "__main__":

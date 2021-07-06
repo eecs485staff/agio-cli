@@ -28,6 +28,7 @@ $ pip install -e .[dev]
 Run tests
 ```console
 $ pytest
+$ pytest -vv --log-cli-level=DEBUG
 ```
 
 Test code style

@@ -122,12 +122,22 @@ class APIClient:
             )
 
         # Decode JSON
-        try:
-            return response.json()
-        except json.JSONDecodeError:
+        if "Content-Type" not in response.headers:
+            sys.exit(f"Error: no Content-Type from: {response.url}")
+        if 'application/json' in response.headers['Content-Type']:
+            try:
+                return response.json()
+            except json.JSONDecodeError:
+                sys.exit(
+                    f"Error: JSON decoding failed for url {response.url}\n"
+                    f"{response.text}"
+                )
+        elif 'application/octet-stream' in response.headers['Content-Type']:
+            return response.content
+        else:
             sys.exit(
-                f"Error: JSON decoding failed for url {response.url}\n"
-                f"{response.text}"
+                "Error: Unknown Content-Type "
+                f"'{response.headers['Content-Type']}' for url {response.url}"
             )
 
 
