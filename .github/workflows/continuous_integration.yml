@@ -38,21 +38,11 @@ jobs:
 
       # Install dependencies
       - name: Install dependencies
-        run: |
-          pip install -e .[dev]
+        run: pip install -e .[dev]
 
       # Run tests
-      - name: Run unit and system tests
-        run: |
-          pytest -v tests
-
-      # Run linters
-      - name: Run linters
-        run: |
-          pylint agiocli tests setup.py
-          pycodestyle agiocli tests setup.py
-          pydocstyle agiocli tests setup.py
-          check-manifest
+      - name: Run linters, unit tests, and system tests
+        run: ./test
 
       # Uncomment this chunk of YML code to open an SSH debug session to the GH
       # actions server in case of a hard-to-debug failure. The SSH session is
