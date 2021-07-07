@@ -50,7 +50,6 @@ def courses(ctx, course_arg, show_list, web):  # noqa: D301
     agio courses eecs485sp21
 
     """
-
     client = APIClient.make_default(debug=ctx.obj["DEBUG"])
 
     # Handle --list: list courses and exit
@@ -94,7 +93,6 @@ def projects(ctx, project_arg, course_arg, show_list, web):  # noqa: D301
     agio projects p1
 
     """
-
     client = APIClient.make_default(debug=ctx.obj["DEBUG"])
 
     # Handle --list: list projects and exit
@@ -141,7 +139,6 @@ def groups(ctx, group_arg, project_arg, course_arg, show_list, web):  # noqa: D3
     agio groups awdeorio --course eecs485sp21 --project p1
 
     """
-
     # We must have an function argument for each CLI argument or option
     # pylint: disable=too-many-arguments
 
@@ -197,7 +194,6 @@ def submissions(ctx, submission_arg, group_arg,
     agio submissions [...] last
     agio submissions [...] --download
     """
-
     # We must have an function argument for each CLI argument or option
     # pylint: disable=too-many-arguments
 
