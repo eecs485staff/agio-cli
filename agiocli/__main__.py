@@ -10,15 +10,13 @@ from agiocli import APIClient, utils
 @click.group(context_settings={"help_option_names": ["-h", "--help"]})
 @click.version_option()
 @click.option("-d", "--debug", is_flag=True, help="Debug output")
-@click.option("-w", "--web", is_flag=True, help="Open a web browser")
 @click.pass_context
-def main(ctx, debug, web):
+def main(ctx, debug):
     """Autograder.io command line interface."""
     # Pass global flags to subcommands via Click context
     # https://click.palletsprojects.com/en/latest/commands/#nested-handling-and-contexts
     ctx.ensure_object(dict)
     ctx.obj["DEBUG"] = debug
-    ctx.obj["WEB"] = web
 
 
 @main.command()
@@ -34,11 +32,12 @@ def login(ctx):
 @click.argument("course_arg", required=False)
 @click.option("-l", "--list", "show_list", is_flag=True,
               help="List courses and exit.")
+@click.option("-w", "--web", is_flag=True, help="Open a web browser")
 @click.pass_context
 # The \b character in the docstring prevents Click from rewraping a paragraph.
 # We need to tell pycodestyle to ignore it.
 # https://click.palletsprojects.com/en/8.0.x/documentation/#preventing-rewrapping
-def courses(ctx, course_arg, show_list):  # noqa: D301
+def courses(ctx, course_arg, show_list, web):  # noqa: D301
     """Show course detail or list courses.
 
     COURSE_ARG is a primary key, name, or shorthand.
@@ -63,7 +62,7 @@ def courses(ctx, course_arg, show_list):  # noqa: D301
 
     # Select a course and print/open it
     course = utils.get_course_smart(course_arg, client)
-    if ctx.obj["WEB"]:
+    if web:
         utils.open_web(f"course/{course['pk']}")
         return
     print(utils.dict_str(course))
@@ -75,11 +74,12 @@ def courses(ctx, course_arg, show_list):  # noqa: D301
               help="Course pk, name, or shorthand.")
 @click.option("-l", "--list", "show_list", is_flag=True,
               help="List projects and exit.")
+@click.option("-w", "--web", is_flag=True, help="Open a web browser")
 @click.pass_context
 # The \b character in the docstring prevents Click from rewraping a paragraph.
 # We need to tell pycodestyle to ignore it.
 # https://click.palletsprojects.com/en/8.0.x/documentation/#preventing-rewrapping
-def projects(ctx, project_arg, course_arg, show_list):  # noqa: D301
+def projects(ctx, project_arg, course_arg, show_list, web):  # noqa: D301
     """Show project detail or list projects.
 
     PROJECT_ARG is a primary key, name, or shorthand.
@@ -107,7 +107,7 @@ def projects(ctx, project_arg, course_arg, show_list):  # noqa: D301
 
     # Select a project and print/open it
     project = utils.get_project_smart(project_arg, course_arg, client)
-    if ctx.obj["WEB"]:
+    if web:
         utils.open_web(f"project/{project['pk']}")
         return
     print(utils.dict_str(project))
@@ -121,11 +121,12 @@ def projects(ctx, project_arg, course_arg, show_list):  # noqa: D301
               help="Project pk, name, or shorthand.")
 @click.option("-l", "--list", "show_list", is_flag=True,
               help="List groups and exit.")
+@click.option("-w", "--web", is_flag=True, help="Open a web browser")
 @click.pass_context
 # The \b character in the docstring prevents Click from rewraping a paragraph.
 # We need to tell pycodestyle to ignore it.
 # https://click.palletsprojects.com/en/8.0.x/documentation/#preventing-rewrapping
-def groups(ctx, group_arg, project_arg, course_arg, show_list):  # noqa: D301
+def groups(ctx, group_arg, project_arg, course_arg, show_list, web):  # noqa: D301
     """Show group detail or list groups.
 
     GROUP_ARG is a primary key, name, or member uniqname.
@@ -140,6 +141,10 @@ def groups(ctx, group_arg, project_arg, course_arg, show_list):  # noqa: D301
     agio groups awdeorio --course eecs485sp21 --project p1
 
     """
+
+    # We must have an function argument for each CLI argument or option
+    # pylint: disable=too-many-arguments
+
     client = APIClient.make_default(debug=ctx.obj["DEBUG"])
 
     # Handle --list: list groups and exit
@@ -152,7 +157,7 @@ def groups(ctx, group_arg, project_arg, course_arg, show_list):  # noqa: D301
 
     # Select a group and print it
     project = utils.get_group_smart(group_arg, project_arg, course_arg, client)
-    if ctx.obj["WEB"]:
+    if web:
         utils.open_web(f"project/{project['project']}"
                        f"?current_tab=student_lookup"
                        f"&current_student_lookup={project['pk']}")
