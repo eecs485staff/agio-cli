@@ -19,7 +19,7 @@ jobs:
       # Define OS and Python versions to use. We are only testing against one
       # Python version to conserve GH actions credits
       matrix:
-        python-version: ["3.x"]  # 3.x is the latest minor version
+        python-version: ["3.6", "3.x"]  # 3.x is the latest minor version
         os: [ubuntu-latest]
 
     # Sequence of tasks for this job
@@ -38,9 +38,7 @@ jobs:
 
       # Install dependencies
       - name: Install dependencies
-        run: |
-          pip install -r requirements.txt
-          pip install -e .[dev]
+        run: pip install -e .[dev]
 
       # Run tests
       - name: Run linters, unit tests, and system tests
