@@ -9,7 +9,11 @@ import click.testing
 from agiocli.__main__ import main
 
 
-def test_example():
+# Unused arguments due to fixtures are endemic to pytest
+# pylint: disable=unused-argument
+
+
+def test_example(mocker):
     """Dummy example test."""
     runner = click.testing.CliRunner(mix_stderr=False)
     result = runner.invoke(main, ["--version"])
