@@ -24,11 +24,14 @@ def test_submissions_list(api_mock):
 
     """
     runner = click.testing.CliRunner()
-    result = runner.invoke(main, [
-        "submissions",
-        "--list",
-        "--group", "246965",
-    ])
+    result = runner.invoke(
+        main, [
+            "submissions",
+            "--list",
+            "--group", "246965",
+        ],
+        catch_exceptions=False,
+    )
     assert result.exit_code == 0, result.output
     assert "[1125717] 2021-06-09" in result.output
     assert "[1128572] 2021-06-29" in result.output
@@ -44,7 +47,10 @@ def test_submissions_pk(api_mock):
 
     """
     runner = click.testing.CliRunner()
-    result = runner.invoke(main, ["submissions", "1128572"])
+    result = runner.invoke(
+        main, ["submissions", "1128572"],
+        catch_exceptions=False,
+    )
     assert result.exit_code == 0, result.output
     output_obj = json.loads(result.output)
     assert output_obj["pk"] == 1128572
@@ -64,13 +70,16 @@ def test_submissions_last(api_mock):
 
     """
     runner = click.testing.CliRunner()
-    result = runner.invoke(main, [
-        "submissions",
-        "--course", "eecs485sp21",
-        "--project", "p1",
-        "--group", "awdeorio",
-        "last",
-    ])
+    result = runner.invoke(
+        main, [
+            "submissions",
+            "--course", "eecs485sp21",
+            "--project", "p1",
+            "--group", "awdeorio",
+            "last",
+        ],
+        catch_exceptions=False,
+    )
     assert result.exit_code == 0, result.output
     output_obj = json.loads(result.output)
     assert output_obj["pk"] == 1128572  # awdeorio's latest submission
@@ -90,13 +99,16 @@ def test_submissions_best(api_mock):
 
     """
     runner = click.testing.CliRunner()
-    result = runner.invoke(main, [
-        "submissions",
-        "--course", "eecs485sp21",
-        "--project", "p1",
-        "--group", "awdeorio",
-        "best",
-    ])
+    result = runner.invoke(
+        main, [
+            "submissions",
+            "--course", "eecs485sp21",
+            "--project", "p1",
+            "--group", "awdeorio",
+            "best",
+        ],
+        catch_exceptions=False,
+    )
     assert result.exit_code == 0, result.output
     output_obj = json.loads(result.output)
     assert output_obj["pk"] == 1125717  # awdeorio's best submission
@@ -125,7 +137,7 @@ def test_submissions_empty(api_mock, mocker, constants):
     # https://github.com/spulec/freezegun
     runner = click.testing.CliRunner()
     with freezegun.freeze_time("2021-06-15"):
-        result = runner.invoke(main, ["submissions"])
+        result = runner.invoke(main, ["submissions"], catch_exceptions=False)
 
     # Check output
     assert result.exit_code == 0, result.output

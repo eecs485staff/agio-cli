@@ -3,8 +3,9 @@ A command line interface to autograder.io.
 
 Andrew DeOrio <awdeorio@umich.edu>
 """
+import sys
 import click
-from agiocli import APIClient, utils
+from agiocli import APIClient, TokenFileNotFound, utils
 
 
 @click.group(context_settings={"help_option_names": ["-h", "--help"]})
@@ -23,7 +24,10 @@ def main(ctx, debug):
 @click.pass_context
 def login(ctx):
     """Show current authenticated user."""
-    client = APIClient.make_default(debug=ctx.obj["DEBUG"])
+    try:
+        client = APIClient.make_default(debug=ctx.obj["DEBUG"])
+    except TokenFileNotFound as err:
+        sys.exit(err)
     user = client.get("/api/users/current/")
     print(f"{user['username']} {user['first_name']} {user['last_name']}")
 
@@ -50,7 +54,10 @@ def courses(ctx, course_arg, show_list, web):  # noqa: D301
     agio courses eecs485sp21
 
     """
-    client = APIClient.make_default(debug=ctx.obj["DEBUG"])
+    try:
+        client = APIClient.make_default(debug=ctx.obj["DEBUG"])
+    except TokenFileNotFound as err:
+        sys.exit(err)
 
     # Handle --list: list courses and exit
     if show_list:
@@ -93,7 +100,10 @@ def projects(ctx, project_arg, course_arg, show_list, web):  # noqa: D301
     agio projects p1
 
     """
-    client = APIClient.make_default(debug=ctx.obj["DEBUG"])
+    try:
+        client = APIClient.make_default(debug=ctx.obj["DEBUG"])
+    except TokenFileNotFound as err:
+        sys.exit(err)
 
     # Handle --list: list projects and exit
     if show_list:
@@ -142,7 +152,10 @@ def groups(ctx, group_arg, project_arg, course_arg, show_list, web):  # noqa: D3
     # We must have an function argument for each CLI argument or option
     # pylint: disable=too-many-arguments
 
-    client = APIClient.make_default(debug=ctx.obj["DEBUG"])
+    try:
+        client = APIClient.make_default(debug=ctx.obj["DEBUG"])
+    except TokenFileNotFound as err:
+        sys.exit(err)
 
     # Handle --list: list groups and exit
     if show_list:
@@ -200,7 +213,10 @@ def submissions(ctx, submission_arg, group_arg,
     # We must have an function argument for each CLI argument or option
     # pylint: disable=too-many-arguments
 
-    client = APIClient.make_default(debug=ctx.obj["DEBUG"])
+    try:
+        client = APIClient.make_default(debug=ctx.obj["DEBUG"])
+    except TokenFileNotFound as err:
+        sys.exit(err)
 
     # Handle --list: list submissions and exit
     if show_list:
