@@ -1,7 +1,3 @@
 #!/bin/bash
 set -Eeuxo pipefail
-pycodestyle agiocli tests setup.py
-pydocstyle agiocli tests setup.py
-pylint agiocli tests setup.py
-check-manifest
-pytest -vvs --log-cli-level=DEBUG
+pytest -vvs --log-cli-level=DEBUG tests/test_cli.py
