@@ -19,7 +19,7 @@ jobs:
       # Define OS and Python versions to use. We are only testing against one
       # Python version to conserve GH actions credits
       matrix:
-        python-version: ["3.6", "3.x"]  # 3.x is the latest minor version
+        python-version: ["3.x"]  # 3.x is the latest minor version
         os: [ubuntu-latest]
 
     # Sequence of tasks for this job
