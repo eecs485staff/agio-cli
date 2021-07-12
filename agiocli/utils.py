@@ -464,9 +464,11 @@ def open_web(url):
     if is_wsl():
         # Need to escape & in Windows
         url = url.replace('&', '^&')
-        subprocess.run(['cmd.exe', '/c', 'start', url],
-                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
-                       check=True)
+        subprocess.run(
+            ['cmd.exe', '/c', 'start', url],
+            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+            check=True
+        )
     else:
         webbrowser.open(url)
 
