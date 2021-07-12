@@ -62,7 +62,7 @@ def courses(ctx, course_arg, show_list, web):  # noqa: D301
     # Select a course and print or open it
     course = utils.get_course_smart(course_arg, client)
     if web:
-        utils.open_web(f"course/{course['pk']}")
+        utils.open_web(f"https://autograder.io/web/course/{course['pk']}")
         return
     print(utils.dict_str(course))
 
@@ -106,7 +106,7 @@ def projects(ctx, project_arg, course_arg, show_list, web):  # noqa: D301
     # Select a project and print or open it
     project = utils.get_project_smart(project_arg, course_arg, client)
     if web:
-        utils.open_web(f"project/{project['pk']}")
+        utils.open_web(f"https://autograder.io/web/project/{project['pk']}")
         return
     print(utils.dict_str(project))
 
@@ -153,13 +153,16 @@ def groups(ctx, group_arg, project_arg, course_arg, show_list, web):  # noqa: D3
         return
 
     # Select a group and print or open it
-    project = utils.get_group_smart(group_arg, project_arg, course_arg, client)
+    group = utils.get_group_smart(group_arg, project_arg, course_arg, client)
     if web:
-        utils.open_web(f"project/{project['project']}"
-                       f"?current_tab=student_lookup"
-                       f"&current_student_lookup={project['pk']}")
+        utils.open_web(
+            "https://autograder.io/web/"
+            f"project/{group['project']}"
+            f"?current_tab=student_lookup"
+            f"&current_student_lookup={group['pk']}"
+        )
         return
-    print(utils.dict_str(project))
+    print(utils.dict_str(group))
 
 
 @main.command()

@@ -460,8 +460,7 @@ def is_wsl():
 
 
 def open_web(url):
-    """Open host default browser to url."""
-    url = f"https://autograder.io/web/{url}"
+    """Open url in default browser."""
     if is_wsl():
         # Need to escape & in Windows
         url = url.replace('&', '^&')
