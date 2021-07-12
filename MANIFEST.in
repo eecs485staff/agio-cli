@@ -2,6 +2,7 @@ include LICENSE
 include MANIFEST.in
 include README.md
 include .pylintrc
+include requirements.txt
 graft tests
 include test
 
