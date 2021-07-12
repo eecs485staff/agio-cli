@@ -1,4 +1,3 @@
--e git+git@github.com:eecs485staff/agio-cli.git@78111b99e12ad3c95f8e1a95303b9dfe82e9013e#egg=agiocli
 astroid==2.6.2
 attrs==21.2.0
 bleach==3.3.0
