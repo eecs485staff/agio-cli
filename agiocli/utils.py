@@ -463,6 +463,7 @@ def open_web(url):
     """Open url in default browser."""
     if is_wsl():
         # Need to escape & in Windows
+        # https://stackoverflow.com/questions/1327431/how-do-i-escape-ampersands-in-batch-files
         url = url.replace('&', '^&')
         subprocess.run(
             ['cmd.exe', '/c', 'start', url],
