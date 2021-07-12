@@ -13,7 +13,7 @@ from agiocli.__main__ import main
 # pylint: disable=unused-argument
 
 
-def test_example(mocker):
+def test_example(api_mock):
     """Dummy example test."""
     runner = click.testing.CliRunner(mix_stderr=False)
     result = runner.invoke(main, ["--version"])
