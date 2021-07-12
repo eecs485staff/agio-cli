@@ -24,11 +24,14 @@ def test_groups_list(api_mock):
 
     """
     runner = click.testing.CliRunner()
-    result = runner.invoke(main, [
-        "groups",
-        "--list",
-        "--project", "1005",
-    ])
+    result = runner.invoke(
+        main, [
+            "groups",
+            "--list",
+            "--project", "1005",
+        ],
+        catch_exceptions=False,
+    )
     assert result.exit_code == 0, result.output
     assert "[243636] achitta" in result.output
     assert "[246965] awdeorio" in result.output
@@ -44,7 +47,7 @@ def test_groups_pk(api_mock):
 
     """
     runner = click.testing.CliRunner()
-    result = runner.invoke(main, ["groups", "246965"])
+    result = runner.invoke(main, ["groups", "246965"], catch_exceptions=False)
     assert result.exit_code == 0, result.output
     output_obj = json.loads(result.output)
     assert output_obj["pk"] == 246965
@@ -73,12 +76,15 @@ def test_groups_uniqname(api_mock):
 
     """
     runner = click.testing.CliRunner()
-    result = runner.invoke(main, [
-        "groups",
-        "--course", "eecs485sp21",
-        "--project", "p1",
-        "awdeorio",
-    ])
+    result = runner.invoke(
+        main, [
+            "groups",
+            "--course", "eecs485sp21",
+            "--project", "p1",
+            "awdeorio",
+        ],
+        catch_exceptions=False,
+    )
     assert result.exit_code == 0, result.output
     output_obj = json.loads(result.output)
     assert output_obj["pk"] == 246965  # awdeorio's group
@@ -106,7 +112,7 @@ def test_groups_empty(api_mock, mocker, constants):
     # https://github.com/spulec/freezegun
     runner = click.testing.CliRunner()
     with freezegun.freeze_time("2021-06-15"):
-        result = runner.invoke(main, ["groups"])
+        result = runner.invoke(main, ["groups"], catch_exceptions=False)
 
     # Check output
     assert result.exit_code == 0, result.output
