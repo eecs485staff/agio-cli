@@ -33,6 +33,8 @@ def test_courses_list(api_mock):
     """
     runner = click.testing.CliRunner()
     result = runner.invoke(main, ["courses", "--list"])
+    for k,v in result.__dict__.items():
+        print(f"DEBUG: {k}:{v}")
     assert result.exit_code == 0, result.output
     assert result.output == textwrap.dedent("""\
         [129]\tEECS 485 Fall 2021
