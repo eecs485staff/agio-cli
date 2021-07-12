@@ -32,7 +32,7 @@ def login(ctx):
 @click.argument("course_arg", required=False)
 @click.option("-l", "--list", "show_list", is_flag=True,
               help="List courses and exit.")
-@click.option("-w", "--web", is_flag=True, help="Open a web browser")
+@click.option("-w", "--web", is_flag=True, help="Open course in browser.")
 @click.pass_context
 # The \b character in the docstring prevents Click from rewraping a paragraph.
 # We need to tell pycodestyle to ignore it.
@@ -59,7 +59,7 @@ def courses(ctx, course_arg, show_list, web):  # noqa: D301
             print(f"[{i['pk']}]\t{i['name']} {i['semester']} {i['year']}")
         return
 
-    # Select a course and print/open it
+    # Select a course and print or open it
     course = utils.get_course_smart(course_arg, client)
     if web:
         utils.open_web(f"course/{course['pk']}")
@@ -73,7 +73,7 @@ def courses(ctx, course_arg, show_list, web):  # noqa: D301
               help="Course pk, name, or shorthand.")
 @click.option("-l", "--list", "show_list", is_flag=True,
               help="List projects and exit.")
-@click.option("-w", "--web", is_flag=True, help="Open a web browser")
+@click.option("-w", "--web", is_flag=True, help="Open project in browser.")
 @click.pass_context
 # The \b character in the docstring prevents Click from rewraping a paragraph.
 # We need to tell pycodestyle to ignore it.
@@ -103,7 +103,7 @@ def projects(ctx, project_arg, course_arg, show_list, web):  # noqa: D301
             print(utils.project_str(i))
         return
 
-    # Select a project and print/open it
+    # Select a project and print or open it
     project = utils.get_project_smart(project_arg, course_arg, client)
     if web:
         utils.open_web(f"project/{project['pk']}")
@@ -119,7 +119,7 @@ def projects(ctx, project_arg, course_arg, show_list, web):  # noqa: D301
               help="Project pk, name, or shorthand.")
 @click.option("-l", "--list", "show_list", is_flag=True,
               help="List groups and exit.")
-@click.option("-w", "--web", is_flag=True, help="Open a web browser")
+@click.option("-w", "--web", is_flag=True, help="Open group in browser.")
 @click.pass_context
 # The \b character in the docstring prevents Click from rewraping a paragraph.
 # We need to tell pycodestyle to ignore it.
@@ -152,7 +152,7 @@ def groups(ctx, group_arg, project_arg, course_arg, show_list, web):  # noqa: D3
             print(utils.group_str(i))
         return
 
-    # Select a group and print it
+    # Select a group and print or open it
     project = utils.get_group_smart(group_arg, project_arg, course_arg, client)
     if web:
         utils.open_web(f"project/{project['project']}"
