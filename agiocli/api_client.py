@@ -151,7 +151,7 @@ def get_api_token(token_filename: str) -> str:
     - If token_filename is an absolute path or a relative path that contains
       at least one directory, that file will be opened and the token read.
     """
-    token_not_found_msg = f'Requested token file: {token_filename} not found'
+    token_not_found_msg = f"Token file not found: {token_filename}"
     if os.path.dirname(token_filename) and not os.path.isfile(token_filename):
         raise TokenFileNotFound(token_not_found_msg)
 

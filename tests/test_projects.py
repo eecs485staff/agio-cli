@@ -25,11 +25,10 @@ def test_projects_list_course_pk(api_mock):
 
     """
     runner = click.testing.CliRunner()
-    result = runner.invoke(main, [
-        "projects",
-        "--list",
-        "--course", "109",
-    ])
+    result = runner.invoke(
+        main, ["projects", "--list", "--course", "109"],
+        catch_exceptions=False,
+    )
     assert result.exit_code == 0, result.output
     assert result.output == textwrap.dedent("""\
         [1005]	Project 1 - Templated Static Site Generator
@@ -50,7 +49,7 @@ def test_projects_pk(api_mock):
 
     """
     runner = click.testing.CliRunner()
-    result = runner.invoke(main, ["projects", "1005"])
+    result = runner.invoke(main, ["projects", "1005"], catch_exceptions=False)
     assert result.exit_code == 0, result.output
     output_obj = json.loads(result.output)
     assert output_obj["pk"] == 1005
@@ -68,11 +67,14 @@ def test_projects_name(api_mock):
 
     """
     runner = click.testing.CliRunner()
-    result = runner.invoke(main, [
-        "projects",
-        "-c", "eecs485sp21",
-        "Project 1 - Templated Static Site Generator",
-    ])
+    result = runner.invoke(
+        main, [
+            "projects",
+            "--course", "eecs485sp21",
+            "Project 1 - Templated Static Site Generator",
+        ],
+        catch_exceptions=False,
+    )
     assert result.exit_code == 0, result.output
     output_obj = json.loads(result.output)
     assert output_obj["pk"] == 1005
@@ -89,11 +91,14 @@ def test_projects_shortcut(api_mock):
 
     """
     runner = click.testing.CliRunner()
-    result = runner.invoke(main, [
-        "projects",
-        "-c", "eecs485sp21",
-        "p1",
-    ])
+    result = runner.invoke(
+        main, [
+            "projects",
+            "-c", "eecs485sp21",
+            "p1",
+        ],
+        catch_exceptions=False,
+    )
     assert result.exit_code == 0, result.output
     output_obj = json.loads(result.output)
     assert output_obj["pk"] == 1005
@@ -117,7 +122,10 @@ def test_projects_no_course(api_mock, mocker, constants):
     # https://github.com/spulec/freezegun
     runner = click.testing.CliRunner()
     with freezegun.freeze_time("2021-06-15"):
-        result = runner.invoke(main, ["projects", "p1"])
+        result = runner.invoke(
+            main, ["projects", "p1"],
+            catch_exceptions=False,
+        )
 
     # Check output
     assert result.exit_code == 0, result.output
@@ -146,7 +154,7 @@ def test_projects_empty(api_mock, mocker, constants):
     # https://github.com/spulec/freezegun
     runner = click.testing.CliRunner()
     with freezegun.freeze_time("2021-06-15"):
-        result = runner.invoke(main, ["projects"])
+        result = runner.invoke(main, ["projects"], catch_exceptions=False)
 
     # Check output
     assert result.exit_code == 0, result.output

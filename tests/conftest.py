@@ -143,8 +143,11 @@ def constants_setup():
 
 
 @pytest.fixture(name="api_mock")
-def api_requests_mock(requests_mock, constants):
+def api_requests_mock(requests_mock, mocker, constants):
     """Mock Autograder API with hardcoded responses."""
+    # Don't look for an API token on the filesystem
+    mocker.patch("agiocli.api_client.get_api_token")
+
     # User
     requests_mock.get(
         "https://autograder.io/api/users/current/",
