@@ -214,13 +214,13 @@ def get_course_smart(course_arg, client):
     # Try to match a course
     matches = course_match(course_arg, courses)
     if not matches:
-        courses_str = "\n".join([course_str(i) for i in courses])
+        courses_str = "\n".join(course_str(i) for i in courses)
         sys.exit(
             f"Error: no course matches '{course_arg}'\n"
             f"{courses_str}"
         )
     elif len(matches) > 1:
-        matches_str = "\n".join([course_str(i) for i in matches])
+        matches_str = "\n".join(course_str(i) for i in matches)
         sys.exit(
             f"Error: multiple courses match '{course_arg}'\n"
             f"{matches_str}"
@@ -364,13 +364,13 @@ def get_project_smart(project_arg, course_arg, client):
     # User provides strings, try to match a project
     matches = project_match(project_arg, projects)
     if not matches:
-        projects_str = "\n".join([project_str(i) for i in projects])
+        projects_str = "\n".join(project_str(i) for i in projects)
         sys.exit(
             f"Error: no project matches '{project_arg}'\n"
             f"{projects_str}"
         )
     elif len(matches) > 1:
-        matches_str = "\n".join([project_str(i) for i in matches])
+        matches_str = "\n".join(project_str(i) for i in matches)
         sys.exit(
             f"Error: multiple projects match '{project_arg}'\n"
             f"{matches_str}"
@@ -445,13 +445,13 @@ def get_group_smart(group_arg, project_arg, course_arg, client):
     # User provides strings, try to match a group
     matches = group_match(group_arg, groups)
     if not matches:
-        groups_str = "\n".join([group_str(i) for i in groups])
+        groups_str = "\n".join(group_str(i) for i in groups)
         sys.exit(
             f"Error: uniqname not in any group: {group_arg}\n"
             f"{groups_str}"
         )
     elif len(matches) > 1:
-        matches_str = "\n".join([group_str(i) for i in matches])
+        matches_str = "\n".join(group_str(i) for i in matches)
         sys.exit(
             f"Error: uniqname in more than one group: {group_arg}"
             f"{matches_str}"
@@ -547,7 +547,7 @@ def get_submission_smart(
         return submissions[0]
 
     # No other attempt to match
-    submissions_str = "\n".join([submission_str(i) for i in submissions])
+    submissions_str = "\n".join(submission_str(i) for i in submissions)
     sys.exit(
         f"Error: no submission matches '{submission_arg}'.  "
         "Provide a primary key or 'last'.\n"
