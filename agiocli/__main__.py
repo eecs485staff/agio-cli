@@ -36,11 +36,12 @@ def login(ctx):
 @click.argument("course_arg", required=False)
 @click.option("-l", "--list", "show_list", is_flag=True,
               help="List courses and exit.")
+@click.option("-w", "--web", is_flag=True, help="Open course in browser.")
 @click.pass_context
 # The \b character in the docstring prevents Click from rewraping a paragraph.
 # We need to tell pycodestyle to ignore it.
 # https://click.palletsprojects.com/en/8.0.x/documentation/#preventing-rewrapping
-def courses(ctx, course_arg, show_list):  # noqa: D301
+def courses(ctx, course_arg, show_list, web):  # noqa: D301
     """Show course detail or list courses.
 
     COURSE_ARG is a primary key, name, or shorthand.
@@ -65,8 +66,11 @@ def courses(ctx, course_arg, show_list):  # noqa: D301
             print(f"[{i['pk']}]\t{i['name']} {i['semester']} {i['year']}")
         return
 
-    # Select a course and print it
+    # Select a course and print or open it
     course = utils.get_course_smart(course_arg, client)
+    if web:
+        utils.open_web(f"https://autograder.io/web/course/{course['pk']}")
+        return
     print(utils.dict_str(course))
 
 
@@ -76,11 +80,12 @@ def courses(ctx, course_arg, show_list):  # noqa: D301
               help="Course pk, name, or shorthand.")
 @click.option("-l", "--list", "show_list", is_flag=True,
               help="List projects and exit.")
+@click.option("-w", "--web", is_flag=True, help="Open project in browser.")
 @click.pass_context
 # The \b character in the docstring prevents Click from rewraping a paragraph.
 # We need to tell pycodestyle to ignore it.
 # https://click.palletsprojects.com/en/8.0.x/documentation/#preventing-rewrapping
-def projects(ctx, project_arg, course_arg, show_list):  # noqa: D301
+def projects(ctx, project_arg, course_arg, show_list, web):  # noqa: D301
     """Show project detail or list projects.
 
     PROJECT_ARG is a primary key, name, or shorthand.
@@ -108,8 +113,11 @@ def projects(ctx, project_arg, course_arg, show_list):  # noqa: D301
             print(utils.project_str(i))
         return
 
-    # Select a project and print it
+    # Select a project and print or open it
     project = utils.get_project_smart(project_arg, course_arg, client)
+    if web:
+        utils.open_web(f"https://autograder.io/web/project/{project['pk']}")
+        return
     print(utils.dict_str(project))
 
 
@@ -121,11 +129,12 @@ def projects(ctx, project_arg, course_arg, show_list):  # noqa: D301
               help="Project pk, name, or shorthand.")
 @click.option("-l", "--list", "show_list", is_flag=True,
               help="List groups and exit.")
+@click.option("-w", "--web", is_flag=True, help="Open group in browser.")
 @click.pass_context
 # The \b character in the docstring prevents Click from rewraping a paragraph.
 # We need to tell pycodestyle to ignore it.
 # https://click.palletsprojects.com/en/8.0.x/documentation/#preventing-rewrapping
-def groups(ctx, group_arg, project_arg, course_arg, show_list):  # noqa: D301
+def groups(ctx, group_arg, project_arg, course_arg, show_list, web):  # noqa: D301
     """Show group detail or list groups.
 
     GROUP_ARG is a primary key, name, or member uniqname.
@@ -140,6 +149,9 @@ def groups(ctx, group_arg, project_arg, course_arg, show_list):  # noqa: D301
     agio groups awdeorio --course eecs485sp21 --project p1
 
     """
+    # We must have an function argument for each CLI argument or option
+    # pylint: disable=too-many-arguments
+
     try:
         client = APIClient.make_default(debug=ctx.obj["DEBUG"])
     except TokenFileNotFound as err:
@@ -153,9 +165,17 @@ def groups(ctx, group_arg, project_arg, course_arg, show_list):  # noqa: D301
             print(utils.group_str(i))
         return
 
-    # Select a group and print it
-    project = utils.get_group_smart(group_arg, project_arg, course_arg, client)
-    print(utils.dict_str(project))
+    # Select a group and print or open it
+    group = utils.get_group_smart(group_arg, project_arg, course_arg, client)
+    if web:
+        utils.open_web(
+            "https://autograder.io/web/"
+            f"project/{group['project']}"
+            f"?current_tab=student_lookup"
+            f"&current_student_lookup={group['pk']}"
+        )
+        return
+    print(utils.dict_str(group))
 
 
 @main.command()

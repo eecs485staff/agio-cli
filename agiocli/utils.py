@@ -3,6 +3,9 @@ import datetime as dt
 import json
 import pathlib
 import sys
+import platform
+import subprocess
+import webbrowser
 import itertools
 import re
 import dateutil.parser
@@ -449,6 +452,26 @@ def get_group_smart(group_arg, project_arg, course_arg, client):
             print(group_str(i))
         sys.exit(1)
     return matches[0]
+
+
+def is_wsl():
+    """Check if user is running WSL."""
+    return 'microsoft' in platform.uname().release
+
+
+def open_web(url):
+    """Open url in default browser."""
+    if is_wsl():
+        # Need to escape & in Windows
+        # https://stackoverflow.com/questions/1327431/how-do-i-escape-ampersands-in-batch-files
+        url = url.replace('&', '^&')
+        subprocess.run(
+            ['cmd.exe', '/c', 'start', url],
+            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+            check=True
+        )
+    else:
+        webbrowser.open(url)
 
 
 def submission_key(submission):
