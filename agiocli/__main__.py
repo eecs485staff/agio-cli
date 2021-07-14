@@ -63,7 +63,7 @@ def courses(ctx, course_arg, show_list, web):  # noqa: D301
     if show_list:
         course_list = utils.get_current_course_list(client)
         for i in course_list:
-            print(f"[{i['pk']}]\t{i['name']} {i['semester']} {i['year']}")
+            print(utils.course_str(i))
         return
 
     # Select a course and print or open it

@@ -25,7 +25,7 @@ MONTH_SEMESTER_NUM = {
 
 
 def dict_str(obj):
-    """Pretty print a dictionary."""
+    """Format a dictionary as an indented string."""
     return json.dumps(obj, indent=4)
 
 
@@ -157,7 +157,7 @@ def parse_course_string(user_input):
     dept = match.group("dept")
     dept = dept.upper()
     if not dept:
-        print("WARNING: no department specified, assuming 'EECS'")
+        print("WARNING: no department found, assuming 'EECS'", file=sys.stderr)
         dept = "EECS"
     num = match.group("num")
     name = f"{dept} {num}"
@@ -214,15 +214,17 @@ def get_course_smart(course_arg, client):
     # Try to match a course
     matches = course_match(course_arg, courses)
     if not matches:
-        print(f"Error: no course matches '{course_arg}'")
-        for i in courses:
-            print(course_str(i))
-        sys.exit(1)
+        courses_str = "\n".join(course_str(i) for i in courses)
+        sys.exit(
+            f"Error: no course matches '{course_arg}'\n"
+            f"{courses_str}"
+        )
     elif len(matches) > 1:
-        print(f"Error: multiple courses match '{course_arg}'")
-        for i in matches:
-            print(course_str(i))
-        sys.exit(1)
+        matches_str = "\n".join(course_str(i) for i in matches)
+        sys.exit(
+            f"Error: multiple courses match '{course_arg}'\n"
+            f"{matches_str}"
+        )
     return matches[0]
 
 
@@ -271,11 +273,10 @@ def parse_project_string(user_input):
     asstype_abbrev = match.group("asstype").lower()
     if asstype_abbrev not in assignment_types:
         asstypes = ", ".join(assignment_types.keys())
-        print(
+        sys.exit(
             f"Error: unsupported assignment type: '{asstype_abbrev}'.  "
             f"Recognized shortcuts: {asstypes}"
         )
-        sys.exit(1)
     asstype = assignment_types[asstype_abbrev]
 
     # Assignment number and subtitle
@@ -363,15 +364,17 @@ def get_project_smart(project_arg, course_arg, client):
     # User provides strings, try to match a project
     matches = project_match(project_arg, projects)
     if not matches:
-        print(f"Error: no project matches '{project_arg}'")
-        for i in projects:
-            print(project_str(i))
-        sys.exit(1)
+        projects_str = "\n".join(project_str(i) for i in projects)
+        sys.exit(
+            f"Error: no project matches '{project_arg}'\n"
+            f"{projects_str}"
+        )
     elif len(matches) > 1:
-        print(f"Error: multiple projects match '{project_arg}'")
-        for i in matches:
-            print(project_str(i))
-        sys.exit(1)
+        matches_str = "\n".join(project_str(i) for i in matches)
+        sys.exit(
+            f"Error: multiple projects match '{project_arg}'\n"
+            f"{matches_str}"
+        )
     return matches[0]
 
 
@@ -442,15 +445,17 @@ def get_group_smart(group_arg, project_arg, course_arg, client):
     # User provides strings, try to match a group
     matches = group_match(group_arg, groups)
     if not matches:
-        print(f"Error: uniqname not in any group: {group_arg}")
-        for i in groups:
-            print(group_str(i))
-        sys.exit(1)
+        groups_str = "\n".join(group_str(i) for i in groups)
+        sys.exit(
+            f"Error: uniqname not in any group: {group_arg}\n"
+            f"{groups_str}"
+        )
     elif len(matches) > 1:
-        print(f"Error: uniqname in more than one group: {group_arg}")
-        for i in matches:
-            print(group_str(i))
-        sys.exit(1)
+        matches_str = "\n".join(group_str(i) for i in matches)
+        sys.exit(
+            f"Error: uniqname in more than one group: {group_arg}"
+            f"{matches_str}"
+        )
     return matches[0]
 
 
@@ -542,11 +547,12 @@ def get_submission_smart(
         return submissions[0]
 
     # No other attempt to match
-    print(f"Error: no submission matches '{submission_arg}'.  "
-          "Provide a primary key or 'last'.")
-    for i in submissions:
-        print(submission_str(i))
-    sys.exit(1)
+    submissions_str = "\n".join(submission_str(i) for i in submissions)
+    sys.exit(
+        f"Error: no submission matches '{submission_arg}'.  "
+        "Provide a primary key or 'last'.\n"
+        f"{submissions_str}"
+    )
 
 
 def download_submission(submission, group_arg, client):
@@ -567,9 +573,10 @@ def download_submission(submission, group_arg, client):
     # directory.
     filenames = submission['submitted_filenames']
     if not filenames:
-        print("Error: no files to download for submission")
-        print(submission_str(submission))
-        sys.exit(1)
+        sys.exit(
+            "Error: no files to download for submission"
+            f"{submission_str(submission)}"
+        )
     elif len(filenames) == 1:
         filename = filenames[0]
         target = pathlib.Path(f"{prefix}-{filename}")
