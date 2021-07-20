@@ -5,8 +5,11 @@ Autograder.io CLI (`agio`) is a command line interface to [autograder.io](https:
 
 
 ## Quick start
+First, [obtain a token](#obtaining-a-token) (below).
+
 ```console
-FIXME
+$ pip install agiocli
+$ agiocli
 ```
 
 ## Obtaining a Token
