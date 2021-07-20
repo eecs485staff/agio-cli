@@ -10,7 +10,6 @@ import itertools
 import re
 import dateutil.parser
 import pick
-import logging
 try:
     import gnureadline as readline
 except ImportError:
@@ -435,44 +434,42 @@ def get_group_smart(group_arg, project_arg, course_arg, client):
     if not groups:
         sys.exit("Error: No groups for project, try 'agio projects -l'")
 
-    # No group input from the user.  Show all groups for selected project and
-    # and prompt the user.
+    # No group input from the user.  Help them select a uniqname with an
+    # auto complete prompt.
     if not group_arg:
         # Get a list of uniqnames
         uniqnames = set()
         for group in groups:
-            uniqnames |= set(group_uniqnames(group))
+            uniqnames.update(group_uniqnames(group))
 
         # Register the completer function
         def uniqname_completer(text, state):
-            """Callback run by readline."""
+            """Complete a uniqname, callback run by readline.
+
+            https://stackoverflow.com/questions/187621/how-to-make-a-python-command-line-program-autocomplete-arbitrary-things-not-int/187660#187660
+            """
             options = [i for i in uniqnames if i.startswith(text)]
             if state < len(options):
                 return options[state]
-            else:
-                return None
+            return None
         readline.set_completer(uniqname_completer)
 
         # Use the tab key for completion
         readline.parse_and_bind('tab: complete')
 
-        # Prompt the user for text
-        line = ''
+        # Prompt the user to select a uniqname
         while True:
             uniqname = input("Start typing a uniqname: ")
             assert uniqname
             uniqname = uniqname.strip()
-            group_arg = uniqname  # FIXME HACK
+            group_arg = uniqname
             break
 
-    # User provides strings, try to match a group
+    # Try to match uniqname to a group member
     matches = group_match(group_arg, groups)
     if not matches:
         groups_str = "\n".join(group_str(i) for i in groups)
-        sys.exit(
-            f"Error: uniqname not in any group: {group_arg}\n"
-            f"{groups_str}"
-        )
+        sys.exit(f"Error: uniqname not in any group: {group_arg}")
     elif len(matches) > 1:
         matches_str = "\n".join(group_str(i) for i in matches)
         sys.exit(
