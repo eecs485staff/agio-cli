@@ -459,7 +459,7 @@ def get_group_smart(group_arg, project_arg, course_arg, client):
 
         # Prompt the user to select a uniqname
         while True:
-            uniqname = input("Start typing a uniqname: ")
+            uniqname = input("Uniqname (TAB to autocomplete): ")
             assert uniqname
             uniqname = uniqname.strip()
             group_arg = uniqname
