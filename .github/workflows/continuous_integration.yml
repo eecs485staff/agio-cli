@@ -1,5 +1,5 @@
 # GitHub Continuous Integration Configuration
-name: Regression
+name: CI
 
 # Define conditions for when to run this action
 on:
@@ -9,6 +9,9 @@ on:
       - main
       - develop
 
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
 # A workflow run is made up of one or more jobs.  Each job has an id, for
 # example, one of our jobs is "lint"
 jobs:
@@ -16,20 +19,19 @@ jobs:
     name: Tests ${{ matrix.python-version }}
     runs-on: ${{ matrix.os }}
     strategy:
-      # Define OS and Python versions to use. We are only testing against one
-      # Python version to conserve GH actions credits
+      # Define OS and Python versions to use. 3.x is the latest minor version.
       matrix:
         python-version: ["3.6", "3.x"]  # 3.x is the latest minor version
         os: [ubuntu-latest]
 
     # Sequence of tasks for this job
     steps:
-      # Check out latest code using a pre-existing GH action
+      # Check out latest code
       # Docs: https://github.com/actions/checkout
       - name: Checkout code
         uses: actions/checkout@v2
 
-      # Set up Python using a pre-existing GH action
+      # Set up Python
       # Docs: https://github.com/actions/setup-python
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
@@ -37,22 +39,22 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       # Install dependencies
+      # https://github.com/ymyzk/tox-gh-actions#workflow-configuration
       - name: Install dependencies
-        run: pip install -e .[dev]
+        run: |
+          python -m pip install --upgrade pip
+          pip install coverage tox tox-gh-actions
 
       # Run tests
-      - name: Run linters, unit tests, and system tests
-        run: ./test
+      # https://github.com/ymyzk/tox-gh-actions#workflow-configuration
+      - name: Run tests
+        run: tox
+      - name: Combine coverage
+        run: coverage xml
 
-      # Uncomment this chunk of YML code to open an SSH debug session to the GH
-      # actions server in case of a hard-to-debug failure. The SSH session is
-      # provided by tmate via a pre-existing GH action.
-      # Docs: https://github.com/mxschmitt/action-tmate
-      #
-      # Warning: use this sparingly since it will consume GitHub action credits
-      # until the SSH session is closed.
-      # \/ UNCOMMENT \/
-      # - name: Open SSH session on test failure
-      #   if: ${{ failure() }}
-      #   uses: mxschmitt/action-tmate@v3
-      # /\ UNCOMMENT /\
+      # Upload coverage report
+      # https://github.com/codecov/codecov-action
+      - name: Upload coverage report
+        uses: codecov/codecov-action@v1
+        with:
+          fail_ci_if_error: true
