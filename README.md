@@ -21,31 +21,7 @@ $ agiocli
 directory.
 
 ## Contributing
-Install
-```console
-$ python3 -m venv .venv
-$ source .venv/bin/activate
-$ pip install -e .[dev,test]
-```
-
-Run tests
-```console
-$ pytest
-$ pytest -vv --log-cli-level=DEBUG
-```
-
-Test code style
-```console
-$ pycodestyle agiocli tests setup.py
-$ pydocstyle agiocli tests setup.py
-$ pylint agiocli tests setup.py
-$ check-manifest
-```
-
-Regression, including tests and style checks
-```console
-$ tox
-```
+Contributions from the community are welcome! Check out the [guide for contributing](CONTRIBUTING.md).
 
 ## Acknowledgments
 Autograder.io CLI is written by Andrew DeOrio <awdeorio@umich.edu>.  Justin Applefield removed bugs and contributed features.
