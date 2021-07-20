@@ -45,6 +45,6 @@ $ tox
 ```
 
 ## Acknowledgments
-Autograder.io CLI is written by Andrew DeOrio <awdeorio@umich.edu>
+Autograder.io CLI is written by Andrew DeOrio <awdeorio@umich.edu>.  Justin Applefield removed bugs and contributed features.
 
 It is based on work by James Perretta ([Autograder.io Contrib](https://github.com/eecs-autograder/autograder-contrib)) and Amir Kamil ([Autograder Tools](https://gitlab.eecs.umich.edu/akamil/autograder-tools/)).
