@@ -10,6 +10,11 @@ import itertools
 import re
 import dateutil.parser
 import pick
+import logging
+try:
+    import gnureadline as readline
+except ImportError:
+    import readline
 
 
 # Map semester name to number
@@ -433,14 +438,32 @@ def get_group_smart(group_arg, project_arg, course_arg, client):
     # No group input from the user.  Show all groups for selected project and
     # and prompt the user.
     if not group_arg:
-        selected_groups = pick.pick(
-            options=groups,
-            title="Select a group:",
-            options_map_func=group_str,
-            multiselect=False,
-        )
-        assert selected_groups
-        return selected_groups[0]
+        # Get a list of uniqnames
+        uniqnames = set()
+        for group in groups:
+            uniqnames |= set(group_uniqnames(group))
+
+        # Register the completer function
+        def uniqname_completer(text, state):
+            """Callback run by readline."""
+            options = [i for i in uniqnames if i.startswith(text)]
+            if state < len(options):
+                return options[state]
+            else:
+                return None
+        readline.set_completer(uniqname_completer)
+
+        # Use the tab key for completion
+        readline.parse_and_bind('tab: complete')
+
+        # Prompt the user for text
+        line = ''
+        while True:
+            uniqname = input("Start typing a uniqname: ")
+            assert uniqname
+            uniqname = uniqname.strip()
+            group_arg = uniqname  # FIXME HACK
+            break
 
     # User provides strings, try to match a group
     matches = group_match(group_arg, groups)
