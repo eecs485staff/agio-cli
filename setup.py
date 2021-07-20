@@ -32,22 +32,24 @@ setuptools.setup(
     ],
     extras_require={
         "dev": [
+            "pdbpp",
+            "twine",
+            "tox",
+        ],
+        "test": [
             "check-manifest",
             "freezegun",
-            "pdbpp",
             "pycodestyle",
             "pydocstyle",
             "pylint",
             "pytest",
+            "pytest-cov",
             "pytest-mock",
             "python-dateutil",
             "requests-mock",
-            "twine",
         ],
     },
     python_requires='>=3.6',
-
-    # Python command line utilities will be installed in a PATH-accessible bin/
     entry_points={
         "console_scripts": [
             "agio = agiocli.__main__:main",
