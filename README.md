@@ -22,7 +22,7 @@ Install
 ```console
 $ python3 -m venv .venv
 $ source .venv/bin/activate
-$ pip install -e .[dev]
+$ pip install -e .[dev,test]
 ```
 
 Run tests
@@ -41,7 +41,7 @@ $ check-manifest
 
 Regression, including tests and style checks
 ```console
-$ ./test
+$ tox
 ```
 
 ## Acknowledgments
