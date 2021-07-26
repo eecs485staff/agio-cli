@@ -1,6 +1,10 @@
 Autograder.io CLI
 =================
 
+[![CI main](https://github.com/eecs485staff/agio-cli/workflows/CI/badge.svg?branch=develop)](https://github.com/eecs485staff/agio-cli/actions?query=branch%3Adevelop)
+[![codecov](https://codecov.io/gh/eecs485staff/agio-cli/branch/develop/graph/badge.svg)](https://codecov.io/gh/eecs485staff/agio-cli)
+[![PyPI](https://img.shields.io/pypi/v/agiocli.svg)](https://pypi.org/project/agiocli/)
+
 Autograder.io CLI (`agio`) is a command line interface to [autograder.io](https://autograder.io).
 
 
