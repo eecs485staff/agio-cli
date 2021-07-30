@@ -9,7 +9,7 @@ First, [obtain a token](#obtaining-a-token) (below).
 
 ```console
 $ pip install agiocli
-$ agiocli
+$ agio
 ```
 
 ## Obtaining a Token
