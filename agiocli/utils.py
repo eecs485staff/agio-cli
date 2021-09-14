@@ -193,14 +193,10 @@ def get_course_smart(course_arg, client):
     # Get a list of courses sorted by year, semester and name
     courses = get_current_course_list(client)
 
-    # No course input from the user.  Filter for current courses, and them
-    # prompt the user.  If there's only one, then don't bother to prompt.
+    # No course input from the user.  Show all courses and prompt the user.
     if not course_arg:
-        courses = list(filter(is_current_course, courses))
         if not courses:
             sys.exit("Error: No current courses, try 'agio courses -l'")
-        elif len(courses) == 1:
-            return courses[0]
         else:
             selected_courses = pick.pick(
                 options=courses,
