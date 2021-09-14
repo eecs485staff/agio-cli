@@ -468,7 +468,6 @@ def get_group_smart(group_arg, project_arg, course_arg, client):
     # Try to match uniqname to a group member
     matches = group_match(group_arg, groups)
     if not matches:
-        groups_str = "\n".join(group_str(i) for i in groups)
         sys.exit(f"Error: uniqname not in any group: {group_arg}")
     elif len(matches) > 1:
         matches_str = "\n".join(group_str(i) for i in matches)
