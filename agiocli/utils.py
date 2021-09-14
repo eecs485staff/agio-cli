@@ -32,7 +32,7 @@ def dict_str(obj):
 def course_str(course):
     """Format course as a string."""
     return (
-        f"[{course['pk']}]\t{course['name']} "
+        f"[{course['pk']}] {course['name']} "
         f"{course['semester']} {course['year']}"
     )
 
@@ -284,7 +284,7 @@ def parse_project_string(user_input):
 
 def project_str(project):
     """Format project as a string."""
-    return f"[{project['pk']}]\t{project['name']}"
+    return f"[{project['pk']}] {project['name']}"
 
 
 def project_match(search, projects):
