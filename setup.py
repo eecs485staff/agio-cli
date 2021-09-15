@@ -28,6 +28,7 @@ setuptools.setup(
     install_requires=[
         "click",
         "pick",
+        "python-dateutil",
         "requests",
     ],
     extras_require={
@@ -45,7 +46,6 @@ setuptools.setup(
             "pytest",
             "pytest-cov",
             "pytest-mock",
-            "python-dateutil",
             "requests-mock",
         ],
     },
