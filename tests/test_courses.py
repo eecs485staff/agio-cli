@@ -28,10 +28,10 @@ def test_courses_list(api_mock):
     result = runner.invoke(main, ["courses", "--list"], catch_exceptions=False)
     assert result.exit_code == 0, result.output
     assert result.output == textwrap.dedent("""\
-        [129]\tEECS 485 Fall 2021
-        [109]\tEECS 485 Spring 2021
-        [111]\tEECS 280 Spring 2021
-        [1]\tEECS 280 Fall 2016
+        [129] EECS 485 Fall 2021
+        [109] EECS 485 Spring 2021
+        [111] EECS 280 Spring 2021
+        [1] EECS 280 Fall 2016
     """)
 
 
