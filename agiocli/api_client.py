@@ -162,7 +162,7 @@ def get_api_token(token_filename: str) -> str:
     for dirname in walk_up_to_home_dir():
         filename = os.path.join(dirname, token_filename)
         if os.path.isfile(filename):
-            with open(filename) as tokenfile:
+            with open(filename, encoding="utf8") as tokenfile:
                 return tokenfile.read().strip()
 
     raise TokenFileNotFound(token_not_found_msg)
