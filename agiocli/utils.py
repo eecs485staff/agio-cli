@@ -32,7 +32,7 @@ def dict_str(obj):
 def course_str(course):
     """Format course as a string."""
     return (
-        f"[{course['pk']}]\t{course['name']} "
+        f"[{course['pk']}] {course['name']} "
         f"{course['semester']} {course['year']}"
     )
 
@@ -193,14 +193,10 @@ def get_course_smart(course_arg, client):
     # Get a list of courses sorted by year, semester and name
     courses = get_current_course_list(client)
 
-    # No course input from the user.  Filter for current courses, and them
-    # prompt the user.  If there's only one, then don't bother to prompt.
+    # No course input from the user.  Show all courses and prompt the user.
     if not course_arg:
-        courses = list(filter(is_current_course, courses))
         if not courses:
             sys.exit("Error: No current courses, try 'agio courses -l'")
-        elif len(courses) == 1:
-            return courses[0]
         else:
             selected_courses = pick.pick(
                 options=courses,
@@ -288,7 +284,7 @@ def parse_project_string(user_input):
 
 def project_str(project):
     """Format project as a string."""
-    return f"[{project['pk']}]\t{project['name']}"
+    return f"[{project['pk']}] {project['name']}"
 
 
 def project_match(search, projects):

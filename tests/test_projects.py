@@ -31,11 +31,11 @@ def test_projects_list_course_pk(api_mock):
     )
     assert result.exit_code == 0, result.output
     assert result.output == textwrap.dedent("""\
-        [1005]	Project 1 - Templated Static Site Generator
-        [1009]	Project 2 - Server-side Dynamic Pages
-        [1008]	Project 3 - Client-side Dynamic Pages
-        [1006]	Project 4 - MapReduce
-        [1007]	Project 5 - Search Engine
+        [1005] Project 1 - Templated Static Site Generator
+        [1009] Project 2 - Server-side Dynamic Pages
+        [1008] Project 3 - Client-side Dynamic Pages
+        [1006] Project 4 - MapReduce
+        [1007] Project 5 - Search Engine
     """)
 
 
