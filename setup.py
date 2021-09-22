@@ -15,7 +15,7 @@ setuptools.setup(
     description="A command line interface to autograder.io",
     long_description=LONG_DESCRIPTION,
     long_description_content_type="text/markdown",
-    version="0.1.1",
+    version="0.2.0",
     author="Andrew DeOrio",
     author_email="awdeorio@umich.edu",
     url="https://github.com/eecs485staff/agio-cli/",
@@ -28,6 +28,7 @@ setuptools.setup(
     install_requires=[
         "click",
         "pick",
+        "python-dateutil",
         "requests",
     ],
     extras_require={
@@ -45,7 +46,6 @@ setuptools.setup(
             "pytest",
             "pytest-cov",
             "pytest-mock",
-            "python-dateutil",
             "requests-mock",
         ],
     },

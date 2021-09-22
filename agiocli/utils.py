@@ -10,6 +10,10 @@ import itertools
 import re
 import dateutil.parser
 import pick
+try:
+    import gnureadline as readline
+except ImportError:
+    import readline
 
 
 # Map semester name to number
@@ -32,7 +36,7 @@ def dict_str(obj):
 def course_str(course):
     """Format course as a string."""
     return (
-        f"[{course['pk']}]\t{course['name']} "
+        f"[{course['pk']}] {course['name']} "
         f"{course['semester']} {course['year']}"
     )
 
@@ -193,14 +197,10 @@ def get_course_smart(course_arg, client):
     # Get a list of courses sorted by year, semester and name
     courses = get_current_course_list(client)
 
-    # No course input from the user.  Filter for current courses, and them
-    # prompt the user.  If there's only one, then don't bother to prompt.
+    # No course input from the user.  Show all courses and prompt the user.
     if not course_arg:
-        courses = list(filter(is_current_course, courses))
         if not courses:
             sys.exit("Error: No current courses, try 'agio courses -l'")
-        elif len(courses) == 1:
-            return courses[0]
         else:
             selected_courses = pick.pick(
                 options=courses,
@@ -288,7 +288,7 @@ def parse_project_string(user_input):
 
 def project_str(project):
     """Format project as a string."""
-    return f"[{project['pk']}]\t{project['name']}"
+    return f"[{project['pk']}] {project['name']}"
 
 
 def project_match(search, projects):
@@ -430,26 +430,41 @@ def get_group_smart(group_arg, project_arg, course_arg, client):
     if not groups:
         sys.exit("Error: No groups for project, try 'agio projects -l'")
 
-    # No group input from the user.  Show all groups for selected project and
-    # and prompt the user.
+    # No group input from the user.  Help them select a uniqname with an
+    # auto complete prompt.
     if not group_arg:
-        selected_groups = pick.pick(
-            options=groups,
-            title="Select a group:",
-            options_map_func=group_str,
-            multiselect=False,
-        )
-        assert selected_groups
-        return selected_groups[0]
+        # Get a list of uniqnames
+        uniqnames = set()
+        for group in groups:
+            uniqnames.update(group_uniqnames(group))
 
-    # User provides strings, try to match a group
+        # Register the completer function
+        def uniqname_completer(text, state):
+            """Complete a uniqname, callback run by readline.
+
+            https://stackoverflow.com/questions/187621/how-to-make-a-python-command-line-program-autocomplete-arbitrary-things-not-int/187660#187660
+            """
+            options = [i for i in uniqnames if i.startswith(text)]
+            if state < len(options):
+                return options[state]
+            return None
+        readline.set_completer(uniqname_completer)
+
+        # Use the tab key for completion
+        readline.parse_and_bind('tab: complete')
+
+        # Prompt the user to select a uniqname
+        while True:
+            uniqname = input("Uniqname (TAB to autocomplete): ")
+            assert uniqname
+            uniqname = uniqname.strip()
+            group_arg = uniqname
+            break
+
+    # Try to match uniqname to a group member
     matches = group_match(group_arg, groups)
     if not matches:
-        groups_str = "\n".join(group_str(i) for i in groups)
-        sys.exit(
-            f"Error: uniqname not in any group: {group_arg}\n"
-            f"{groups_str}"
-        )
+        sys.exit(f"Error: uniqname not in any group: {group_arg}")
     elif len(matches) > 1:
         matches_str = "\n".join(group_str(i) for i in matches)
         sys.exit(

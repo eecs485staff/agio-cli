@@ -99,13 +99,14 @@ def test_groups_empty(api_mock, mocker, constants):
     requests.  It is implemented in conftest.py.
 
     """
-    # Mock user-selection menu, users selects course 109, then project 1005,
-    # then group 246965.  These are constants in conftest.py
+    # Mock user-selection menu, users selects course 109, then project 1005.
+    # These are constants in conftest.py.  Mock input "awdeorio", which selects
+    # a group.
     mocker.patch("pick.pick", side_effect=[
         (constants["COURSE_109"], 1),  # First call to pick() selects course
         (constants["PROJECT_1005"], 0),  # Second call selects project
-        (constants["GROUP_246965"], 0),  # Third call selects group
     ])
+    mocker.patch("builtins.input", return_value="awdeorio")
 
     # Run agio, mocking the date to be Jun 2021.  We need to mock the date
     # because the prompt filters out past courses.
