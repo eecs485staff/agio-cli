@@ -43,6 +43,7 @@ MONTH_SEMESTER_NAME = {
     12: "Fall",
 }
 
+
 def dict_str(obj):
     """Format a dictionary as an indented string."""
     return json.dumps(obj, indent=4)

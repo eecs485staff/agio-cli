@@ -7,6 +7,7 @@ import json
 import textwrap
 import click
 import click.testing
+import freezegun
 from agiocli.__main__ import main
 
 
