@@ -122,3 +122,22 @@ def test_courses_shortcut(api_mock):
     assert result.exit_code == 0, result.output
     output_obj = json.loads(result.output)
     assert output_obj["pk"] == 109
+
+
+def test_courses_cur(api_mock):
+    """Verify courses subcommand with "current" shortcut input.
+
+    $ agio courses eecs485current
+
+    api_mock is a shared test fixture that mocks responses to REST API
+    requests.  It is implemented in conftest.py.
+
+    """
+    runner = click.testing.CliRunner()
+    result = runner.invoke(
+        main, ["courses", "eecs485current"],
+        catch_exceptions=False,
+    )
+    assert result.exit_code == 0, result.output
+    output_obj = json.loads(result.output)
+    assert output_obj["pk"] == 109
