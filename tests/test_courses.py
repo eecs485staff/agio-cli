@@ -124,20 +124,24 @@ def test_courses_shortcut(api_mock):
     assert output_obj["pk"] == 109
 
 
-def test_courses_cur(api_mock):
-    """Verify courses subcommand with "current" shortcut input.
+def test_courses_default_semester(api_mock):
+    """Verify courses subcommand with no semester/year shortcut input.
 
-    $ agio courses eecs485current
+    $ agio courses eecs485
 
     api_mock is a shared test fixture that mocks responses to REST API
     requests.  It is implemented in conftest.py.
 
     """
+    # Run agio, mocking the date to be Jun 2021.  The current course should be
+    # spring 2021  https://github.com/spulec/freezegun
     runner = click.testing.CliRunner()
-    result = runner.invoke(
-        main, ["courses", "eecs485current"],
-        catch_exceptions=False,
-    )
+    with freezegun.freeze_time("2021-06-15"):
+        result = runner.invoke(
+            main, ["courses", "eecs485"],
+            catch_exceptions=False,
+        )
+
     assert result.exit_code == 0, result.output
     output_obj = json.loads(result.output)
     assert output_obj["pk"] == 109
