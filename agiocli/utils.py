@@ -27,6 +27,21 @@ MONTH_SEMESTER_NUM = {
     9: 4, 10: 4, 11: 4, 12: 4,  # Sep-Dec Fall
 }
 
+# Map month number to semester name
+MONTH_SEMESTER_NAME = {
+    1: "Winter",
+    2: "Winter",
+    3: "Winter",
+    4: "Winter",
+    5: "Spring",
+    6: "Spring",
+    7: "Summer",
+    8: "Summer",
+    9: "Fall",
+    10: "Fall",
+    11: "Fall",
+    12: "Fall",
+}
 
 def dict_str(obj):
     """Format a dictionary as an indented string."""
@@ -113,14 +128,14 @@ def parse_course_string(user_input):
     [\s_-]*                     # Optional whitespace or delimiter
     (?P<num>\d{3})              # 3 digit course number
     [\s_-]*                     # Optional whitespace or delimiter
-    (?P<sem>                    # Semester name or abbreviation
+    (?P<sem>                    # Semester name or abbreviation or empty string
         w|wn|winter|
         sp|s|spring|
         su|summer|
         sp/su|spsu|ss|spring/summer|
-        f|fa|fall)
+        f|fa|fall|)
     [\s_-]*                     # Optional whitespace or delimiter
-    (?P<year>\d{2,4})           # 2-4 digit year
+    (?P<year>\d{2,4}|)          # 2-4 digit year or empty string
     \s*                         # Optional trailing whitespace
     $                           # Match ends at the end
     """
@@ -128,14 +143,27 @@ def parse_course_string(user_input):
     if not match:
         sys.exit(f"Error: unsupported input format: '{user_input}'")
 
+    # User must provide either year and semester or neither
+    year = match.group("year")
+    semester_abbrev = match.group("sem")
+    if bool(year) ^ bool(semester_abbrev):
+        sys.exit(f"Error: unsupported input format: '{user_input}'")
+
+    # Default year and semester if none specified
+    if not year and not semester_abbrev:
+        today = dt.date.today()
+        year = today.year
+        semester_abbrev = MONTH_SEMESTER_NAME[today.month]
+
     # Convert year to a number, handling 2-digit year as "20xx"
-    year = int(match.group("year"))
+    year = int(year)
     assert year >= 0
     if year < 100:
         year = 2000 + year
 
     # Convert semester abbreviation to semester name.  Make sure that the keys
     # match the abbreviations in the regular expression above.
+    semester_abbrev = semester_abbrev.lower()
     semester_names = {
         "w": "Winter",
         "wn": "Winter",
@@ -153,7 +181,6 @@ def parse_course_string(user_input):
         "fa": "Fall",
         "fall": "Fall",
     }
-    semester_abbrev = match.group("sem").lower()
     semester = semester_names[semester_abbrev]
 
     # Course name, with department and catalog number.  If no department is
