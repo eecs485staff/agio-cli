@@ -134,7 +134,8 @@ def parse_course_string(user_input):
         sp|s|spring|
         su|summer|
         sp/su|spsu|ss|spring/summer|
-        f|fa|fall|)
+        f|fa|fall|
+        cur|current|)
     [\s_-]*                     # Optional whitespace or delimiter
     (?P<year>\d{2,4}|)          # 2-4 digit year or empty string
     \s*                         # Optional trailing whitespace
@@ -144,14 +145,15 @@ def parse_course_string(user_input):
     if not match:
         sys.exit(f"Error: unsupported input format: '{user_input}'")
 
-    # User must provide either year and semester or neither
+    # User must provide either year and semester or neither.  Semester may be
+    # "cur" or "current."
     year = match.group("year")
     semester_abbrev = match.group("sem")
-    if bool(year) ^ bool(semester_abbrev):
+    if bool(year) ^ (semester_abbrev not in ["", "cur", "current"]):
         sys.exit(f"Error: unsupported input format: '{user_input}'")
 
-    # Default year and semester if none specified
-    if not year and not semester_abbrev:
+    # Default year and semester
+    if not year and semester_abbrev in ["", "cur", "current"]:
         today = dt.date.today()
         year = today.year
         semester_abbrev = MONTH_SEMESTER_NAME[today.month]
