@@ -52,6 +52,7 @@ def courses(ctx, course_arg, show_list, web):  # noqa: D301
     agio courses
     agio courses 109
     agio courses eecs485sp21
+    agio courses eecs485[cur|current]
 
     """
     try:

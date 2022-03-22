@@ -9,20 +9,10 @@ Autograder.io CLI (`agio`) is a command line interface to [autograder.io](https:
 
 
 ## Quick start
-First, [obtain a token](#obtaining-a-token) (below).
-
 ```console
 $ pip install agiocli
 $ agio
 ```
-
-## Obtaining a Token
-1. Log in [autograder.io](https://autograder.io/) with your web browser
-2. Open browser developer tools
-3. Click on a course link
-4. In the developer console, click on a request, e.g., `my_roles/` or `projects/`)
-5. Under Request Headers, there is an Authorization entry that looks like "Token ". Copy the hex string and save it to the file `.agtoken` in your home
-directory.
 
 ## Contributing
 Contributions from the community are welcome! Check out the [guide for contributing](CONTRIBUTING.md).

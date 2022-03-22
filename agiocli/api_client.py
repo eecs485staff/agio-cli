@@ -151,21 +151,28 @@ def get_api_token(token_filename: str) -> str:
     - If token_filename is an absolute path or a relative path that contains
       at least one directory, that file will be opened and the token read.
     """
-    token_not_found_msg = f"Token file not found: {token_filename}"
+    # Token filename provided and it does not exist
     if os.path.dirname(token_filename) and not os.path.isfile(token_filename):
-        raise TokenFileNotFound(token_not_found_msg)
+        raise TokenFileNotFound("Token file does not exist: {token_filename}")
 
     # Make sure that we're starting in a subdir of the home directory
-    if os.path.expanduser('~') not in os.path.abspath(os.curdir):
-        raise TokenFileNotFound(token_not_found_msg)
+    curdir = os.path.abspath(os.curdir)
+    if os.path.expanduser('~') not in curdir:
+        raise TokenFileNotFound(f"Invalid search path: {curdir}")
 
+    # Search, walking up the directory structure from PWD to home
     for dirname in walk_up_to_home_dir():
         filename = os.path.join(dirname, token_filename)
         if os.path.isfile(filename):
             with open(filename, encoding="utf8") as tokenfile:
                 return tokenfile.read().strip()
 
-    raise TokenFileNotFound(token_not_found_msg)
+    # Didn't find a token file
+    raise TokenFileNotFound(
+        f"Token file not found: {token_filename}.  Download a token from "
+        f"https://autograder.io/web/__apitoken__ and save it to "
+        f"~/{token_filename} or ./{token_filename}"
+    )
 
 
 def walk_up_to_home_dir() -> Iterator[str]:

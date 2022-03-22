@@ -1,4 +1,5 @@
 """Unit tests for smart user input string matching."""
+import freezegun
 import pytest
 from agiocli import utils
 
@@ -89,6 +90,39 @@ def test_course_match_bad_year(search):
     """Bad year in pattern."""
     matches = utils.course_match(search, COURSES)
     assert not matches
+
+
+@pytest.mark.parametrize(
+    "search, expected_course_pk",
+    [
+        ("EECS 280", 111),
+        ("EECS 280 cur", 111),
+        ("EECS 280 current", 111),
+        ("eecs280", 111),
+        ("eecs280cur", 111),
+        ("eecs280current", 111),
+        ("eecs280-cur", 111),
+        ("eecs280-current", 111),
+        ("EECS 485", 109),
+        ("EECS 485 cur", 109),
+        ("EECS 485 current", 109),
+        ("eecs485", 109),
+        ("eecs485cur", 109),
+        ("eecs485current", 109),
+        ("eecs485-cur", 109),
+        ("eecs485-current", 109),
+
+    ]
+)
+def test_course_match_current(search, expected_course_pk):
+    """Auto select current semester."""
+    # Run course match, mocking the date to be June 2021
+    # https://github.com/spulec/freezegun
+    with freezegun.freeze_time("2021-06-15"):
+        matches = utils.course_match(search, COURSES)
+    assert len(matches) == 1
+    course = matches[0]
+    assert course["pk"] == expected_course_pk
 
 
 @pytest.mark.parametrize(
