@@ -439,6 +439,11 @@ def get_group_list(project, client):
     return groups
 
 
+def get_config(project, client):
+    config = client.get(f"/api/projects/{project['pk']}/ag_test_suites/")
+    return config
+
+
 def get_group_smart(group_arg, project_arg, course_arg, client):
     """Interact with the user to select a group.
 
