@@ -5,6 +5,7 @@ Andrew DeOrio <awdeorio@umich.edu>
 """
 import sys
 import click
+import json
 from agiocli import APIClient, TokenFileNotFound, utils
 
 
@@ -241,6 +242,49 @@ def submissions(ctx, submission_arg, group_arg,
 
     # Default: print submission
     print(utils.dict_str(submission))
+
+
+@main.command()
+@click.argument("project_arg", required=False)
+@click.option("-c", "--course", "course_arg",
+              help="Course pk, name, or shorthand.")
+@click.option("-d", "--download", is_flag=True,
+              help="Download submission files.")
+@click.pass_context
+# The \b character in the docstring prevents Click from rewraping a paragraph.
+# We need to tell pycodestyle to ignore it.
+# https://click.palletsprojects.com/en/8.0.x/documentation/#preventing-rewrapping
+def config(ctx, project_arg, course_arg, download):  # noqa: D301
+    """Show project autograder test case config or download to a JSON file.
+
+    PROJECT_ARG is a primary key, name, or shorthand.
+
+    \b
+    EXAMPLES:
+    agio config
+    agio config 1005
+    agio config --course 109 p1
+    agio config --course eecs485sp21 p1
+    agio config --course eecs485sp21 p1 --download
+    agio config p1
+
+    """
+    try:
+        client = APIClient.make_default(debug=ctx.obj["DEBUG"])
+    except TokenFileNotFound as err:
+        sys.exit(err)
+
+    # Select a project and print or open it
+    project = utils.get_project_smart(project_arg, course_arg, client)
+    config = utils.get_config(project, client)
+
+    if not download:
+        print(utils.dict_str(config))
+        return
+        
+    filename = 'something.json'
+    with open(filename, 'w') as output:
+        json.dump(config, filename)
 
 
 if __name__ == "__main__":
