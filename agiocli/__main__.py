@@ -276,12 +276,12 @@ def config(ctx, project_arg, course_arg, download):  # noqa: D301
 
     # Select a project and print or open it
     project = utils.get_project_smart(project_arg, course_arg, client)
-    config = utils.get_config(project, client)
+    config = client.get(f"/api/projects/{project['pk']}/ag_test_suites/")
 
     if not download:
         print(utils.dict_str(config))
         return
-        
+
     filename = 'something.json'
     with open(filename, 'w') as output:
         json.dump(config, filename)
