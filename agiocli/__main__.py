@@ -286,7 +286,7 @@ def config(ctx, project_arg, course_arg, download, output):  # noqa: D301
     if not output:
         output = f'{project["pk"]}-ag-config.json'
 
-    with open(output, 'w') as output_file:
+    with open(output, 'w', encoding='utf-8') as output_file:
         json.dump(config, output_file)
 
 
