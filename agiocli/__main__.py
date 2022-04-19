@@ -282,7 +282,7 @@ def config(ctx, project_arg, course_arg, download):  # noqa: D301
         print(utils.dict_str(config))
         return
 
-    filename = 'something.json'
+    filename = f'{project["pk"]}-ag-config.json'
     with open(filename, 'w') as output:
         json.dump(config, filename)
 
