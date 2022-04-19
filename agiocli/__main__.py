@@ -250,11 +250,12 @@ def submissions(ctx, submission_arg, group_arg,
               help="Course pk, name, or shorthand.")
 @click.option("-d", "--download", is_flag=True,
               help="Download submission files.")
+@click.option("-o", "--output", help="Output filename.")
 @click.pass_context
 # The \b character in the docstring prevents Click from rewraping a paragraph.
 # We need to tell pycodestyle to ignore it.
 # https://click.palletsprojects.com/en/8.0.x/documentation/#preventing-rewrapping
-def config(ctx, project_arg, course_arg, download):  # noqa: D301
+def config(ctx, project_arg, course_arg, download, output):  # noqa: D301
     """Show project autograder test case config or download to a JSON file.
 
     PROJECT_ARG is a primary key, name, or shorthand.
@@ -282,9 +283,10 @@ def config(ctx, project_arg, course_arg, download):  # noqa: D301
         print(utils.dict_str(config))
         return
 
-    filename = f'{project["pk"]}-ag-config.json'
-    with open(filename, 'w') as output:
-        json.dump(config, filename)
+    if not output:
+        output = f'{project["pk"]}-ag-config.json'
+    with open(output, 'w') as output:
+        json.dump(config, output)
 
 
 if __name__ == "__main__":
