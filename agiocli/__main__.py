@@ -4,8 +4,8 @@ A command line interface to autograder.io.
 Andrew DeOrio <awdeorio@umich.edu>
 """
 import sys
-import click
 import json
+import click
 from agiocli import APIClient, TokenFileNotFound, utils
 
 
@@ -277,16 +277,17 @@ def config(ctx, project_arg, course_arg, download, output):  # noqa: D301
 
     # Select a project and print or open it
     project = utils.get_project_smart(project_arg, course_arg, client)
-    config = client.get(f"/api/projects/{project['pk']}/ag_test_suites/")
+    config_json = client.get(f"/api/projects/{project['pk']}/ag_test_suites/")
 
     if not download:
-        print(utils.dict_str(config))
+        print(utils.dict_str(config_json))
         return
 
     if not output:
         output = f'{project["pk"]}-ag-config.json'
-    with open(output, 'w') as output:
-        json.dump(config, output)
+
+    with open(output, 'w') as output_file:
+        json.dump(config, output_file)
 
 
 if __name__ == "__main__":
