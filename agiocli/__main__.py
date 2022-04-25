@@ -103,6 +103,7 @@ def projects(ctx, project_arg, course_arg, show_list, web, config):  # noqa: D30
     agio projects --course eecs485sp21 p1 --config
 
     """
+    # pylint: disable=too-many-arguments
     try:
         client = APIClient.make_default(debug=ctx.obj["DEBUG"])
     except TokenFileNotFound as err:
