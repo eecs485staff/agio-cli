@@ -4,7 +4,6 @@ A command line interface to autograder.io.
 Andrew DeOrio <awdeorio@umich.edu>
 """
 import sys
-import json
 import click
 from agiocli import APIClient, TokenFileNotFound, utils
 
@@ -88,7 +87,7 @@ def courses(ctx, course_arg, show_list, web):  # noqa: D301
 # The \b character in the docstring prevents Click from rewraping a paragraph.
 # We need to tell pycodestyle to ignore it.
 # https://click.palletsprojects.com/en/8.0.x/documentation/#preventing-rewrapping
-def projects(ctx, project_arg, course_arg, 
+def projects(ctx, project_arg, course_arg,
              show_list, web, config):  # noqa: D301
     """Show project detail or list projects.
 
@@ -128,7 +127,7 @@ def projects(ctx, project_arg, course_arg,
         )
         print(utils.dict_str(config_json))
         return
-    
+
     # Open project if --web flag
     if web:
         utils.open_web(f"https://autograder.io/web/project/{project['pk']}")
