@@ -153,7 +153,7 @@ def test_projects_empty(api_mock, mocker, constants):
 
 
 def test_projects_config(api_mock, mocker, constants):
-    """Verify projects subcommand with --config specified.py
+    """Verify projects subcommand with --config specified.py.
 
     $ agio projects -c eecs485sp21 p1 --config
 
