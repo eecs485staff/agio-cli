@@ -6,6 +6,8 @@ import pytest
 @pytest.fixture(name="constants")
 def constants_setup():
     """Global constants."""
+    with open('tests/testdata/eecs485sp21_p1_config.json') as fh:
+        proj_1005_config = json.load(fh)
     return {
         "COURSE_109": {
             "pk": 109,
@@ -138,7 +140,8 @@ def constants_setup():
             "grading_start_time": "2021-06-09T12:49:21.340598Z",
             "non_deferred_grading_end_time": "2021-06-09T12:50:26.978440Z",
             "last_modified": "2021-06-09T12:50:25.899462Z"
-        }
+        },
+        "PROJECT_1005_CONFIG": proj_1005_config
     }
 
 
@@ -550,4 +553,10 @@ def api_requests_mock(requests_mock, mocker, constants):
         "https://autograder.io/api/groups/246965/ultimate_submission/",
         headers={"Content-Type": "application/json"},
         text=json.dumps(constants["SUBMISSION_1125717"]),
+    )
+
+    requests_mock.get(
+        "https://autograder.io/api/projects/1005/ag_test_suites/",
+        headers={"Content-Type": "application/json"},
+        text=json.dumps(constants["PROJECT_1005_CONFIG"]),
     )
