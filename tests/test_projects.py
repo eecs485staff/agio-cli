@@ -150,3 +150,27 @@ def test_projects_empty(api_mock, mocker, constants):
     assert result.exit_code == 0, result.output
     output_obj = json.loads(result.output)
     assert output_obj["pk"] == 1005
+
+
+def test_projects_config(api_mock, mocker, constants):
+    """Verify projects subcommand with --config specified.py
+
+    $ agio projects -c eecs485sp21 p1 --config
+
+    api_mock is a shared test fixture that mocks responses to REST API
+    requests. It is implemented in conftest.py
+
+    """
+    runner = click.testing.CliRunner()
+    result = runner.invoke(
+        main, [
+            "projects",
+            "-c", "eecs485sp21",
+            "p1", "--config",
+        ],
+        catch_exceptions=False,
+    )
+    assert result.exit_code == 0, result.output
+    output_obj = json.loads(result.output)
+    expected_output = json.loads("tests/testdata/eecs485sp21_p1_config.json")
+    assert output_obj == expected_output
