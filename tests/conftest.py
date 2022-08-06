@@ -6,8 +6,8 @@ import pytest
 @pytest.fixture(name="constants")
 def constants_setup():
     """Global constants."""
-    with open('tests/testdata/eecs485sp21_p1_config.json') as fh:
-        proj_1005_config = json.load(fh)
+    with open('tests/testdata/eecs485sp21_p1_config.json') as file:
+        proj_1005_config = json.load(file)
     return {
         "COURSE_109": {
             "pk": 109,
