@@ -8,6 +8,7 @@ import textwrap
 import shlex
 import click
 import click.testing
+import utils
 from agiocli.__main__ import main
 
 
@@ -168,8 +169,7 @@ def test_projects_config(api_mock, mocker, constants):
         catch_exceptions=False,
     )
     assert result.exit_code == 0, result.output
-    output_obj = json.loads(result.output)
-    config_path = 'tests/testdata/eecs485sp21_p1_config.json'
-    with open(config_path, encoding='utf-8') as file:
-        expected_output = json.load(file)
-    assert output_obj == expected_output
+    output = json.loads(result.output)
+    with (utils.TESTDATA_DIR/"eecs485sp21_p1_config.json").open() as infile:
+        expected = json.load(infile)
+    assert output == expected

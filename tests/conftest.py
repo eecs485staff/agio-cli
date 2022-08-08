@@ -1,12 +1,7 @@
 """Shared test fixtures."""
 import json
-import pathlib
 import pytest
-
-
-# Path to testdata directory
-TEST_DIR = pathlib.Path(__file__).parent
-TESTDATA_DIR = TEST_DIR/"testdata"
+import utils
 
 
 @pytest.fixture(name="constants")
@@ -559,7 +554,7 @@ def api_requests_mock(requests_mock, mocker, constants):
     )
 
     # Project autograder configuration
-    config_path = TESTDATA_DIR/"eecs485sp21_p1_config.json"
+    config_path = utils.TESTDATA_DIR/"eecs485sp21_p1_config.json"
     config_text = config_path.read_text()
     requests_mock.get(
         "https://autograder.io/api/projects/1005/ag_test_suites/",
