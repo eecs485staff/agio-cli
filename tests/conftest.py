@@ -1,14 +1,17 @@
 """Shared test fixtures."""
 import json
+import pathlib
 import pytest
+
+
+# Path to testdata directory
+TEST_DIR = pathlib.Path(__file__).parent
+TESTDATA_DIR = TEST_DIR/"testdata"
 
 
 @pytest.fixture(name="constants")
 def constants_setup():
     """Global constants."""
-    config_path = 'tests/testdata/eecs485sp21_p1_config.json'
-    with open(config_path, encoding='utf-8') as file:
-        proj_1005_config = json.load(file)
     return {
         "COURSE_109": {
             "pk": 109,
@@ -142,7 +145,6 @@ def constants_setup():
             "non_deferred_grading_end_time": "2021-06-09T12:50:26.978440Z",
             "last_modified": "2021-06-09T12:50:25.899462Z"
         },
-        "PROJECT_1005_CONFIG": proj_1005_config
     }
 
 
@@ -556,8 +558,11 @@ def api_requests_mock(requests_mock, mocker, constants):
         text=json.dumps(constants["SUBMISSION_1125717"]),
     )
 
+    # Project autograder configuration
+    config_path = TESTDATA_DIR/"eecs485sp21_p1_config.json"
+    config_text = config_path.read_text()
     requests_mock.get(
         "https://autograder.io/api/projects/1005/ag_test_suites/",
         headers={"Content-Type": "application/json"},
-        text=json.dumps(constants["PROJECT_1005_CONFIG"]),
+        text=config_text,
     )
