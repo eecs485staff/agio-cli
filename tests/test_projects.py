@@ -170,6 +170,7 @@ def test_projects_config(api_mock, mocker, constants):
     )
     assert result.exit_code == 0, result.output
     output = json.loads(result.output)
-    with (utils.TESTDATA_DIR/"eecs485sp21_p1_config.json").open() as infile:
+    expected_path = utils.TESTDATA_DIR/"eecs485sp21_p1_config.json"
+    with expected_path.open(encoding="utf-8") as infile:
         expected = json.load(infile)
     assert output == expected
