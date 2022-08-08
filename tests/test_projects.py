@@ -5,6 +5,7 @@ https://click.palletsprojects.com/en/8.0.x/testing/
 """
 import json
 import textwrap
+import shlex
 import click
 import click.testing
 from agiocli.__main__ import main
@@ -153,7 +154,7 @@ def test_projects_empty(api_mock, mocker, constants):
 
 
 def test_projects_config(api_mock, mocker, constants):
-    """Verify projects subcommand with --config specified.py.
+    """Verify projects subcommand with --config option.
 
     $ agio projects -c eecs485sp21 p1 --config
 
@@ -163,11 +164,7 @@ def test_projects_config(api_mock, mocker, constants):
     """
     runner = click.testing.CliRunner()
     result = runner.invoke(
-        main, [
-            "projects",
-            "-c", "eecs485sp21",
-            "p1", "--config",
-        ],
+        main, shlex.split("projects -c eecs485sp21 p1 --config"),
         catch_exceptions=False,
     )
     assert result.exit_code == 0, result.output
