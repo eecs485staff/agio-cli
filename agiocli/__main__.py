@@ -82,11 +82,12 @@ def courses(ctx, course_arg, show_list, web):  # noqa: D301
 @click.option("-l", "--list", "show_list", is_flag=True,
               help="List projects and exit.")
 @click.option("-w", "--web", is_flag=True, help="Open project in browser.")
+@click.option("--config", is_flag=True, help="Get test suite config.")
 @click.pass_context
 # The \b character in the docstring prevents Click from rewraping a paragraph.
 # We need to tell pycodestyle to ignore it.
 # https://click.palletsprojects.com/en/8.0.x/documentation/#preventing-rewrapping
-def projects(ctx, project_arg, course_arg, show_list, web):  # noqa: D301
+def projects(ctx, project_arg, course_arg, show_list, web, config):  # noqa: D301
     """Show project detail or list projects.
 
     PROJECT_ARG is a primary key, name, or shorthand.
@@ -99,8 +100,10 @@ def projects(ctx, project_arg, course_arg, show_list, web):  # noqa: D301
     agio projects --course 109 p1
     agio projects --course eecs485sp21 p1
     agio projects p1
+    agio projects --course eecs485sp21 p1 --config
 
     """
+    # pylint: disable=too-many-arguments
     try:
         client = APIClient.make_default(debug=ctx.obj["DEBUG"])
     except TokenFileNotFound as err:
@@ -114,11 +117,23 @@ def projects(ctx, project_arg, course_arg, show_list, web):  # noqa: D301
             print(utils.project_str(i))
         return
 
-    # Select a project and print or open it
+    # Select a project
     project = utils.get_project_smart(project_arg, course_arg, client)
+
+    # Print test suite config if --config flag
+    if config:
+        config_json = client.get(
+            f"/api/projects/{project['pk']}/ag_test_suites/"
+        )
+        print(utils.dict_str(config_json))
+        return
+
+    # Open project if --web flag
     if web:
         utils.open_web(f"https://autograder.io/web/project/{project['pk']}")
         return
+
+    # Otherwise print project info
     print(utils.dict_str(project))
 
 

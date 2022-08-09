@@ -5,8 +5,10 @@ https://click.palletsprojects.com/en/8.0.x/testing/
 """
 import json
 import textwrap
+import shlex
 import click
 import click.testing
+import utils
 from agiocli.__main__ import main
 
 
@@ -150,3 +152,25 @@ def test_projects_empty(api_mock, mocker, constants):
     assert result.exit_code == 0, result.output
     output_obj = json.loads(result.output)
     assert output_obj["pk"] == 1005
+
+
+def test_projects_config(api_mock, mocker, constants):
+    """Verify projects subcommand with --config option.
+
+    $ agio projects -c eecs485sp21 p1 --config
+
+    api_mock is a shared test fixture that mocks responses to REST API
+    requests. It is implemented in conftest.py
+
+    """
+    runner = click.testing.CliRunner()
+    result = runner.invoke(
+        main, shlex.split("projects -c eecs485sp21 p1 --config"),
+        catch_exceptions=False,
+    )
+    assert result.exit_code == 0, result.output
+    output = json.loads(result.output)
+    expected_path = utils.TESTDATA_DIR/"eecs485sp21_p1_config.json"
+    with expected_path.open(encoding="utf-8") as infile:
+        expected = json.load(infile)
+    assert output == expected
