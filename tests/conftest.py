@@ -1,6 +1,7 @@
 """Shared test fixtures."""
 import json
 import pytest
+import utils
 
 
 @pytest.fixture(name="constants")
@@ -138,7 +139,7 @@ def constants_setup():
             "grading_start_time": "2021-06-09T12:49:21.340598Z",
             "non_deferred_grading_end_time": "2021-06-09T12:50:26.978440Z",
             "last_modified": "2021-06-09T12:50:25.899462Z"
-        }
+        },
     }
 
 
@@ -550,4 +551,13 @@ def api_requests_mock(requests_mock, mocker, constants):
         "https://autograder.io/api/groups/246965/ultimate_submission/",
         headers={"Content-Type": "application/json"},
         text=json.dumps(constants["SUBMISSION_1125717"]),
+    )
+
+    # Project autograder configuration
+    config_path = utils.TESTDATA_DIR/"eecs485sp21_p1_config.json"
+    config_text = config_path.read_text()
+    requests_mock.get(
+        "https://autograder.io/api/projects/1005/ag_test_suites/",
+        headers={"Content-Type": "application/json"},
+        text=config_text,
     )
