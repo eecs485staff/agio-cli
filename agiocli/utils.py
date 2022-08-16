@@ -423,6 +423,7 @@ def group_str(group):
 
 
 def filter_students_only(groups, students):
+    """Extract only the students from project groups."""
     students = set(student["username"] for student in students)
     groups = [group["member_names"] for group in groups]
     filtered_groups = filter(
