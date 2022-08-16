@@ -145,12 +145,14 @@ def projects(ctx, project_arg, course_arg, show_list, web, config):  # noqa: D30
               help="Project pk, name, or shorthand.")
 @click.option("-l", "--list", "show_list", is_flag=True,
               help="List groups and exit.")
+@click.option("-q", "--queue", "show_queue", is_flag=True,
+              help="List groups in OH Queue format and exit.")
 @click.option("-w", "--web", is_flag=True, help="Open group in browser.")
 @click.pass_context
 # The \b character in the docstring prevents Click from rewraping a paragraph.
 # We need to tell pycodestyle to ignore it.
 # https://click.palletsprojects.com/en/8.0.x/documentation/#preventing-rewrapping
-def groups(ctx, group_arg, project_arg, course_arg, show_list, web):  # noqa: D301
+def groups(ctx, group_arg, project_arg, course_arg, show_list, show_queue, web):  # noqa: D301
     """Show group detail or list groups.
 
     GROUP_ARG is a primary key, name, or member uniqname.
@@ -158,6 +160,7 @@ def groups(ctx, group_arg, project_arg, course_arg, show_list, web):  # noqa: D3
     \b
     EXAMPLES:
     agio groups --list
+    agio groups --queue
     agio groups
     agio groups 246965
     agio groups awdeorio
@@ -173,12 +176,23 @@ def groups(ctx, group_arg, project_arg, course_arg, show_list, web):  # noqa: D3
     except TokenFileNotFound as err:
         sys.exit(err)
 
-    # Handle --list: list groups and exit
-    if show_list:
+    # Common logic for both --list and --queue
+    if show_list or show_queue:
         project = utils.get_project_smart(project_arg, course_arg, client)
         group_list = utils.get_group_list(project, client)
+        course_pk = project['course']
+
+    # Handle --list: list groups and exit
+    if show_list:
         for i in group_list:
             print(utils.group_str(i))
+        return
+
+    # Handle --queue: list groups in OH Queue format and exit
+    if show_queue:
+        students_list = utils.get_students(course_pk, client)
+        filtered_groups = utils.filter_students_only(group_list, students_list)
+        print(filtered_groups)
         return
 
     # Select a group and print or open it

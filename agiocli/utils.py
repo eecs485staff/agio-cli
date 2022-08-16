@@ -358,6 +358,12 @@ def get_course_project_list(course, client):
     projects = sorted(projects, key=lambda x: x["name"])
     return projects
 
+def get_students(course_pk, client):
+    """Return a sorted list of projects for course."""
+    students = client.get(f"/api/courses/{course_pk}/students/")
+    students = sorted(students, key=lambda x: x["username"])
+    return students
+
 
 def get_project_smart(project_arg, course_arg, client):
     """Interact with the user to select a project.
@@ -413,6 +419,20 @@ def group_str(group):
     uniqnames = group_uniqnames(group)
     uniqnames_str = ", ".join(uniqnames)
     return f"[{group['pk']}] {uniqnames_str}"
+
+def filter_students_only(groups, students):
+    students = set(student["username"] for student in students)
+    groups = [group["member_names"] for group in groups]
+    filtered_groups = filter(
+        lambda group: 
+            all(
+                member in students
+                for member in group
+            )
+        ,
+        groups
+    )
+    return json.dumps(list(filtered_groups))
 
 
 def group_uniqnames(group):
