@@ -176,23 +176,20 @@ def groups(ctx, group_arg, project_arg, course_arg, show_list, show_queue, web):
     except TokenFileNotFound as err:
         sys.exit(err)
 
-    # Common logic for both --list and --queue
-    if show_list or show_queue:
-        project = utils.get_project_smart(project_arg, course_arg, client)
-        group_list = utils.get_group_list(project, client)
-        course_pk = project['course']
-
     # Handle --list: list groups and exit
     if show_list:
+        project = utils.get_project_smart(project_arg, course_arg, client)
+        group_list = utils.get_group_list(project, client)
         for i in group_list:
             print(utils.group_str(i))
         return
 
     # Handle --queue: list groups in OH Queue format and exit
     if show_queue:
-        students_list = utils.get_students(course_pk, client)
-        filtered_groups = utils.filter_students_only(group_list, students_list)
-        print(filtered_groups)
+        project = utils.get_project_smart(project_arg, course_arg, client)
+        group_list = utils.get_group_list(project, client)
+        output = [utils.group_emails(group) for group in group_list]
+        print(utils.dict_str(output))
         return
 
     # Select a group and print or open it

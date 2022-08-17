@@ -422,25 +422,15 @@ def group_str(group):
     return f"[{group['pk']}] {uniqnames_str}"
 
 
-def filter_students_only(groups, students):
-    """Extract only the students from project groups."""
-    students = set(student["username"] for student in students)
-    groups = [group["member_names"] for group in groups]
-    filtered_groups = filter(
-        lambda group:
-            all(
-                member in students
-                for member in group
-            ),
-        groups
-    )
-    return json.dumps(list(filtered_groups))
+def group_emails(group):
+    """Return group member email addresses."""
+    members = group["members"]
+    return [x["username"] for x in members]
 
 
 def group_uniqnames(group):
     """Return group member uniqnames."""
-    members = group["members"]
-    return [x["username"].replace("@umich.edu", "") for x in members]
+    return [x.replace("@umich.edu", "") for x in group_emails(group)]
 
 
 def is_group_member(uniqname, group):
