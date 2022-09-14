@@ -261,8 +261,6 @@ def get_course_smart(course_arg, client):
 class UnsupportedAssignmentError(Exception):
     """Raised if the assignment string cannot be parsed."""
 
-    pass
-
 
 def parse_project_string(user_input):
     """Return assignment type, number, and subtitle from a user input string.
