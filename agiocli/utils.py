@@ -258,6 +258,10 @@ def get_course_smart(course_arg, client):
     return matches[0]
 
 
+class UnsupportedAssignmentError(Exception):
+    pass
+
+
 def parse_project_string(user_input):
     """Return assignment type, number, and subtitle from a user input string.
 
@@ -303,8 +307,7 @@ def parse_project_string(user_input):
     asstype_abbrev = match.group("asstype").lower()
     if asstype_abbrev not in assignment_types:
         asstypes = ", ".join(assignment_types.keys())
-        return False
-        sys.exit(
+        raise UnsupportedAssignmentError(
             f"Error: unsupported assignment type: '{asstype_abbrev}'.  "
             f"Recognized shortcuts: {asstypes}"
         )
@@ -316,6 +319,11 @@ def parse_project_string(user_input):
 
     return asstype, num, subtitle
 
+def parse_project_string_filter(user_input):
+    try:
+        return parse_project_string(user_input)
+    except:
+        return None
 
 def project_str(project):
     """Format project as a string."""
@@ -329,7 +337,7 @@ def project_match(search, projects):
 
     # Filter for only parsable projects
     projects = filter(
-        lambda x: parse_project_string(x["name"]), projects
+        lambda x: parse_project_string_filter(x["name"]), projects
     )
 
     # Remove projects with an assignment type mismatch (Lab vs. Project, etc.)
