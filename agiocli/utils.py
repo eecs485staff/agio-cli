@@ -259,6 +259,7 @@ def get_course_smart(course_arg, client):
 
 
 class UnsupportedAssignmentError(Exception):
+    """Raised if the assignment string cannot be parsed."""
     pass
 
 
@@ -320,6 +321,7 @@ def parse_project_string(user_input):
     return asstype, num, subtitle
 
 def parse_project_string_filter(user_input):
+    """Wrapper for parse_project_string that skips errors."""
     try:
         return parse_project_string(user_input)
     except:
