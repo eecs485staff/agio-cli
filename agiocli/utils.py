@@ -320,12 +320,14 @@ def parse_project_string(user_input):
 
     return asstype, num, subtitle
 
+
 def parse_project_string_filter(user_input):
     """Wrapper for parse_project_string that skips errors."""
     try:
         return parse_project_string(user_input)
-    except:
+    except UnsupportedAssignmentError:
         return None
+
 
 def project_str(project):
     """Format project as a string."""
@@ -388,7 +390,6 @@ def get_project_smart(project_arg, course_arg, client):
     # User provides project PK
     if project_arg and project_arg.isnumeric():
         return client.get(f"/api/projects/{project_arg}/")
-
 
     # Get a course and a sorted list of projects
     course = get_course_smart(course_arg, client)
