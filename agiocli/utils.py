@@ -232,10 +232,10 @@ def get_course_smart(course_arg, client):
         if not courses:
             sys.exit("Error: No current courses, try 'agio courses -l'")
         else:
+            options = [pick.Option(course_str(x), x) for x in courses]
             selected_courses = pick.pick(
-                options=courses,
+                options=options,
                 title=("Select a course:"),
-                options_map_func=course_str,
                 multiselect=False,
             )
             assert selected_courses
@@ -399,10 +399,10 @@ def get_project_smart(project_arg, course_arg, client):
     # No project input from the user.  Show all projects for current course and
     # and prompt the user.
     if not project_arg:
+        options = [pick.Option(project_str(x), x) for x in projects]
         selected_projects = pick.pick(
-            options=projects,
+            options=options,
             title="Select a project:",
-            options_map_func=project_str,
             multiselect=False,
         )
         assert selected_projects
@@ -593,10 +593,10 @@ def get_submission_smart(
     # No submissions input from the user.  Show all submissions for this group
     # and prompt the user.
     if not submission_arg:
+        options = [pick.Option(submission_str(x), x) for x in submissions]
         selected_submissions = pick.pick(
-            options=submissions,
+            options=options,
             title="Select a submission:",
-            options_map_func=submission_str,
             multiselect=False,
         )
         assert selected_submissions
