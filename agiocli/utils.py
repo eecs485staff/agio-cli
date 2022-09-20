@@ -226,15 +226,15 @@ def get_course_smart(course_arg, client):
 
     # Get a list of courses sorted by year, semester and name
     courses = get_current_course_list(client)
-    courses_options = [pick.Option(course_str(x), x) for x in courses]
 
     # No course input from the user.  Show all courses and prompt the user.
     if not course_arg:
         if not courses:
             sys.exit("Error: No current courses, try 'agio courses -l'")
         else:
+            options = [pick.Option(course_str(x), x) for x in courses]
             selected_courses = pick.pick(
-                options=courses_options,
+                options=options,
                 title=("Select a course:"),
                 multiselect=False,
             )
@@ -378,13 +378,13 @@ def get_project_smart(project_arg, course_arg, client):
     projects = get_course_project_list(course, client)
     if not projects:
         sys.exit("Error: No projects for course, try 'agio courses -l'")
-    projects_options = [pick.Option(project_str(x), x) for x in projects]
 
     # No project input from the user.  Show all projects for current course and
     # and prompt the user.
     if not project_arg:
+        options = [pick.Option(project_str(x), x) for x in projects]
         selected_projects = pick.pick(
-            options=projects_options,
+            options=options,
             title="Select a project:",
             multiselect=False,
         )
@@ -574,14 +574,13 @@ def get_submission_smart(
     submissions = get_submission_list(group, client)
     if not submissions:
         sys.exit("Error: No submissions, try 'agio submissions -l'")
-    submissions_options = [pick.Option(submission_str(x), x)
-                           for x in submissions]
 
     # No submissions input from the user.  Show all submissions for this group
     # and prompt the user.
     if not submission_arg:
+        options = [pick.Option(submission_str(x), x) for x in submissions]
         selected_submissions = pick.pick(
-            options=submissions_options,
+            options=options,
             title="Select a submission:",
             multiselect=False,
         )
