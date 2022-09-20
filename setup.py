@@ -27,7 +27,7 @@ setuptools.setup(
     ],
     install_requires=[
         "click",
-        "pick",
+        "pick>=2.0.0",
         "python-dateutil",
         "requests",
     ],
