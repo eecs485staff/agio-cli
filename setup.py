@@ -27,7 +27,7 @@ setuptools.setup(
     ],
     install_requires=[
         "click",
-        "pick",
+        "pick>=2.0.0",
         "python-dateutil",
         "requests",
     ],
@@ -49,7 +49,7 @@ setuptools.setup(
             "requests-mock",
         ],
     },
-    python_requires='>=3.6',
+    python_requires='>=3.7',
     entry_points={
         "console_scripts": [
             "agio = agiocli.__main__:main",
