@@ -574,7 +574,8 @@ def get_submission_smart(
     submissions = get_submission_list(group, client)
     if not submissions:
         sys.exit("Error: No submissions, try 'agio submissions -l'")
-    submissions_options = [pick.Option(submission_str(x), x) for x in submissions]
+    submissions_options = [pick.Option(submission_str(x), x)
+                           for x in submissions]
 
     # No submissions input from the user.  Show all submissions for this group
     # and prompt the user.
