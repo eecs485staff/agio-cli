@@ -36,6 +36,30 @@ def test_groups_list(api_mock):
     assert "[246965] awdeorio" in result.output
 
 
+def test_groups_queue(api_mock):
+    """Verify agio groups queue option when project is specified.
+
+    $ agio groups --queue --project 1005
+
+    api_mock is a shared test fixture that mocks responses to REST API
+    requests.  It is implemented in conftest.py.
+
+    """
+    runner = click.testing.CliRunner()
+    result = runner.invoke(
+        main, [
+            "groups",
+            "--queue",
+            "--project", "1005",
+        ],
+        catch_exceptions=False,
+    )
+    assert result.exit_code == 0, result.output
+    result_list = json.loads(result.output)
+    assert ["achitta@umich.edu"] in result.output
+    assert ["awdeorio@umich.edu"] in result.output
+
+
 def test_groups_pk(api_mock):
     """Verify groups subcommand with primary key input.
 
