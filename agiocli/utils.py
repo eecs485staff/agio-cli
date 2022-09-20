@@ -226,6 +226,7 @@ def get_course_smart(course_arg, client):
 
     # Get a list of courses sorted by year, semester and name
     courses = get_current_course_list(client)
+    courses_options = [pick.Option(course_str(x), x) for x in courses]
 
     # No course input from the user.  Show all courses and prompt the user.
     if not course_arg:
@@ -233,9 +234,8 @@ def get_course_smart(course_arg, client):
             sys.exit("Error: No current courses, try 'agio courses -l'")
         else:
             selected_courses = pick.pick(
-                options=courses,
+                options=courses_options,
                 title=("Select a course:"),
-                options_map_func=course_str,
                 multiselect=False,
             )
             assert selected_courses
@@ -378,14 +378,14 @@ def get_project_smart(project_arg, course_arg, client):
     projects = get_course_project_list(course, client)
     if not projects:
         sys.exit("Error: No projects for course, try 'agio courses -l'")
+    projects_options = [pick.Option(project_str(x), x) for x in projects]
 
     # No project input from the user.  Show all projects for current course and
     # and prompt the user.
     if not project_arg:
         selected_projects = pick.pick(
-            options=projects,
+            options=projects_options,
             title="Select a project:",
-            options_map_func=project_str,
             multiselect=False,
         )
         assert selected_projects
@@ -574,14 +574,14 @@ def get_submission_smart(
     submissions = get_submission_list(group, client)
     if not submissions:
         sys.exit("Error: No submissions, try 'agio submissions -l'")
+    submissions_options = [pick.Option(submission_str(x), x) for x in submissions]
 
     # No submissions input from the user.  Show all submissions for this group
     # and prompt the user.
     if not submission_arg:
         selected_submissions = pick.pick(
-            options=submissions,
+            options=submissions_options,
             title="Select a submission:",
-            options_map_func=submission_str,
             multiselect=False,
         )
         assert selected_submissions
