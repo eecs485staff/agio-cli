@@ -56,8 +56,8 @@ def test_groups_queue(api_mock):
     )
     assert result.exit_code == 0, result.output
     result_list = json.loads(result.output)
-    assert ["achitta@umich.edu"] in result.output
-    assert ["awdeorio@umich.edu"] in result.output
+    assert ["achitta@umich.edu"] in result_list
+    assert ["awdeorio@umich.edu"] in result_list
 
 
 def test_groups_pk(api_mock):
