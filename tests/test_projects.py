@@ -9,6 +9,7 @@ import shlex
 import click
 import click.testing
 import utils
+from pick import Option
 from agiocli.__main__ import main
 
 
@@ -116,7 +117,7 @@ def test_projects_no_course(api_mock, mocker, constants):
     """
     # Mock user-selection menu, users selects course 109.  This constant is
     # defined in conftest.py
-    mocker.patch("pick.pick", return_value=(constants["COURSE_109"], 1))
+    mocker.patch("pick.pick", return_value=(Option(constants["COURSE_109"], constants["COURSE_109"]), 1))
 
     # Run agio
     runner = click.testing.CliRunner()
@@ -140,8 +141,8 @@ def test_projects_empty(api_mock, mocker, constants):
     # Mock user-selection menu, users selects course 109, then project 1005.
     # These constants are defined in conftest.py
     mocker.patch("pick.pick", side_effect=[
-        (constants["COURSE_109"], 1),  # First call to pick() selects course
-        (constants["PROJECT_1005"], 0),  # Second  call selects project
+        (Option(constants["COURSE_109"], constants["COURSE_109"]), 1),  # First call to pick() selects course
+        (Option(constants["PROJECT_1005"], constants["PROJECT_1005"]), 0),  # Second  call selects project
     ])
 
     # Run agio
