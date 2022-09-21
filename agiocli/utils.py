@@ -239,7 +239,7 @@ def get_course_smart(course_arg, client):
                 multiselect=False,
             )
             assert selected_courses
-            return selected_courses[0]
+            return selected_courses[0].value
 
     # Try to match a course
     matches = course_match(course_arg, courses)
@@ -389,7 +389,7 @@ def get_project_smart(project_arg, course_arg, client):
             multiselect=False,
         )
         assert selected_projects
-        return selected_projects[0]
+        return selected_projects[0].value
 
     # User provides strings, try to match a project
     matches = project_match(project_arg, projects)
@@ -585,7 +585,7 @@ def get_submission_smart(
             multiselect=False,
         )
         assert selected_submissions
-        return selected_submissions[0]
+        return selected_submissions[0].value
 
     # User provides string "last"
     if submission_arg == "last":
