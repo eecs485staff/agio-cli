@@ -127,9 +127,13 @@ def test_submissions_empty(api_mock, mocker, constants):
     # then submission 1128572.  These are constants in conftest.py. Mock input
     # "awdeorio", which selects a group.
     mocker.patch("pick.pick", side_effect=[
-        (Option(constants["COURSE_109"], constants["COURSE_109"]), 1),  # First call to pick() selects course
-        (Option(constants["PROJECT_1005"], constants["PROJECT_1005"]), 0),  # Second call selects project
-        (Option(constants["SUBMISSION_1128572"], constants["SUBMISSION_1128572"]), 0),  # Third call selects submission
+        # First call to pick() selects course
+        (Option(constants["COURSE_109"], constants["COURSE_109"]), 1),
+        # Second call selects project
+        (Option(constants["PROJECT_1005"], constants["PROJECT_1005"]), 0),
+        # Third call selects submission
+        (Option(constants["SUBMISSION_1128572"],
+         constants["SUBMISSION_1128572"]), 0),
     ])
     mocker.patch("builtins.input", return_value="awdeorio")
 
