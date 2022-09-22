@@ -145,14 +145,14 @@ def projects(ctx, project_arg, course_arg, show_list, web, config):  # noqa: D30
               help="Project pk, name, or shorthand.")
 @click.option("-l", "--list", "show_list", is_flag=True,
               help="List groups and exit.")
-@click.option("-q", "--queue", "show_queue", is_flag=True,
-              help="List groups in OH Queue format and exit.")
+@click.option("-j", "--list-json", "list_json", is_flag=True,
+              help="List groups in JSON format (2D array) and exit.")
 @click.option("-w", "--web", is_flag=True, help="Open group in browser.")
 @click.pass_context
 # The \b character in the docstring prevents Click from rewraping a paragraph.
 # We need to tell pycodestyle to ignore it.
 # https://click.palletsprojects.com/en/8.0.x/documentation/#preventing-rewrapping
-def groups(ctx, group_arg, project_arg, course_arg, show_list, show_queue, web):  # noqa: D301
+def groups(ctx, group_arg, project_arg, course_arg, show_list, list_json, web):  # noqa: D301
     """Show group detail or list groups.
 
     GROUP_ARG is a primary key, name, or member uniqname.
@@ -160,7 +160,7 @@ def groups(ctx, group_arg, project_arg, course_arg, show_list, show_queue, web):
     \b
     EXAMPLES:
     agio groups --list
-    agio groups --queue
+    agio groups --list-json
     agio groups
     agio groups 246965
     agio groups awdeorio
@@ -185,7 +185,7 @@ def groups(ctx, group_arg, project_arg, course_arg, show_list, show_queue, web):
         return
 
     # Handle --queue: list groups in OH Queue format and exit
-    if show_queue:
+    if list_json:
         project = utils.get_project_smart(project_arg, course_arg, client)
         group_list = utils.get_group_list(project, client)
         output = [utils.group_emails(group) for group in group_list]
