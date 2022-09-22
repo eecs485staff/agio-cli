@@ -6,6 +6,7 @@ https://click.palletsprojects.com/en/8.0.x/testing/
 import json
 import click
 import click.testing
+from pick import Option
 from agiocli.__main__ import main
 
 
@@ -126,8 +127,10 @@ def test_groups_empty(api_mock, mocker, constants):
     # These are constants in conftest.py.  Mock input "awdeorio", which selects
     # a group.
     mocker.patch("pick.pick", side_effect=[
-        (constants["COURSE_109"], 1),  # First call to pick() selects course
-        (constants["PROJECT_1005"], 0),  # Second call selects project
+        # First call to pick() selects course
+        (Option(constants["COURSE_109"], constants["COURSE_109"]), 1),
+        # Second call selects project
+        (Option(constants["PROJECT_1005"], constants["PROJECT_1005"]), 0),
     ])
     mocker.patch("builtins.input", return_value="awdeorio")
 
