@@ -320,7 +320,7 @@ def parse_project_string(user_input):
     return asstype, num, subtitle
 
 
-def parse_project_string_filter(user_input):
+def parse_project_string_skipper(user_input):
     """Wrap parse_project_string to skip errors."""
     try:
         return parse_project_string(user_input)
@@ -340,7 +340,7 @@ def project_match(search, projects):
 
     # Filter for only parsable projects
     projects = filter(
-        lambda x: parse_project_string_filter(x["name"]), projects
+        lambda x: parse_project_string_skipper(x["name"]), projects
     )
 
     # Remove projects with an assignment type mismatch (Lab vs. Project, etc.)
