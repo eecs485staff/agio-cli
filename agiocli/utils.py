@@ -415,10 +415,15 @@ def group_str(group):
     return f"[{group['pk']}] {uniqnames_str}"
 
 
+def group_emails(group):
+    """Return group member email addresses."""
+    members = group["members"]
+    return [x["username"] for x in members]
+
+
 def group_uniqnames(group):
     """Return group member uniqnames."""
-    members = group["members"]
-    return [x["username"].replace("@umich.edu", "") for x in members]
+    return [x.replace("@umich.edu", "") for x in group_emails(group)]
 
 
 def is_group_member(uniqname, group):
