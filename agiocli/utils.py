@@ -258,6 +258,10 @@ def get_course_smart(course_arg, client):
     return matches[0]
 
 
+class UnsupportedAssignmentError(Exception):
+    """Raised if the assignment string cannot be parsed."""
+
+
 def parse_project_string(user_input):
     """Return assignment type, number, and subtitle from a user input string.
 
@@ -303,7 +307,7 @@ def parse_project_string(user_input):
     asstype_abbrev = match.group("asstype").lower()
     if asstype_abbrev not in assignment_types:
         asstypes = ", ".join(assignment_types.keys())
-        sys.exit(
+        raise UnsupportedAssignmentError(
             f"Error: unsupported assignment type: '{asstype_abbrev}'.  "
             f"Recognized shortcuts: {asstypes}"
         )
@@ -316,6 +320,14 @@ def parse_project_string(user_input):
     return asstype, num, subtitle
 
 
+def parse_project_string_skipper(user_input):
+    """Wrap parse_project_string to skip errors."""
+    try:
+        return parse_project_string(user_input)
+    except UnsupportedAssignmentError:
+        return None
+
+
 def project_str(project):
     """Format project as a string."""
     return f"[{project['pk']}] {project['name']}"
@@ -325,6 +337,11 @@ def project_match(search, projects):
     """Return projects matching search term."""
     assert projects
     asstype, num, subtitle = parse_project_string(search)
+
+    # Filter for only parsable projects
+    projects = filter(
+        lambda x: parse_project_string_skipper(x["name"]), projects
+    )
 
     # Remove projects with an assignment type mismatch (Lab vs. Project, etc.)
     if asstype:
@@ -570,7 +587,6 @@ def get_submission_smart(
 
     # Get a group
     group = get_group_smart(group_arg, project_arg, course_arg, client)
-
     # User provides "best"
     if submission_arg == "best":
         return client.get(f"/api/groups/{group['pk']}/ultimate_submission/")
