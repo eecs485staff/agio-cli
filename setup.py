@@ -15,7 +15,7 @@ setuptools.setup(
     description="A command line interface to autograder.io",
     long_description=LONG_DESCRIPTION,
     long_description_content_type="text/markdown",
-    version="0.4.0",
+    version="0.5.0",
     author="Andrew DeOrio",
     author_email="awdeorio@umich.edu",
     url="https://github.com/eecs485staff/agio-cli/",
@@ -27,7 +27,7 @@ setuptools.setup(
     ],
     install_requires=[
         "click",
-        "pick",
+        "pick>=2.0.0",
         "python-dateutil",
         "requests",
     ],
@@ -49,7 +49,7 @@ setuptools.setup(
             "requests-mock",
         ],
     },
-    python_requires='>=3.6',
+    python_requires='>=3.7',
     entry_points={
         "console_scripts": [
             "agio = agiocli.__main__:main",

@@ -168,6 +168,24 @@ def test_project_match_pattern(search, expected_project_pk):
 
 
 @pytest.mark.parametrize(
+    "search, expected_project_pk",
+    [
+        ("p1", 1527),
+        ("p2", 1525),
+        ("p3", 1524),
+        ("p4", 1526),
+        ("p5", 1523),
+    ]
+)
+def test_project_match_pattern_include_invalid(search, expected_project_pk):
+    """Many supported input patterns."""
+    matches = utils.project_match(search, PROJECTS_INCLUDING_INVALID)
+    assert len(matches) == 1
+    project = matches[0]
+    assert project["pk"] == expected_project_pk
+
+
+@pytest.mark.parametrize(
     "search",
     [
         ("Lab27"),
@@ -326,4 +344,15 @@ PROJECTS = [
     {"pk": 431, "name": "Lab 02 - Arrays and Pointers"},
     {"pk": 434, "name": "Project 5 - Machine Learning"},
     {"pk": 426, "name": "Lab 06 - Container ADTs"},
+]
+
+# These projects are from EECS 485 Fall 2022
+PROJECTS_INCLUDING_INVALID = [
+    {"pk": 1527, "name": "Project 1 - Templated Static Site Generator"},
+    {"pk": 1525, "name": "Project 2 - Server-side Dynamic Pages"},
+    {"pk": 1524, "name": "Project 3 - Client-side Dynamic Pages"},
+    {"pk": 1526, "name": "Project 4 - MapReduce"},
+    {"pk": 1523, "name": "Project 5 - Search Engine"},
+    {"pk": 1749, "name": "Testing JVM errors 20.04"},
+    {"pk": 1748, "name": "Testing JVM errors 22.04"},
 ]

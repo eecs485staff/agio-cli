@@ -8,6 +8,7 @@ import textwrap
 import click
 import click.testing
 import freezegun
+from pick import Option
 from agiocli.__main__ import main
 
 
@@ -55,7 +56,7 @@ def test_courses_empty(api_mock, mocker):
         'allowed_guest_domain': '@umich.edu',
         'last_modified': '2021-04-07T02:19:22.818992Z'
     }
-    mocker.patch("pick.pick", return_value=(course_109, 1))
+    mocker.patch("pick.pick", return_value=(Option(course_109, course_109), 1))
 
     # Run agio
     runner = click.testing.CliRunner()

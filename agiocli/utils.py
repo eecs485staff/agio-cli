@@ -232,14 +232,14 @@ def get_course_smart(course_arg, client):
         if not courses:
             sys.exit("Error: No current courses, try 'agio courses -l'")
         else:
+            options = [pick.Option(course_str(x), x) for x in courses]
             selected_courses = pick.pick(
-                options=courses,
+                options=options,
                 title=("Select a course:"),
-                options_map_func=course_str,
                 multiselect=False,
             )
             assert selected_courses
-            return selected_courses[0]
+            return selected_courses[0].value
 
     # Try to match a course
     matches = course_match(course_arg, courses)
@@ -256,6 +256,10 @@ def get_course_smart(course_arg, client):
             f"{matches_str}"
         )
     return matches[0]
+
+
+class UnsupportedAssignmentError(Exception):
+    """Raised if the assignment string cannot be parsed."""
 
 
 def parse_project_string(user_input):
@@ -303,7 +307,7 @@ def parse_project_string(user_input):
     asstype_abbrev = match.group("asstype").lower()
     if asstype_abbrev not in assignment_types:
         asstypes = ", ".join(assignment_types.keys())
-        sys.exit(
+        raise UnsupportedAssignmentError(
             f"Error: unsupported assignment type: '{asstype_abbrev}'.  "
             f"Recognized shortcuts: {asstypes}"
         )
@@ -316,6 +320,14 @@ def parse_project_string(user_input):
     return asstype, num, subtitle
 
 
+def parse_project_string_skipper(user_input):
+    """Wrap parse_project_string to skip errors."""
+    try:
+        return parse_project_string(user_input)
+    except UnsupportedAssignmentError:
+        return None
+
+
 def project_str(project):
     """Format project as a string."""
     return f"[{project['pk']}] {project['name']}"
@@ -325,6 +337,11 @@ def project_match(search, projects):
     """Return projects matching search term."""
     assert projects
     asstype, num, subtitle = parse_project_string(search)
+
+    # Filter for only parsable projects
+    projects = filter(
+        lambda x: parse_project_string_skipper(x["name"]), projects
+    )
 
     # Remove projects with an assignment type mismatch (Lab vs. Project, etc.)
     if asstype:
@@ -382,14 +399,14 @@ def get_project_smart(project_arg, course_arg, client):
     # No project input from the user.  Show all projects for current course and
     # and prompt the user.
     if not project_arg:
+        options = [pick.Option(project_str(x), x) for x in projects]
         selected_projects = pick.pick(
-            options=projects,
+            options=options,
             title="Select a project:",
-            options_map_func=project_str,
             multiselect=False,
         )
         assert selected_projects
-        return selected_projects[0]
+        return selected_projects[0].value
 
     # User provides strings, try to match a project
     matches = project_match(project_arg, projects)
@@ -415,10 +432,15 @@ def group_str(group):
     return f"[{group['pk']}] {uniqnames_str}"
 
 
+def group_emails(group):
+    """Return group member email addresses."""
+    members = group["members"]
+    return [x["username"] for x in members]
+
+
 def group_uniqnames(group):
     """Return group member uniqnames."""
-    members = group["members"]
-    return [x["username"].replace("@umich.edu", "") for x in members]
+    return [x.replace("@umich.edu", "") for x in group_emails(group)]
 
 
 def is_group_member(uniqname, group):
@@ -565,7 +587,6 @@ def get_submission_smart(
 
     # Get a group
     group = get_group_smart(group_arg, project_arg, course_arg, client)
-
     # User provides "best"
     if submission_arg == "best":
         return client.get(f"/api/groups/{group['pk']}/ultimate_submission/")
@@ -578,14 +599,14 @@ def get_submission_smart(
     # No submissions input from the user.  Show all submissions for this group
     # and prompt the user.
     if not submission_arg:
+        options = [pick.Option(submission_str(x), x) for x in submissions]
         selected_submissions = pick.pick(
-            options=submissions,
+            options=options,
             title="Select a submission:",
-            options_map_func=submission_str,
             multiselect=False,
         )
         assert selected_submissions
-        return selected_submissions[0]
+        return selected_submissions[0].value
 
     # User provides string "last"
     if submission_arg == "last":

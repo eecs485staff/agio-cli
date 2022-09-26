@@ -6,6 +6,7 @@ https://click.palletsprojects.com/en/8.0.x/testing/
 import json
 import click
 import click.testing
+from pick import Option
 from agiocli.__main__ import main
 
 
@@ -34,6 +35,30 @@ def test_groups_list(api_mock):
     assert result.exit_code == 0, result.output
     assert "[243636] achitta" in result.output
     assert "[246965] awdeorio" in result.output
+
+
+def test_groups_list_json(api_mock):
+    """Verify agio groups queue option when project is specified.
+
+    $ agio groups --list-json --project 1005
+
+    api_mock is a shared test fixture that mocks responses to REST API
+    requests.  It is implemented in conftest.py.
+
+    """
+    runner = click.testing.CliRunner()
+    result = runner.invoke(
+        main, [
+            "groups",
+            "--list-json",
+            "--project", "1005",
+        ],
+        catch_exceptions=False,
+    )
+    assert result.exit_code == 0, result.output
+    result_list = json.loads(result.output)
+    assert ["achitta@umich.edu"] in result_list
+    assert ["awdeorio@umich.edu"] in result_list
 
 
 def test_groups_pk(api_mock):
@@ -102,8 +127,10 @@ def test_groups_empty(api_mock, mocker, constants):
     # These are constants in conftest.py.  Mock input "awdeorio", which selects
     # a group.
     mocker.patch("pick.pick", side_effect=[
-        (constants["COURSE_109"], 1),  # First call to pick() selects course
-        (constants["PROJECT_1005"], 0),  # Second call selects project
+        # First call to pick() selects course
+        (Option(constants["COURSE_109"], constants["COURSE_109"]), 1),
+        # Second call selects project
+        (Option(constants["PROJECT_1005"], constants["PROJECT_1005"]), 0),
     ])
     mocker.patch("builtins.input", return_value="awdeorio")
 
