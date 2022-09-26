@@ -112,3 +112,5 @@ $ pip3 install --upgrade agiocli
 $ agio --version
 agio, version X.Y.Z
 ```
+
+Draft a new release on GitHub https://github.com/eecs485staff/agio-cli/releases/
