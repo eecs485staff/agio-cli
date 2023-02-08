@@ -290,7 +290,7 @@ def parse_project_string(user_input):
     if (match.group("asstype") and not match.group("num")
             and not match.group("subtitle")):
         subtitle = match.group("asstype")
-        return None, None, subtitle
+        return "", 0, subtitle
 
     # Convert assignment type abbreviations to canonical "Project", "Lab", etc.
     assignment_types = {
@@ -317,6 +317,9 @@ def parse_project_string(user_input):
     num = int(match.group("num"))
     subtitle = match.group("subtitle")
 
+    assert asstype is not None, f"Parse proj type failed: '{user_input}'"
+    assert num is not None, f"Parse proj num failed: '{user_input}'"
+    assert subtitle is not None, f"Parse proj subtitle failed: '{user_input}'"
     return asstype, num, subtitle
 
 
@@ -587,6 +590,7 @@ def get_submission_smart(
 
     # Get a group
     group = get_group_smart(group_arg, project_arg, course_arg, client)
+
     # User provides "best"
     if submission_arg == "best":
         return client.get(f"/api/groups/{group['pk']}/ultimate_submission/")
