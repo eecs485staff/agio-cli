@@ -15,7 +15,7 @@ setuptools.setup(
     description="A command line interface to autograder.io",
     long_description=LONG_DESCRIPTION,
     long_description_content_type="text/markdown",
-    version="0.5.0",
+    version="0.5.1",
     author="Andrew DeOrio",
     author_email="awdeorio@umich.edu",
     url="https://github.com/eecs485staff/agio-cli/",
