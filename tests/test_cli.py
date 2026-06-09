@@ -11,7 +11,7 @@ from agiocli.__main__ import main
 
 def test_example():
     """Dummy example test."""
-    runner = click.testing.CliRunner(mix_stderr=False)
+    runner = click.testing.CliRunner()
     result = runner.invoke(main, ["--version"], catch_exceptions=False)
     assert result.exit_code == 0, result.output
     assert "version" in result.output

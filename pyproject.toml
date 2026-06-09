@@ -1,0 +1,51 @@
+[build-system]
+requires = ["setuptools>=64.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "agiocli"
+version = "0.5.1"
+description = "A command line interface to autograder.io"
+license = {file = "LICENSE"}
+authors = [
+    {name = "Andrew DeOrio", email = "awdeorio@umich.edu"}
+]
+readme = "README.md"
+keywords = [
+    "autograder", "autograder.io", "auto grader",
+    "agcli", "agio", "ag-cli", "agio-cli",
+]
+requires-python = ">=3.10"
+dependencies = [
+    "click",
+    "pick>=2.0.0",
+    "python-dateutil",
+    "requests",
+]
+
+[project.urls]
+repository = "https://github.com/eecs485staff/agio-cli/"
+
+[project.scripts]
+agio = "agiocli.__main__:main"
+
+[project.optional-dependencies]
+dev = [
+    "build",
+    "check-manifest",
+    "freezegun",
+    "pdbpp",
+    "pycodestyle",
+    "pydocstyle",
+    "pylint",
+    "pytest",
+    "pytest-cov",
+    "pytest-mock",
+    "requests-mock",
+    "tox",
+    "twine",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["agiocli*"]

@@ -103,7 +103,7 @@ def projects(ctx, project_arg, course_arg, show_list, web, config):  # noqa: D30
     agio projects --course eecs485sp21 p1 --config
 
     """
-    # pylint: disable=too-many-arguments
+    # pylint: disable=too-many-arguments,too-many-positional-arguments
     try:
         client = APIClient.make_default(debug=ctx.obj["DEBUG"])
     except TokenFileNotFound as err:
@@ -169,7 +169,7 @@ def groups(ctx, group_arg, project_arg, course_arg, show_list, list_json, web): 
 
     """
     # We must have an function argument for each CLI argument or option
-    # pylint: disable=too-many-arguments
+    # pylint: disable=too-many-arguments,too-many-positional-arguments
 
     try:
         client = APIClient.make_default(debug=ctx.obj["DEBUG"])
@@ -238,7 +238,7 @@ def submissions(ctx, submission_arg, group_arg,
     agio submissions [...] --download
     """
     # We must have an function argument for each CLI argument or option
-    # pylint: disable=too-many-arguments
+    # pylint: disable=too-many-arguments,too-many-positional-arguments
 
     try:
         client = APIClient.make_default(debug=ctx.obj["DEBUG"])
