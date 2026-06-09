@@ -68,8 +68,7 @@ class APIClient:
             response.raise_for_status()
             assert "results" in response.json()
             assert "next" in response.json()
-            for item in response.json()["results"]:
-                yield item
+            yield from response.json()["results"]
             page_url = response.json()['next']
 
     def post(self, path, *args, **kwargs):
