@@ -12,7 +12,7 @@ Install for development:
 ```console
 $ python3 -m venv .venv
 $ source .venv/bin/activate
-$ pip install --editable .[dev,test]
+$ pip install --editable .[dev]
 ```
 
 Run tests, coverage, and a single test:
@@ -25,9 +25,9 @@ $ pytest tests/test_courses.py::test_courses_pk
 
 Lint (all four must pass; this is what CI runs):
 ```console
-$ pycodestyle agiocli tests setup.py
-$ pydocstyle agiocli tests setup.py
-$ pylint agiocli tests setup.py
+$ pycodestyle agiocli tests
+$ pydocstyle agiocli tests
+$ pylint agiocli tests
 $ check-manifest
 ```
 
@@ -36,7 +36,7 @@ Run the full lint + test suite in a clean throwaway virtualenv (mirrors CI exact
 $ tox -e py3
 ```
 
-Note: pydocstyle cannot glob `tests/`, so tox invokes it as `sh -c "pydocstyle agiocli tests/* setup.py"`.  When running pydocstyle manually against tests, match that pattern.
+Note: pydocstyle cannot glob `tests/`, so tox invokes it as `sh -c "pydocstyle agiocli tests/*"`.  When running pydocstyle manually against tests, match that pattern.
 
 ## Architecture
 
@@ -69,7 +69,7 @@ Tests are system tests driven through Click's `CliRunner` (`runner.invoke(main, 
 - Errors surfaced to the user are reported via `sys.exit("Error: ...")`, not exceptions, except `TokenFileNotFound` and `UnsupportedAssignmentError` which are caught by callers.
 - Click docstrings use `\b` to prevent paragraph rewrapping; lines with `\b` carry a `# noqa: D301`.
 - Subcommands with many params carry `# pylint: disable=too-many-arguments` because each CLI option needs a function parameter.
-- The version string lives in `setup.py` (`version=`); bumping it is a manual step in the release procedure.
+- The version string lives in `pyproject.toml` (`version =`); bumping it is a manual step in the release procedure.
 
 ## Release
 
