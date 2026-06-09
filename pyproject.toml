@@ -15,7 +15,7 @@ keywords = [
     "autograder", "autograder.io", "auto grader",
     "agcli", "agio", "ag-cli", "agio-cli",
 ]
-requires-python = ">=3.7"
+requires-python = ">=3.10"
 dependencies = [
     "click",
     "pick>=2.0.0",
