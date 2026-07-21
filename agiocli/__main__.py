@@ -3,8 +3,11 @@ A command line interface to autograder.io.
 
 Andrew DeOrio <awdeorio@umich.edu>
 """
+
 import sys
+
 import click
+
 from agiocli import APIClient, TokenFileNotFound, utils
 
 
@@ -34,14 +37,13 @@ def login(ctx):
 
 @main.command()
 @click.argument("course_arg", required=False)
-@click.option("-l", "--list", "show_list", is_flag=True,
-              help="List courses and exit.")
+@click.option("-l", "--list", "show_list", is_flag=True, help="List courses and exit.")
 @click.option("-w", "--web", is_flag=True, help="Open course in browser.")
 @click.pass_context
 # The \b character in the docstring prevents Click from rewraping a paragraph.
-# We need to tell pycodestyle to ignore it.
+# We need to tell ruff to ignore it (D301).
 # https://click.palletsprojects.com/en/8.0.x/documentation/#preventing-rewrapping
-def courses(ctx, course_arg, show_list, web):  # noqa: D301
+def courses(ctx, course_arg, show_list, web):
     """Show course detail or list courses.
 
     COURSE_ARG is a primary key, name, or shorthand.
@@ -54,7 +56,7 @@ def courses(ctx, course_arg, show_list, web):  # noqa: D301
     agio courses eecs485sp21
     agio courses eecs485[cur|current]
 
-    """
+    """  # noqa: D301
     try:
         client = APIClient.make_default(debug=ctx.obj["DEBUG"])
     except TokenFileNotFound as err:
@@ -77,17 +79,15 @@ def courses(ctx, course_arg, show_list, web):  # noqa: D301
 
 @main.command()
 @click.argument("project_arg", required=False)
-@click.option("-c", "--course", "course_arg",
-              help="Course pk, name, or shorthand.")
-@click.option("-l", "--list", "show_list", is_flag=True,
-              help="List projects and exit.")
+@click.option("-c", "--course", "course_arg", help="Course pk, name, or shorthand.")
+@click.option("-l", "--list", "show_list", is_flag=True, help="List projects and exit.")
 @click.option("-w", "--web", is_flag=True, help="Open project in browser.")
 @click.option("--config", is_flag=True, help="Get test suite config.")
 @click.pass_context
 # The \b character in the docstring prevents Click from rewraping a paragraph.
-# We need to tell pycodestyle to ignore it.
+# We need to tell ruff to ignore it (D301).
 # https://click.palletsprojects.com/en/8.0.x/documentation/#preventing-rewrapping
-def projects(ctx, project_arg, course_arg, show_list, web, config):  # noqa: D301
+def projects(ctx, project_arg, course_arg, show_list, web, config):  # noqa: PLR0913
     """Show project detail or list projects.
 
     PROJECT_ARG is a primary key, name, or shorthand.
@@ -102,8 +102,7 @@ def projects(ctx, project_arg, course_arg, show_list, web, config):  # noqa: D30
     agio projects p1
     agio projects --course eecs485sp21 p1 --config
 
-    """
-    # pylint: disable=too-many-arguments,too-many-positional-arguments
+    """  # noqa: D301
     try:
         client = APIClient.make_default(debug=ctx.obj["DEBUG"])
     except TokenFileNotFound as err:
@@ -122,9 +121,7 @@ def projects(ctx, project_arg, course_arg, show_list, web, config):  # noqa: D30
 
     # Print test suite config if --config flag
     if config:
-        config_json = client.get(
-            f"/api/projects/{project['pk']}/ag_test_suites/"
-        )
+        config_json = client.get(f"/api/projects/{project['pk']}/ag_test_suites/")
         print(utils.dict_str(config_json))
         return
 
@@ -139,20 +136,22 @@ def projects(ctx, project_arg, course_arg, show_list, web, config):  # noqa: D30
 
 @main.command()
 @click.argument("group_arg", required=False)
-@click.option("-c", "--course", "course_arg",
-              help="Course pk, name, or shorthand.")
-@click.option("-p", "--project", "project_arg",
-              help="Project pk, name, or shorthand.")
-@click.option("-l", "--list", "show_list", is_flag=True,
-              help="List groups and exit.")
-@click.option("-j", "--list-json", "list_json", is_flag=True,
-              help="List groups in JSON format (2D array) and exit.")
+@click.option("-c", "--course", "course_arg", help="Course pk, name, or shorthand.")
+@click.option("-p", "--project", "project_arg", help="Project pk, name, or shorthand.")
+@click.option("-l", "--list", "show_list", is_flag=True, help="List groups and exit.")
+@click.option(
+    "-j",
+    "--list-json",
+    "list_json",
+    is_flag=True,
+    help="List groups in JSON format (2D array) and exit.",
+)
 @click.option("-w", "--web", is_flag=True, help="Open group in browser.")
 @click.pass_context
 # The \b character in the docstring prevents Click from rewraping a paragraph.
-# We need to tell pycodestyle to ignore it.
+# We need to tell ruff to ignore it (D301).
 # https://click.palletsprojects.com/en/8.0.x/documentation/#preventing-rewrapping
-def groups(ctx, group_arg, project_arg, course_arg, show_list, list_json, web):  # noqa: D301
+def groups(ctx, group_arg, project_arg, course_arg, show_list, list_json, web):  # noqa: PLR0913
     """Show group detail or list groups.
 
     GROUP_ARG is a primary key, name, or member uniqname.
@@ -167,10 +166,7 @@ def groups(ctx, group_arg, project_arg, course_arg, show_list, list_json, web): 
     agio groups awdeorio --project 1005
     agio groups awdeorio --course eecs485sp21 --project p1
 
-    """
-    # We must have an function argument for each CLI argument or option
-    # pylint: disable=too-many-arguments,too-many-positional-arguments
-
+    """  # noqa: D301
     try:
         client = APIClient.make_default(debug=ctx.obj["DEBUG"])
     except TokenFileNotFound as err:
@@ -207,22 +203,24 @@ def groups(ctx, group_arg, project_arg, course_arg, show_list, list_json, web): 
 
 @main.command()
 @click.argument("submission_arg", required=False)
-@click.option("-c", "--course", "course_arg",
-              help="Course pk, name, or shorthand.")
-@click.option("-p", "--project", "project_arg",
-              help="Project pk, name, or shorthand.")
-@click.option("-g", "--group", "group_arg",
-              help="Group pk or member uniqname.")
-@click.option("-l", "--list", "show_list", is_flag=True,
-              help="List groups and exit.")
-@click.option("-d", "--download", is_flag=True,
-              help="Download submission files.")
+@click.option("-c", "--course", "course_arg", help="Course pk, name, or shorthand.")
+@click.option("-p", "--project", "project_arg", help="Project pk, name, or shorthand.")
+@click.option("-g", "--group", "group_arg", help="Group pk or member uniqname.")
+@click.option("-l", "--list", "show_list", is_flag=True, help="List groups and exit.")
+@click.option("-d", "--download", is_flag=True, help="Download submission files.")
 @click.pass_context
 # The \b character in the docstring prevents Click from rewraping a paragraph.
-# We need to tell pycodestyle to ignore it.
+# We need to tell ruff to ignore it (D301).
 # https://click.palletsprojects.com/en/8.0.x/documentation/#preventing-rewrapping
-def submissions(ctx, submission_arg, group_arg,
-                project_arg, course_arg, show_list, download):  # noqa: D301
+def submissions(  # noqa: PLR0913
+    ctx,
+    submission_arg,
+    group_arg,
+    project_arg,
+    course_arg,
+    show_list,
+    download,
+):
     """Show submission detail or list submissions.
 
     SUBMISSION_ARG is a primary key, 'best', or 'last'
@@ -236,10 +234,7 @@ def submissions(ctx, submission_arg, group_arg,
     agio submissions [...] best
     agio submissions [...] last
     agio submissions [...] --download
-    """
-    # We must have an function argument for each CLI argument or option
-    # pylint: disable=too-many-arguments,too-many-positional-arguments
-
+    """  # noqa: D301
     try:
         client = APIClient.make_default(debug=ctx.obj["DEBUG"])
     except TokenFileNotFound as err:
@@ -247,9 +242,7 @@ def submissions(ctx, submission_arg, group_arg,
 
     # Handle --list: list submissions and exit
     if show_list:
-        group = utils.get_group_smart(
-            group_arg, project_arg, course_arg, client
-        )
+        group = utils.get_group_smart(group_arg, project_arg, course_arg, client)
         submission_list = utils.get_submission_list(group, client)
         for i in submission_list:
             print(utils.submission_str(i))
@@ -270,6 +263,4 @@ def submissions(ctx, submission_arg, group_arg,
 
 
 if __name__ == "__main__":
-    # These errors are endemic to click
-    # pylint: disable=no-value-for-parameter,unexpected-keyword-arg
     main(obj={})

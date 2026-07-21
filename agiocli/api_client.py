@@ -4,12 +4,14 @@ Autograder REST API client, a wrapper around the requests library.
 Based on HTTPClient by James Perretta
 https://github.com/eecs-autograder/autograder-contrib/
 """
+
 import copy
-import os
 import json
+import os
 import sys
-from typing import Iterator
+from collections.abc import Iterator
 from urllib.parse import urljoin
+
 import requests
 
 
@@ -28,9 +30,7 @@ class APIClient:
 
     @staticmethod
     def make_default(
-            token_filename='.agtoken',
-            base_url='https://autograder.io/',
-            debug=False
+        token_filename=".agtoken", base_url="https://autograder.io/", debug=False
     ):
         """Create an APIClient instance with API token found in token_filename.
 
@@ -69,7 +69,7 @@ class APIClient:
             assert "results" in response.json()
             assert "next" in response.json()
             yield from response.json()["results"]
-            page_url = response.json()['next']
+            page_url = response.json()["next"]
 
     def post(self, path, *args, **kwargs):
         """Call requests.post with authentication headers and base URL."""
@@ -105,8 +105,8 @@ class APIClient:
             print(f"{method} {url}")
 
         # Call the underlying requests library function
-        headers = copy.deepcopy(kwargs.pop('headers', {}))
-        headers['Authorization'] = f'Token {self.api_token}'
+        headers = copy.deepcopy(kwargs.pop("headers", {}))
+        headers["Authorization"] = f"Token {self.api_token}"
         response = method_func(url, *args, headers=headers, **kwargs)
 
         # Print the response
@@ -123,7 +123,7 @@ class APIClient:
         # Decode JSON
         if "Content-Type" not in response.headers:
             sys.exit(f"Error: no Content-Type from: {response.url}")
-        if 'application/json' in response.headers['Content-Type']:
+        if "application/json" in response.headers["Content-Type"]:
             try:
                 return response.json()
             except json.JSONDecodeError:
@@ -131,7 +131,7 @@ class APIClient:
                     f"Error: JSON decoding failed for url {response.url}\n"
                     f"{response.text}"
                 )
-        elif 'application/octet-stream' in response.headers['Content-Type']:
+        elif "application/octet-stream" in response.headers["Content-Type"]:
             return response.content
         else:
             sys.exit(
@@ -156,7 +156,7 @@ def get_api_token(token_filename: str) -> str:
 
     # Make sure that we're starting in a subdir of the home directory
     curdir = os.path.abspath(os.curdir)
-    if os.path.expanduser('~') not in curdir:
+    if os.path.expanduser("~") not in curdir:
         raise TokenFileNotFound(f"Invalid search path: {curdir}")
 
     # Search, walking up the directory structure from PWD to home
@@ -177,7 +177,7 @@ def get_api_token(token_filename: str) -> str:
 def walk_up_to_home_dir() -> Iterator[str]:
     """Iterate up the directory structure from pwd to home directory."""
     current_dir = os.path.abspath(os.curdir)
-    home_dir = os.path.expanduser('~')
+    home_dir = os.path.expanduser("~")
 
     while current_dir != home_dir:
         yield current_dir
@@ -197,5 +197,5 @@ def print_response(response):
         print(formatted)
 
 
-class TokenFileNotFound(Exception):
+class TokenFileNotFound(Exception):  # noqa: N818 -- public API, don't rename
     """Exception type indicating failure to locate user token file."""

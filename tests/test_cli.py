@@ -4,8 +4,10 @@ System tests for the command line interface.
 These tests use the Click testing interface.
 https://click.palletsprojects.com/en/8.0.x/testing/
 """
+
 import click
 import click.testing
+
 from agiocli.__main__ import main
 
 

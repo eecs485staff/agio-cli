@@ -3,15 +3,14 @@
 These tests use the Click testing interface.
 https://click.palletsprojects.com/en/8.0.x/testing/
 """
+
 import json
+
 import click
 import click.testing
 from pick import Option
+
 from agiocli.__main__ import main
-
-
-# Unused arguments due to fixtures are endemic to pytest
-# pylint: disable=unused-argument
 
 
 def test_submissions_list(api_mock):
@@ -25,10 +24,12 @@ def test_submissions_list(api_mock):
     """
     runner = click.testing.CliRunner()
     result = runner.invoke(
-        main, [
+        main,
+        [
             "submissions",
             "--list",
-            "--group", "246965",
+            "--group",
+            "246965",
         ],
         catch_exceptions=False,
     )
@@ -48,7 +49,8 @@ def test_submissions_pk(api_mock):
     """
     runner = click.testing.CliRunner()
     result = runner.invoke(
-        main, ["submissions", "1128572"],
+        main,
+        ["submissions", "1128572"],
         catch_exceptions=False,
     )
     assert result.exit_code == 0, result.output
@@ -71,11 +73,15 @@ def test_submissions_last(api_mock):
     """
     runner = click.testing.CliRunner()
     result = runner.invoke(
-        main, [
+        main,
+        [
             "submissions",
-            "--course", "eecs485sp21",
-            "--project", "p1",
-            "--group", "awdeorio",
+            "--course",
+            "eecs485sp21",
+            "--project",
+            "p1",
+            "--group",
+            "awdeorio",
             "last",
         ],
         catch_exceptions=False,
@@ -100,11 +106,15 @@ def test_submissions_best(api_mock):
     """
     runner = click.testing.CliRunner()
     result = runner.invoke(
-        main, [
+        main,
+        [
             "submissions",
-            "--course", "eecs485sp21",
-            "--project", "p1",
-            "--group", "awdeorio",
+            "--course",
+            "eecs485sp21",
+            "--project",
+            "p1",
+            "--group",
+            "awdeorio",
             "best",
         ],
         catch_exceptions=False,
@@ -126,15 +136,22 @@ def test_submissions_empty(api_mock, mocker, constants):
     # Mock user-selection menu, users selects course 109, then project 1005,
     # then submission 1128572.  These are constants in conftest.py. Mock input
     # "awdeorio", which selects a group.
-    mocker.patch("pick.pick", side_effect=[
-        # First call to pick() selects course
-        (Option(constants["COURSE_109"], constants["COURSE_109"]), 1),
-        # Second call selects project
-        (Option(constants["PROJECT_1005"], constants["PROJECT_1005"]), 0),
-        # Third call selects submission
-        (Option(constants["SUBMISSION_1128572"],
-         constants["SUBMISSION_1128572"]), 0),
-    ])
+    mocker.patch(
+        "pick.pick",
+        side_effect=[
+            # First call to pick() selects course
+            (Option(constants["COURSE_109"], constants["COURSE_109"]), 1),
+            # Second call selects project
+            (Option(constants["PROJECT_1005"], constants["PROJECT_1005"]), 0),
+            # Third call selects submission
+            (
+                Option(
+                    constants["SUBMISSION_1128572"], constants["SUBMISSION_1128572"]
+                ),
+                0,
+            ),
+        ],
+    )
     mocker.patch("builtins.input", return_value="awdeorio")
 
     # Run agio

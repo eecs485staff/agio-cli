@@ -3,18 +3,17 @@
 These tests use the Click testing interface.
 https://click.palletsprojects.com/en/8.0.x/testing/
 """
+
 import json
-import textwrap
 import shlex
+import textwrap
+
 import click
 import click.testing
 import utils
 from pick import Option
+
 from agiocli.__main__ import main
-
-
-# Unused arguments due to fixtures are endemic to pytest
-# pylint: disable=unused-argument
 
 
 def test_projects_list_course_pk(api_mock):
@@ -28,7 +27,8 @@ def test_projects_list_course_pk(api_mock):
     """
     runner = click.testing.CliRunner()
     result = runner.invoke(
-        main, ["projects", "--list", "--course", "109"],
+        main,
+        ["projects", "--list", "--course", "109"],
         catch_exceptions=False,
     )
     assert result.exit_code == 0, result.output
@@ -70,9 +70,11 @@ def test_projects_name(api_mock):
     """
     runner = click.testing.CliRunner()
     result = runner.invoke(
-        main, [
+        main,
+        [
             "projects",
-            "--course", "eecs485sp21",
+            "--course",
+            "eecs485sp21",
             "Project 1 - Templated Static Site Generator",
         ],
         catch_exceptions=False,
@@ -94,9 +96,11 @@ def test_projects_shortcut(api_mock):
     """
     runner = click.testing.CliRunner()
     result = runner.invoke(
-        main, [
+        main,
+        [
             "projects",
-            "-c", "eecs485sp21",
+            "-c",
+            "eecs485sp21",
             "p1",
         ],
         catch_exceptions=False,
@@ -117,8 +121,10 @@ def test_projects_no_course(api_mock, mocker, constants):
     """
     # Mock user-selection menu, users selects course 109.  This constant is
     # defined in conftest.py
-    mocker.patch("pick.pick", return_value=(
-        Option(constants["COURSE_109"], constants["COURSE_109"]), 1))
+    mocker.patch(
+        "pick.pick",
+        return_value=(Option(constants["COURSE_109"], constants["COURSE_109"]), 1),
+    )
 
     # Run agio
     runner = click.testing.CliRunner()
@@ -141,12 +147,15 @@ def test_projects_empty(api_mock, mocker, constants):
     """
     # Mock user-selection menu, users selects course 109, then project 1005.
     # These constants are defined in conftest.py
-    mocker.patch("pick.pick", side_effect=[
-        # First call to pick() selects course
-        (Option(constants["COURSE_109"], constants["COURSE_109"]), 1),
-        # Second  call selects project
-        (Option(constants["PROJECT_1005"], constants["PROJECT_1005"]), 0),
-    ])
+    mocker.patch(
+        "pick.pick",
+        side_effect=[
+            # First call to pick() selects course
+            (Option(constants["COURSE_109"], constants["COURSE_109"]), 1),
+            # Second  call selects project
+            (Option(constants["PROJECT_1005"], constants["PROJECT_1005"]), 0),
+        ],
+    )
 
     # Run agio
     runner = click.testing.CliRunner()
@@ -169,12 +178,13 @@ def test_projects_config(api_mock, mocker, constants):
     """
     runner = click.testing.CliRunner()
     result = runner.invoke(
-        main, shlex.split("projects -c eecs485sp21 p1 --config"),
+        main,
+        shlex.split("projects -c eecs485sp21 p1 --config"),
         catch_exceptions=False,
     )
     assert result.exit_code == 0, result.output
     output = json.loads(result.output)
-    expected_path = utils.TESTDATA_DIR/"eecs485sp21_p1_config.json"
+    expected_path = utils.TESTDATA_DIR / "eecs485sp21_p1_config.json"
     with expected_path.open(encoding="utf-8") as infile:
         expected = json.load(infile)
     assert output == expected

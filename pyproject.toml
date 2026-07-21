@@ -35,13 +35,11 @@ dev = [
     "check-manifest",
     "freezegun",
     "pdbpp",
-    "pycodestyle",
-    "pydocstyle",
-    "pylint",
     "pytest",
     "pytest-cov",
     "pytest-mock",
     "requests-mock",
+    "ruff",
     "tox",
     "twine",
 ]
@@ -49,3 +47,14 @@ dev = [
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["agiocli*"]
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "D", "I", "UP", "N", "PT", "B", "SIM", "PL", "RET", "C4", "ARG"]
+ignore = ["D203", "D213", "W191", "E111", "E114", "E117", "D206", "D300"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "pep257"
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401", "F403"]
+"test_*.py" = ["PLR2004", "ARG001"]

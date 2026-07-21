@@ -3,17 +3,16 @@
 These tests use the Click testing interface.
 https://click.palletsprojects.com/en/8.0.x/testing/
 """
+
 import json
 import textwrap
+
 import click
 import click.testing
 import freezegun
 from pick import Option
+
 from agiocli.__main__ import main
-
-
-# Unused arguments due to fixtures are endemic to pytest
-# pylint: disable=unused-argument
 
 
 def test_courses_list(api_mock):
@@ -47,14 +46,14 @@ def test_courses_empty(api_mock, mocker):
     """
     # Mock user-selection menu, users selects course pk 109
     course_109 = {
-        'pk': 109,
-        'name': 'EECS 485',
-        'semester': 'Spring',
-        'year': 2021,
-        'subtitle': 'Web Systems',
-        'num_late_days': 0,
-        'allowed_guest_domain': '@umich.edu',
-        'last_modified': '2021-04-07T02:19:22.818992Z'
+        "pk": 109,
+        "name": "EECS 485",
+        "semester": "Spring",
+        "year": 2021,
+        "subtitle": "Web Systems",
+        "num_late_days": 0,
+        "allowed_guest_domain": "@umich.edu",
+        "last_modified": "2021-04-07T02:19:22.818992Z",
     }
     mocker.patch("pick.pick", return_value=(Option(course_109, course_109), 1))
 
@@ -95,7 +94,8 @@ def test_courses_name(api_mock):
     """
     runner = click.testing.CliRunner()
     result = runner.invoke(
-        main, ["courses", "EECS 485 Spring 2021"],
+        main,
+        ["courses", "EECS 485 Spring 2021"],
         catch_exceptions=False,
     )
     assert result.exit_code == 0, result.output
@@ -114,7 +114,8 @@ def test_courses_shortcut(api_mock):
     """
     runner = click.testing.CliRunner()
     result = runner.invoke(
-        main, ["courses", "eecs485sp21"],
+        main,
+        ["courses", "eecs485sp21"],
         catch_exceptions=False,
     )
     assert result.exit_code == 0, result.output
@@ -136,7 +137,8 @@ def test_courses_default_semester(api_mock):
     runner = click.testing.CliRunner()
     with freezegun.freeze_time("2021-06-15"):
         result = runner.invoke(
-            main, ["courses", "eecs485"],
+            main,
+            ["courses", "eecs485"],
             catch_exceptions=False,
         )
 

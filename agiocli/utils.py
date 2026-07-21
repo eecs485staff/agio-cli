@@ -1,15 +1,18 @@
 """Common utility functions."""
+
 import datetime as dt
+import itertools
 import json
 import pathlib
-import sys
 import platform
-import subprocess
-import webbrowser
-import itertools
 import re
+import subprocess
+import sys
+import webbrowser
+
 import dateutil.parser
 import pick
+
 try:
     import gnureadline as readline
 except ImportError:
@@ -21,10 +24,18 @@ SEMESTER_NUM = {"Winter": 1, "Spring": 2, "Summer": 3, "Fall": 4}
 
 # Map month number to semester number
 MONTH_SEMESTER_NUM = {
-    1: 1, 2: 1, 3: 1, 4: 1,     # Jan-Apr Winter
-    5: 2, 6: 2,                 # May-Jun Spring
-    7: 3, 8: 3,                 # Jul-Aug Summer
-    9: 4, 10: 4, 11: 4, 12: 4,  # Sep-Dec Fall
+    1: 1,
+    2: 1,
+    3: 1,
+    4: 1,  # Jan-Apr Winter
+    5: 2,
+    6: 2,  # May-Jun Spring
+    7: 3,
+    8: 3,  # Jul-Aug Summer
+    9: 4,
+    10: 4,
+    11: 4,
+    12: 4,  # Sep-Dec Fall
 }
 
 # Map month number to semester name
@@ -43,6 +54,9 @@ MONTH_SEMESTER_NAME = {
     12: "Fall",
 }
 
+# A year below this is assumed to be a 2-digit year, e.g. 21 -> 2021
+TWO_DIGIT_YEAR_CUTOFF = 100
+
 
 def dict_str(obj):
     """Format a dictionary as an indented string."""
@@ -51,25 +65,16 @@ def dict_str(obj):
 
 def course_str(course):
     """Format course as a string."""
-    return (
-        f"[{course['pk']}] {course['name']} "
-        f"{course['semester']} {course['year']}"
-    )
+    return f"[{course['pk']}] {course['name']} {course['semester']} {course['year']}"
 
 
 def course_key(course):
     """Return a tuple for sorting courses by year, semester, and name."""
     # Coerce year
-    if course["year"] is None:
-        year = 0
-    else:
-        year = course["year"]
+    year = 0 if course["year"] is None else course["year"]
 
     # Convert semester to a number
-    if course["semester"] is None:
-        semester_num = 0
-    else:
-        semester_num = SEMESTER_NUM[course["semester"]]
+    semester_num = 0 if course["semester"] is None else SEMESTER_NUM[course["semester"]]
 
     # Coerce name
     name = course["name"]
@@ -83,34 +88,22 @@ def course_key(course):
 def is_current_course(course):
     """Return True if course is from current or future semester."""
     # Coerce year
-    if course["year"] is None:
-        year = 0
-    else:
-        year = course["year"]
+    year = 0 if course["year"] is None else course["year"]
 
     # Convert semester to a number
-    if course["semester"] is None:
-        semester_num = 0
-    else:
-        semester_num = SEMESTER_NUM[course["semester"]]
+    semester_num = 0 if course["semester"] is None else SEMESTER_NUM[course["semester"]]
 
     # Compare course year and semester to today
     today = dt.date.today()
-    return (
-        year >= today.year and
-        semester_num >= MONTH_SEMESTER_NUM[today.month]
-    )
+    return year >= today.year and semester_num >= MONTH_SEMESTER_NUM[today.month]
 
 
 def course_match(search, courses):
     """Return courses matching search term."""
     year, semester, name = parse_course_string(search)
     courses = filter(
-        lambda x:
-            x["year"] == year and
-            x["semester"] == semester and
-            name in x["name"],
-        courses
+        lambda x: x["year"] == year and x["semester"] == semester and name in x["name"],
+        courses,
     )
     return list(courses)
 
@@ -161,7 +154,7 @@ def parse_course_string(user_input):
     # Convert year to a number, handling 2-digit year as "20xx"
     year = int(year)
     assert year >= 0
-    if year < 100:
+    if year < TWO_DIGIT_YEAR_CUTOFF:
         year = 2000 + year
 
     # Convert semester abbreviation to semester name.  Make sure that the keys
@@ -206,8 +199,7 @@ def get_current_course_list(client):
     courses = client.get(f"/api/users/{user['pk']}/courses_is_admin_for/")
     courses += client.get(f"/api/users/{user['pk']}/courses_is_staff_for/")
     courses = sorted(courses, key=course_key, reverse=True)
-    courses = [k for k, v in itertools.groupby(courses)]  # Unique
-    return courses
+    return [k for k, v in itertools.groupby(courses)]  # Unique
 
 
 def get_course_smart(course_arg, client):
@@ -245,16 +237,10 @@ def get_course_smart(course_arg, client):
     matches = course_match(course_arg, courses)
     if not matches:
         courses_str = "\n".join(course_str(i) for i in courses)
-        sys.exit(
-            f"Error: no course matches '{course_arg}'\n"
-            f"{courses_str}"
-        )
+        sys.exit(f"Error: no course matches '{course_arg}'\n{courses_str}")
     elif len(matches) > 1:
         matches_str = "\n".join(course_str(i) for i in matches)
-        sys.exit(
-            f"Error: multiple courses match '{course_arg}'\n"
-            f"{matches_str}"
-        )
+        sys.exit(f"Error: multiple courses match '{course_arg}'\n{matches_str}")
     return matches[0]
 
 
@@ -287,8 +273,11 @@ def parse_project_string(user_input):
 
     # HACK: If the input is just a string, e.g., "images", then it will be
     # mis-classified as asstype.
-    if (match.group("asstype") and not match.group("num")
-            and not match.group("subtitle")):
+    if (
+        match.group("asstype")
+        and not match.group("num")
+        and not match.group("subtitle")
+    ):
         subtitle = match.group("asstype")
         return "", 0, subtitle
 
@@ -342,31 +331,24 @@ def project_match(search, projects):
     asstype, num, subtitle = parse_project_string(search)
 
     # Filter for only parsable projects
-    projects = filter(
-        lambda x: parse_project_string_skipper(x["name"]), projects
-    )
+    projects = filter(lambda x: parse_project_string_skipper(x["name"]), projects)
 
     # Remove projects with an assignment type mismatch (Lab vs. Project, etc.)
     if asstype:
         projects = filter(
-            lambda x:
-                parse_project_string(x["name"])[0].lower() == asstype.lower(),
-            projects
+            lambda x: parse_project_string(x["name"])[0].lower() == asstype.lower(),
+            projects,
         )
 
     # Remove projects with a number mismatch
     if num:
-        projects = filter(
-            lambda x: parse_project_string(x["name"])[1] == num,
-            projects
-        )
+        projects = filter(lambda x: parse_project_string(x["name"])[1] == num, projects)
 
     # Remove projects with a name mismatch, tolerating substring match
     if subtitle:
         projects = filter(
-            lambda x:
-                subtitle.lower() in parse_project_string(x["name"])[2].lower(),
-            projects
+            lambda x: subtitle.lower() in parse_project_string(x["name"])[2].lower(),
+            projects,
         )
 
     return list(projects)
@@ -375,8 +357,7 @@ def project_match(search, projects):
 def get_course_project_list(course, client):
     """Return a sorted list of projects for course."""
     projects = client.get(f"/api/courses/{course['pk']}/projects/")
-    projects = sorted(projects, key=lambda x: x["name"])
-    return projects
+    return sorted(projects, key=lambda x: x["name"])
 
 
 def get_project_smart(project_arg, course_arg, client):
@@ -415,16 +396,10 @@ def get_project_smart(project_arg, course_arg, client):
     matches = project_match(project_arg, projects)
     if not matches:
         projects_str = "\n".join(project_str(i) for i in projects)
-        sys.exit(
-            f"Error: no project matches '{project_arg}'\n"
-            f"{projects_str}"
-        )
+        sys.exit(f"Error: no project matches '{project_arg}'\n{projects_str}")
     elif len(matches) > 1:
         matches_str = "\n".join(project_str(i) for i in matches)
-        sys.exit(
-            f"Error: multiple projects match '{project_arg}'\n"
-            f"{matches_str}"
-        )
+        sys.exit(f"Error: multiple projects match '{project_arg}'\n{matches_str}")
     return matches[0]
 
 
@@ -460,8 +435,7 @@ def group_match(uniqname, groups):
 def get_group_list(project, client):
     """Return a sorted list of groups for project."""
     groups = client.get(f"/api/projects/{project['pk']}/groups/")
-    groups = sorted(groups, key=lambda x: x["pk"])
-    return groups
+    return sorted(groups, key=lambda x: x["pk"])
 
 
 def get_group_smart(group_arg, project_arg, course_arg, client):
@@ -503,10 +477,11 @@ def get_group_smart(group_arg, project_arg, course_arg, client):
             if state < len(options):
                 return options[state]
             return None
+
         readline.set_completer(uniqname_completer)
 
         # Use the tab key for completion
-        readline.parse_and_bind('tab: complete')
+        readline.parse_and_bind("tab: complete")
 
         # Prompt the user to select a uniqname
         while True:
@@ -522,16 +497,13 @@ def get_group_smart(group_arg, project_arg, course_arg, client):
         sys.exit(f"Error: uniqname not in any group: {group_arg}")
     elif len(matches) > 1:
         matches_str = "\n".join(group_str(i) for i in matches)
-        sys.exit(
-            f"Error: uniqname in more than one group: {group_arg}"
-            f"{matches_str}"
-        )
+        sys.exit(f"Error: uniqname in more than one group: {group_arg}{matches_str}")
     return matches[0]
 
 
 def is_wsl():
     """Check if user is running WSL."""
-    return 'microsoft' in platform.uname().release
+    return "microsoft" in platform.uname().release
 
 
 def open_web(url):
@@ -539,11 +511,12 @@ def open_web(url):
     if is_wsl():
         # Need to escape & in Windows
         # https://stackoverflow.com/questions/1327431/how-do-i-escape-ampersands-in-batch-files
-        url = url.replace('&', '^&')
+        url = url.replace("&", "^&")
         subprocess.run(
-            ['cmd.exe', '/c', 'start', url],
-            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
-            check=True
+            ["cmd.exe", "/c", "start", url],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            check=True,
         )
     else:
         webbrowser.open(url)
@@ -558,20 +531,16 @@ def submission_str(submission):
     """Format submission as a string."""
     timestamp = dateutil.parser.parse(submission["timestamp"])
     timestamp_human = timestamp.strftime("%Y-%m-%d %H:%M:%S")
-    return (
-        f"[{submission['pk']}] {timestamp_human}  "
-    )
+    return f"[{submission['pk']}] {timestamp_human}  "
 
 
 def get_submission_list(group, client):
     """Return a sorted list of submissions for a group."""
     submissions = client.get(f"/api/groups/{group['pk']}/submissions/")
-    submissions = sorted(submissions, key=submission_key, reverse=True)
-    return submissions
+    return sorted(submissions, key=submission_key, reverse=True)
 
 
-def get_submission_smart(
-        submission_arg, group_arg, project_arg, course_arg, client):
+def get_submission_smart(submission_arg, group_arg, project_arg, course_arg, client):
     """Interact with the user to select a submission.
 
     1. If submission_arg is a number, look up submission by primary key
@@ -641,11 +610,10 @@ def download_submission(submission, group_arg, client):
 
     # Download file to PWD.  If there are multiple files, put them in a new
     # directory.
-    filenames = submission['submitted_filenames']
+    filenames = submission["submitted_filenames"]
     if not filenames:
         sys.exit(
-            "Error: no files to download for submission"
-            f"{submission_str(submission)}"
+            f"Error: no files to download for submission{submission_str(submission)}"
         )
     elif len(filenames) == 1:
         filename = filenames[0]
@@ -657,7 +625,7 @@ def download_submission(submission, group_arg, client):
             sys.exit(f"Error: refuse to clobber directory: {dirname}")
         dirname.mkdir()
         for filename in filenames:
-            download_file(filename, submission, dirname/filename, client)
+            download_file(filename, submission, dirname / filename, client)
 
 
 def download_file(filename, submission, target, client):

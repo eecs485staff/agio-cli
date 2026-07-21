@@ -23,11 +23,10 @@ $ pytest --cov ./agiocli --cov-report term-missing
 $ pytest tests/test_courses.py::test_courses_pk
 ```
 
-Lint (all four must pass; this is what CI runs):
+Lint (all three must pass; this is what CI runs):
 ```console
-$ pycodestyle agiocli tests
-$ pydocstyle agiocli tests
-$ pylint agiocli tests
+$ ruff check agiocli tests
+$ ruff format --check agiocli tests
 $ check-manifest
 ```
 
@@ -35,8 +34,6 @@ Run the full lint + test suite in a clean throwaway virtualenv (mirrors CI exact
 ```console
 $ tox -e py3
 ```
-
-Note: pydocstyle cannot glob `tests/`, so tox invokes it as `sh -c "pydocstyle agiocli tests/*"`.  When running pydocstyle manually against tests, match that pattern.
 
 ## Architecture
 
@@ -68,7 +65,7 @@ Tests are system tests driven through Click's `CliRunner` (`runner.invoke(main, 
 
 - Errors surfaced to the user are reported via `sys.exit("Error: ...")`, not exceptions, except `TokenFileNotFound` and `UnsupportedAssignmentError` which are caught by callers.
 - Click docstrings use `\b` to prevent paragraph rewrapping; lines with `\b` carry a `# noqa: D301`.
-- Subcommands with many params carry `# pylint: disable=too-many-arguments` because each CLI option needs a function parameter.
+- Subcommands with many params carry `# noqa: PLR0913` because each CLI option needs a function parameter.
 - The version string lives in `pyproject.toml` (`version =`); bumping it is a manual step in the release procedure.
 
 ## Release
