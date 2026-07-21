@@ -3,15 +3,14 @@
 These tests use the Click testing interface.
 https://click.palletsprojects.com/en/8.0.x/testing/
 """
+
 import json
+
 import click
 import click.testing
 from pick import Option
+
 from agiocli.__main__ import main
-
-
-# Unused arguments due to fixtures are endemic to pytest
-# pylint: disable=unused-argument
 
 
 def test_groups_list(api_mock):
@@ -25,10 +24,12 @@ def test_groups_list(api_mock):
     """
     runner = click.testing.CliRunner()
     result = runner.invoke(
-        main, [
+        main,
+        [
             "groups",
             "--list",
-            "--project", "1005",
+            "--project",
+            "1005",
         ],
         catch_exceptions=False,
     )
@@ -48,10 +49,12 @@ def test_groups_list_json(api_mock):
     """
     runner = click.testing.CliRunner()
     result = runner.invoke(
-        main, [
+        main,
+        [
             "groups",
             "--list-json",
-            "--project", "1005",
+            "--project",
+            "1005",
         ],
         catch_exceptions=False,
     )
@@ -77,12 +80,12 @@ def test_groups_pk(api_mock):
     assert output_obj["pk"] == 246965
     assert output_obj["members"] == [
         {
-            'email': '',
-            'first_name': 'Andrew',
-            'is_superuser': False,
-            'last_name': 'DeOrio',
-            'pk': 5,
-            'username': 'awdeorio@umich.edu',
+            "email": "",
+            "first_name": "Andrew",
+            "is_superuser": False,
+            "last_name": "DeOrio",
+            "pk": 5,
+            "username": "awdeorio@umich.edu",
         },
     ]
 
@@ -101,10 +104,13 @@ def test_groups_uniqname(api_mock):
     """
     runner = click.testing.CliRunner()
     result = runner.invoke(
-        main, [
+        main,
+        [
             "groups",
-            "--course", "eecs485sp21",
-            "--project", "p1",
+            "--course",
+            "eecs485sp21",
+            "--project",
+            "p1",
             "awdeorio",
         ],
         catch_exceptions=False,
@@ -126,12 +132,15 @@ def test_groups_empty(api_mock, mocker, constants):
     # Mock user-selection menu, users selects course 109, then project 1005.
     # These are constants in conftest.py.  Mock input "awdeorio", which selects
     # a group.
-    mocker.patch("pick.pick", side_effect=[
-        # First call to pick() selects course
-        (Option(constants["COURSE_109"], constants["COURSE_109"]), 1),
-        # Second call selects project
-        (Option(constants["PROJECT_1005"], constants["PROJECT_1005"]), 0),
-    ])
+    mocker.patch(
+        "pick.pick",
+        side_effect=[
+            # First call to pick() selects course
+            (Option(constants["COURSE_109"], constants["COURSE_109"]), 1),
+            # Second call selects project
+            (Option(constants["PROJECT_1005"], constants["PROJECT_1005"]), 0),
+        ],
+    )
     mocker.patch("builtins.input", return_value="awdeorio")
 
     # Run agio

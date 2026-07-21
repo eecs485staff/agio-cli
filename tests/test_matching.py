@@ -1,11 +1,13 @@
 """Unit tests for smart user input string matching."""
+
 import freezegun
 import pytest
+
 from agiocli import utils
 
 
 @pytest.mark.parametrize(
-    "search, expected_course_pk",
+    ("search", "expected_course_pk"),
     [
         ("EECS 280 Spring 2021", 111),
         ("eecs 280 spring 2021", 111),
@@ -20,7 +22,7 @@ from agiocli import utils
         ("eecs485sp21", 109),
         ("eecs485-sp-21", 109),
         ("eecs485-sp_21", 109),
-    ]
+    ],
 )
 def test_course_match_input_patterns(search, expected_course_pk):
     """Many supported input patterns."""
@@ -31,7 +33,7 @@ def test_course_match_input_patterns(search, expected_course_pk):
 
 
 @pytest.mark.parametrize(
-    "search, expected_course_pk",
+    ("search", "expected_course_pk"),
     [
         ("EECS 598 Winter 2019", 38),
         ("EECS 398 Fall 2019", 53),
@@ -61,7 +63,7 @@ def test_course_match_input_patterns(search, expected_course_pk):
         # Above won't match because there is a duplicate
         ("498f20", 79),  # This won't match on EECS 598
         ("398w21", 90),
-    ]
+    ],
 )
 def test_course_match_pattern(search, expected_course_pk):
     """Many supported input patterns."""
@@ -84,7 +86,7 @@ def test_course_match_pattern(search, expected_course_pk):
         ("485 sp 16"),
         ("eecs280sp16"),
         ("eecs485sp16"),
-    ]
+    ],
 )
 def test_course_match_bad_year(search):
     """Bad year in pattern."""
@@ -93,7 +95,7 @@ def test_course_match_bad_year(search):
 
 
 @pytest.mark.parametrize(
-    "search, expected_course_pk",
+    ("search", "expected_course_pk"),
     [
         ("EECS 280", 111),
         ("EECS 280 cur", 111),
@@ -111,8 +113,7 @@ def test_course_match_bad_year(search):
         ("eecs485current", 109),
         ("eecs485-cur", 109),
         ("eecs485-current", 109),
-
-    ]
+    ],
 )
 def test_course_match_current(search, expected_course_pk):
     """Auto select current semester."""
@@ -126,7 +127,7 @@ def test_course_match_current(search, expected_course_pk):
 
 
 @pytest.mark.parametrize(
-    "search, expected_project_pk",
+    ("search", "expected_project_pk"),
     [
         ("Lab 01 - Getting Started", 435),
         ("Lab 1 - Getting Started", 435),
@@ -157,7 +158,7 @@ def test_course_match_current(search, expected_course_pk):
         ("P_02", 423),
         ("P_02_images", 423),
         ("Polymorphism", 424),
-    ]
+    ],
 )
 def test_project_match_pattern(search, expected_project_pk):
     """Many supported input patterns."""
@@ -168,14 +169,14 @@ def test_project_match_pattern(search, expected_project_pk):
 
 
 @pytest.mark.parametrize(
-    "search, expected_project_pk",
+    ("search", "expected_project_pk"),
     [
         ("p1", 1527),
         ("p2", 1525),
         ("p3", 1524),
         ("p4", 1526),
         ("p5", 1523),
-    ]
+    ],
 )
 def test_project_match_pattern_include_invalid(search, expected_project_pk):
     """Many supported input patterns."""
@@ -196,7 +197,7 @@ def test_project_match_pattern_include_invalid(search, expected_project_pk):
         ("Project 3 - Images"),
         ("Lab 2 - Images"),
         ("L14"),
-    ]
+    ],
 )
 def test_project_match_bad_num(search):
     """Bad project number in pattern."""
@@ -217,32 +218,37 @@ COURSES = [
     {"pk": 12, "name": "EECS 280", "semester": "Winter", "year": 2018},
     {"pk": 14, "name": "ENGR 101", "semester": "Winter", "year": 2018},
     {"pk": 15, "name": "EECS 485", "semester": "Winter", "year": 2018},
-    {"pk": 16, "name": "EECS 398: System Design of a Search Engine",
-        "semester": "Winter", "year": 2019},
+    {
+        "pk": 16,
+        "name": "EECS 398: System Design of a Search Engine",
+        "semester": "Winter",
+        "year": 2019,
+    },
     {"pk": 17, "name": "EECS 280", "semester": "Spring", "year": 2018},
     {"pk": 18, "name": "EECS 370", "semester": "Spring", "year": 2018},
     {"pk": 19, "name": "Demo EECS 280 F17", "semester": None, "year": None},
     {"pk": 20, "name": "Demo Course", "semester": None, "year": None},
     {"pk": 21, "name": "EECS 280 Diagnostic", "semester": None, "year": None},
     {"pk": 22, "name": "EECS 183", "semester": "Fall", "year": 2018},
-    {"pk": 23, "name": "Copy of EECS 280 SP 2018",
-        "semester": None, "year": None},
+    {"pk": 23, "name": "Copy of EECS 280 SP 2018", "semester": None, "year": None},
     {"pk": 25, "name": "EECS 490", "semester": "Fall", "year": 2018},
     {"pk": 26, "name": "EECS 280", "semester": "Fall", "year": 2018},
     {"pk": 27, "name": "EECS 285", "semester": "Fall", "year": 2018},
     {"pk": 29, "name": "EECS 485", "semester": "Fall", "year": 2018},
     {"pk": 30, "name": "ENGR 101", "semester": "Fall", "year": 2018},
-    {"pk": 31, "name": "EECS 498-001 (Data Mining)",
-        "semester": "Fall", "year": 2018},
+    {"pk": 31, "name": "EECS 498-001 (Data Mining)", "semester": "Fall", "year": 2018},
     {"pk": 32, "name": "EECS 280", "semester": "Winter", "year": 2019},
-    {"pk": 33, "name": "EECS 183 All Projects",
-        "semester": None, "year": None},
+    {"pk": 33, "name": "EECS 183 All Projects", "semester": None, "year": None},
     {"pk": 34, "name": "EECS 183", "semester": "Winter", "year": 2019},
     {"pk": 35, "name": "EECS 485", "semester": "Winter", "year": 2019},
     {"pk": 36, "name": "ENGR 101", "semester": "Winter", "year": 2019},
     {"pk": 37, "name": "EECS 481", "semester": "Winter", "year": 2019},
-    {"pk": 38, "name": "EECS 598-008 Advanced Data Mining",
-        "semester": "Winter", "year": 2019},
+    {
+        "pk": 38,
+        "name": "EECS 598-008 Advanced Data Mining",
+        "semester": "Winter",
+        "year": 2019,
+    },
     {"pk": 40, "name": "EECS 483", "semester": "Winter", "year": 2019},
     {"pk": 41, "name": "EECS 493", "semester": "Winter", "year": 2019},
     {"pk": 42, "name": "EECS 370", "semester": "Fall", "year": 2019},
@@ -252,13 +258,16 @@ COURSES = [
     {"pk": 46, "name": "EECS 485", "semester": "Fall", "year": 2019},
     {"pk": 47, "name": "EECS 183", "semester": "Fall", "year": 2019},
     {"pk": 48, "name": "ENGR 151", "semester": "Fall", "year": 2019},
-    {"pk": 49, "name": "MSci Computer Science",
-        "semester": "Summer", "year": 2020},
+    {"pk": 49, "name": "MSci Computer Science", "semester": "Summer", "year": 2020},
     {"pk": 50, "name": "EECS 280", "semester": "Fall", "year": 2019},
     {"pk": 51, "name": "EECS 481", "semester": "Fall", "year": 2019},
     {"pk": 52, "name": "ENGR 101", "semester": "Fall", "year": 2019},
-    {"pk": 53, "name": "EECS 398: System Design of a Search Engine",
-        "semester": "Fall", "year": 2019},
+    {
+        "pk": 53,
+        "name": "EECS 398: System Design of a Search Engine",
+        "semester": "Fall",
+        "year": 2019,
+    },
     {"pk": 54, "name": "EECS 484", "semester": "Fall", "year": 2019},
     {"pk": 55, "name": "EECS 183", "semester": "Winter", "year": 2020},
     {"pk": 56, "name": "EECS 280", "semester": "Winter", "year": 2020},
@@ -276,15 +285,21 @@ COURSES = [
     {"pk": 70, "name": "EECS 280", "semester": "Spring", "year": 2020},
     {"pk": 71, "name": "EECS 484", "semester": "Spring", "year": 2020},
     {"pk": 74, "name": "EECS 485", "semester": "Summer", "year": 2020},
-    {"pk": 75, "name": "EECS 280 - INCOMPLETES",
-        "semester": "Winter", "year": 2020},
-    {"pk": 76, "name": "EECS 484 (copied from F19)",
-        "semester": "Fall", "year": 2020},
-    {"pk": 77, "name": "EECS 484 Fall 2020 (official)",
-        "semester": "Fall", "year": 2020},
+    {"pk": 75, "name": "EECS 280 - INCOMPLETES", "semester": "Winter", "year": 2020},
+    {"pk": 76, "name": "EECS 484 (copied from F19)", "semester": "Fall", "year": 2020},
+    {
+        "pk": 77,
+        "name": "EECS 484 Fall 2020 (official)",
+        "semester": "Fall",
+        "year": 2020,
+    },
     {"pk": 78, "name": "EECS 183", "semester": "Fall", "year": 2020},
-    {"pk": 79, "name": "EECS 498/598 Deep Learning for Computer Vision",
-        "semester": "Fall", "year": 2020},
+    {
+        "pk": 79,
+        "name": "EECS 498/598 Deep Learning for Computer Vision",
+        "semester": "Fall",
+        "year": 2020,
+    },
     {"pk": 80, "name": "EECS 280", "semester": "Fall", "year": 2020},
     {"pk": 81, "name": "CIS 350", "semester": "Fall", "year": 2020},
     {"pk": 82, "name": "EECS 481", "semester": "Fall", "year": 2020},
@@ -292,36 +307,49 @@ COURSES = [
     {"pk": 85, "name": "EECS 485", "semester": "Fall", "year": 2020},
     {"pk": 86, "name": "EECS 285", "semester": "Fall", "year": 2020},
     {"pk": 87, "name": "ENGR 101", "semester": "Fall", "year": 2020},
-    {"pk": 88, "name": "Research and Development Autograder",
-        "semester": "Fall", "year": 2020},
+    {
+        "pk": 88,
+        "name": "Research and Development Autograder",
+        "semester": "Fall",
+        "year": 2020,
+    },
     {"pk": 89, "name": "ENGR 151", "semester": "Fall", "year": 2020},
     {"pk": 90, "name": "EECS 398-001", "semester": "Winter", "year": 2021},
-    {"pk": 91, "name": "EECS 183 - Elevators Development OUTDATED",
-        "semester": "Fall", "year": 2020},
+    {
+        "pk": 91,
+        "name": "EECS 183 - Elevators Development OUTDATED",
+        "semester": "Fall",
+        "year": 2020,
+    },
     {"pk": 93, "name": "ENGR 101", "semester": "Winter", "year": 2021},
     {"pk": 94, "name": "EECS 485", "semester": "Winter", "year": 2021},
-    {"pk": 95, "name": "EECS 440: System Design of a Search Engine",
-        "semester": "Winter", "year": 2021},
+    {
+        "pk": 95,
+        "name": "EECS 440: System Design of a Search Engine",
+        "semester": "Winter",
+        "year": 2021,
+    },
     {"pk": 96, "name": "EECS 481", "semester": "Winter", "year": 2021},
-    {"pk": 97, "name": "EECS 484 Winter 2021",
-        "semester": "Winter", "year": 2021},
+    {"pk": 97, "name": "EECS 484 Winter 2021", "semester": "Winter", "year": 2021},
     {"pk": 98, "name": "EECS 476", "semester": "Winter", "year": 2021},
     {"pk": 99, "name": "EECS 183", "semester": "Winter", "year": 2021},
     {"pk": 100, "name": "EECS 280", "semester": "Winter", "year": 2021},
     {"pk": 101, "name": "EECS 370", "semester": "Winter", "year": 2021},
     {"pk": 102, "name": "EECS 590", "semester": "Winter", "year": 2021},
-    {"pk": 106, "name": "EECS 442 Computer Vision Winter 2021",
-        "semester": "Winter", "year": 2021},
+    {
+        "pk": 106,
+        "name": "EECS 442 Computer Vision Winter 2021",
+        "semester": "Winter",
+        "year": 2021,
+    },
     {"pk": 107, "name": "EECS 483", "semester": "Winter", "year": 2021},
     {"pk": 108, "name": "CIS 350", "semester": "Winter", "year": 2021},
     {"pk": 109, "name": "EECS 485", "semester": "Spring", "year": 2021},
-    {"pk": 110, "name": "EECS 484 Spring 2021",
-        "semester": "Spring", "year": 2021},
+    {"pk": 110, "name": "EECS 484 Spring 2021", "semester": "Spring", "year": 2021},
     {"pk": 111, "name": "EECS 280", "semester": "Spring", "year": 2021},
     {"pk": 112, "name": "EECS 370", "semester": "Spring", "year": 2021},
-    {"pk": 113, "name": "EECS 370 - Make up",
-        "semester": "Spring", "year": 2021},
-    {"pk": 126, "name": "ENGR 101", "semester": "Fall", "year": 2021}
+    {"pk": 113, "name": "EECS 370 - Make up", "semester": "Spring", "year": 2021},
+    {"pk": 126, "name": "ENGR 101", "semester": "Fall", "year": 2021},
 ]
 
 

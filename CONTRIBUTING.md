@@ -29,9 +29,8 @@ $ pytest --cov ./agiocli --cov-report term-missing
 
 Test code style
 ```console
-$ pycodestyle agiocli tests
-$ pydocstyle agiocli tests
-$ pylint agiocli tests
+$ ruff check agiocli tests
+$ ruff format --check agiocli tests
 $ check-manifest
 ```
 
