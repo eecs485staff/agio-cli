@@ -56,5 +56,4 @@ ignore = ["D203", "D213", "W191", "E111", "E114", "E117", "D206", "D300"]
 convention = "pep257"
 
 [tool.ruff.lint.per-file-ignores]
-"__init__.py" = ["F401", "F403"]
 "test_*.py" = ["PLR2004", "ARG001"]
