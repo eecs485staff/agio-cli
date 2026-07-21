@@ -56,4 +56,6 @@ ignore = ["D203", "D213", "W191", "E111", "E114", "E117", "D206", "D300"]
 convention = "pep257"
 
 [tool.ruff.lint.per-file-ignores]
+# PLR2004: test assertions compare against bare literals, e.g. assert pk == 109
+# ARG001: test functions take pytest fixtures as unused arguments, e.g. api_mock
 "test_*.py" = ["PLR2004", "ARG001"]
